@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+"""Offline bridge between a Kali session and its mounted WISPR challenge.
+
+The browser never supplies a correct answer to this command. It writes an
+untrusted submission record to the small per-player workspace; the host-side
+server validates it against its private challenge registry.
+"""
+import json
+import re
+import shutil
+import sys
+import textwrap
+import time
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+
+WORKSPACE = Path("/workspace")
+ACTIVE = WORKSPACE / "active.json"
+SUBMISSIONS = WORKSPACE / "submissions.ndjson"
+RESULTS = WORKSPACE / "results.ndjson"
+RESULT_TIMEOUT = 12  # segundos que espera `ctf submit` la validación del servidor
+
+GREEN, RED, YELLOW, RESET = "\033[32m", "\033[31m", "\033[33m", "\033[0m"
+BOLD, DIM, CYAN = "\033[1m", "\033[2m", "\033[36m"
+
+
+# ---------------------------------------------------------------------------
+# Ayudas de formato: todo el texto se ajusta al ancho real de la terminal para
+# que nunca se corte a media palabra ni se desalineen las columnas. Las
+# descripciones largas usan sangría colgante (las líneas siguientes quedan
+# alineadas bajo el inicio del texto, no en la columna 0).
+# ---------------------------------------------------------------------------
+def term_width():
+    try:
+        cols = shutil.get_terminal_size((80, 24)).columns
+    except Exception:
+        cols = 80
+    # Reservamos 2 columnas de margen: la barra de scroll de la terminal web se
+    # dibuja encima de la última celda, así el texto ajustado nunca queda tapado
+    # por ella ni "traspasa" el borde visible.
+    return max(36, min(cols - 2, 98))
+
+
+_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def visible_len(text):
+    """Ancho en pantalla: descarta los códigos de color, que no ocupan celdas."""
+    return len(_ANSI.sub("", str(text)))
+
+
+def wrap_block(text, width=None, indent="", first_indent=None):
+    """Envuelve un párrafo respetando el ancho real de cada línea. `first_indent`
+    (prefijo de la primera línea) e `indent` (líneas siguientes) pueden llevar
+    color; se mide su ancho visible para que ninguna línea se pase del borde."""
+    width = width or term_width()
+    first_indent = indent if first_indent is None else first_indent
+    fi_w = visible_len(first_indent)
+    si_w = visible_len(indent)
+    wrapper = textwrap.TextWrapper(
+        width=max(24, width),
+        initial_indent=" " * fi_w,
+        subsequent_indent=" " * si_w,
+        break_long_words=False,
+        break_on_hyphens=False,
+    )
+    lines = wrapper.wrap(str(text)) or [" " * fi_w]
+    lines[0] = first_indent + lines[0][fi_w:]
+    for i in range(1, len(lines)):
+        lines[i] = indent + lines[i][si_w:]
+    return "\n".join(lines)
+
+
+def wrap_row(label, desc, label_w, width=None, indent="  ", gap=2, color=GREEN):
+    """Fila comando + descripción. En pantallas anchas usa dos columnas
+    alineadas; en terminales angostas (móvil) apila la descripción debajo del
+    comando para que nada se salga del borde."""
+    width = width or term_width()
+    text_indent = indent + " " * label_w + " " * gap
+    # Si no quedan al menos ~24 celdas para el texto en la misma línea, apila.
+    if width - len(text_indent) < 24:
+        head = f"{indent}{color}{label}{RESET}"
+        body = wrap_block(desc, width, indent=indent + "    ")
+        return f"{head}\n{body}"
+    lines = textwrap.wrap(str(desc), width - len(text_indent)) or [""]
+    first = f"{indent}{color}{label:<{label_w}}{RESET}{' ' * gap}{lines[0]}"
+    rest = [f"{text_indent}{line}" for line in lines[1:]]
+    return "\n".join([first, *rest])
+
+
+def get_active():
+    if not ACTIVE.exists():
+        print("No hay reto activo. Abre un reto en la plataforma y pulsa 'Resolver en Kali'.", file=sys.stderr)
+        return None
+    try:
+        return json.loads(ACTIVE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        print("No se pudo leer el reto activo.", file=sys.stderr)
+        return None
+
+
+def show(challenge):
+    width = term_width()
+    print(f"{BOLD}{GREEN}{challenge['title']}{RESET} "
+          f"[{challenge['difficulty']}] · {challenge['points']} pts")
+    print(wrap_block(challenge["objective"], width))
+    learn = challenge.get("learn")
+    if learn:
+        print()
+        print(wrap_block(learn, width, indent="  ",
+                         first_indent=f"{CYAN}Qué aprendes:{RESET} "))
+    print(f"\n{BOLD}Directorio{RESET}  {challenge['directory']}")
+    print(f"{BOLD}Archivos{RESET}")
+    for item in challenge.get("files", []):
+        print(f"  - {item['name']} ({item.get('type', 'file')})")
+    tools = challenge.get("tools", [])
+    if tools:
+        print()
+        print(wrap_block(", ".join(tools), width, indent="  ",
+                         first_indent=f"{BOLD}Herramientas{RESET}  "))
+    print()
+    # Con el backend FastAPI, la evidencia es la misma para todos por ahora
+    # (archivos fijos): no se promete una flag personal.
+    if not challenge.get("sharedEvidence"):
+        print(f"{YELLOW}" + wrap_block(
+            "Esta evidencia es única para tu cuenta; la flag no coincide con la "
+            "de otros jugadores.", width) + f"{RESET}")
+    print(wrap_block("Usa 'ctf hint' para una pista y 'cat "
+                     "challenge/README.md' para el paso a paso.", width))
+
+
+HINT_STATE = WORKSPACE / ".hint-progress.json"
+
+
+def _hint_progress():
+    try:
+        return json.loads(HINT_STATE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def hint(challenge, arg):
+    width = term_width()
+    hints = challenge.get("hints", [])
+    if not hints:
+        print("Este reto no tiene pistas registradas. Revisa challenge/README.md.")
+        return 0
+    if arg == "all":
+        for index, item in enumerate(hints, start=1):
+            tag = f"{YELLOW}[Pista {index}/{len(hints)}]{RESET} "
+            print(wrap_block(item, width, indent="  ", first_indent=tag))
+        return 0
+    progress = _hint_progress()
+    key = challenge["id"]
+    shown = int(progress.get(key, 0))
+    if shown >= len(hints):
+        print(f"{YELLOW}Ya viste todas las pistas ({len(hints)}). "
+              f"Usa 'ctf hint all' para repasarlas.{RESET}")
+        return 0
+    tag = f"{YELLOW}[Pista {shown + 1}/{len(hints)}]{RESET} "
+    print(wrap_block(hints[shown], width, indent="  ", first_indent=tag))
+    progress[key] = shown + 1
+    try:
+        HINT_STATE.write_text(json.dumps(progress), encoding="utf-8")
+    except OSError:
+        pass
+    if shown + 1 < len(hints):
+        print(f"{DIM}(Escribe 'ctf hint' otra vez para la siguiente.){RESET}")
+    return 0
+
+
+def read_results():
+    if not RESULTS.exists():
+        return []
+    results = []
+    for line in RESULTS.read_text(encoding="utf-8").splitlines():
+        try:
+            results.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return results
+
+
+def wait_result(record_id):
+    deadline = time.time() + RESULT_TIMEOUT
+    while time.time() < deadline:
+        for item in read_results():
+            if item.get("id") == record_id:
+                return item
+        time.sleep(0.4)
+    return None
+
+
+def print_result(item):
+    if item.get("ok") and item.get("duplicate"):
+        print(f"{YELLOW}[WISPR] Flag correcta, pero este reto ya estaba resuelto.{RESET}")
+    elif item.get("ok"):
+        print(f"{GREEN}[WISPR] ¡Correcta! {item.get('title', '')} +{item.get('points', 0)} pts{RESET}")
+        if item.get("nextChallenge"):
+            print(f"{GREEN}[WISPR] Nuevo reto en tu cola: {item['nextChallenge']}{RESET}")
+    else:
+        print(f"{RED}[WISPR] {item.get('error') or 'Flag incorrecta. Revisa el artefacto y las pistas.'}{RESET}")
+
+
+def submit(challenge, flag):
+    if not flag:
+        print("Uso: ctf submit WISPR{tu_flag}", file=sys.stderr)
+        return 2
+    if len(flag) > 512:
+        print("La flag es demasiado larga.", file=sys.stderr)
+        return 2
+    WORKSPACE.mkdir(parents=True, exist_ok=True)
+    record = {
+        "id": uuid.uuid4().hex,
+        "challengeId": challenge["id"],
+        "flag": flag,
+        "submittedAt": datetime.now(timezone.utc).isoformat(),
+    }
+    with SUBMISSIONS.open("a", encoding="utf-8") as output:
+        output.write(json.dumps(record, ensure_ascii=False) + "\n")
+    print("Flag enviada a WISPR, validando…", flush=True)
+    result = wait_result(record["id"])
+    if result is None:
+        print(f"{YELLOW}[WISPR] Sin respuesta todavía. Mantén la terminal conectada y revisa con: ctf status{RESET}")
+        return 1
+    print_result(result)
+    return 0 if result.get("ok") else 1
+
+
+def status():
+    results = read_results()
+    if not results:
+        print("Todavía no hay envíos validados en esta sesión.")
+        return 0
+    for item in results[-10:]:
+        mark = f"{GREEN}OK  {RESET}" if item.get("ok") else f"{RED}FAIL{RESET}"
+        print(f"{mark}  {item.get('at', '')[:19]}  {item.get('title') or item.get('challengeId', '')}")
+    return 0
+
+
+def usage():
+    """Ayuda mínima: SOLO los comandos que de verdad se usan para resolver un
+    reto (avanzar + ejecutar el ataque real). Sin secciones de relleno."""
+    width = term_width()
+
+    print(f"{BOLD}{GREEN}WISPR · comandos{RESET}")
+    print()
+    # Solo el comando y, en una línea, para qué sirve. Nada más.
+    for cmd, desc in [
+        ("ctf show", "Muestra el reto: objetivo, archivos y herramienta a usar."),
+        ("ctf files", "Lista la evidencia (la captura) del reto."),
+        ("ctf hint", "Da una pista del reto (cuesta puntos)."),
+        ("ctf submit <flag>", "Envía la flag que encontraste."),
+    ]:
+        print(wrap_row(cmd, desc, 18, width))
+
+
+def main():
+    command = sys.argv[1] if len(sys.argv) > 1 else "help"
+    if command in ("help", "-h", "--help"):
+        usage()
+        return 0
+    challenge = get_active()
+    if not challenge:
+        return 1
+    if command == "show":
+        show(challenge)
+        return 0
+    if command == "files":
+        for item in challenge.get("files", []):
+            print(item["name"])
+        return 0
+    if command == "open":
+        print(challenge["directory"])
+        return 0
+    if command == "hint":
+        return hint(challenge, (sys.argv[2] if len(sys.argv) > 2 else "").strip().lower())
+    if command == "submit":
+        return submit(challenge, " ".join(sys.argv[2:]).strip())
+    if command == "status":
+        return status()
+    usage()
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,17 @@
+node_modules
+img
+lab
+.env
+.env.example
+.git
+*.md
+*.bat
+*.jsx
+jsx
+js
+*.css
+*.html
+package*.json
+app.js
+server.js
+challenge-engine.js

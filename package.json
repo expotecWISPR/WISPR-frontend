@@ -1,0 +1,23 @@
+{
+  "name": "wispr-ctf-kali-web-terminal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Professional local wireless CTF range with per-player isolated Kali terminals.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node --check server.js && node --check challenge-engine.js && node --check app.js && node --check theme-init.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "gsap": "^3.15.0",
+    "node-pty": "^1.1.0",
+    "nodemailer": "^10.0.11",
+    "ws": "^8.18.0"
+  }
+}

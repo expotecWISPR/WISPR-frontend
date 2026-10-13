@@ -1,0 +1,8 @@
+Videos de "Voces del CTF" (pagina de inicio y dashboard).
+
+Nombres exactos:
+  historia-1.mp4   historia-2.mp4   historia-3.mp4   (video, formato MP4 / H.264)
+  historia-1.jpg   historia-2.jpg   historia-3.jpg   (portada opcional, 16:10)
+
+Mientras un video no exista, su tarjeta se muestra sin boton de reproduccion.
+Nombres y frases de cada persona: arreglo ctfStories en app.js.

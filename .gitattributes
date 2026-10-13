@@ -1,0 +1,12 @@
+# Git decide solo qué es texto; en Windows puede usar finales de línea CRLF.
+* text=auto
+# Estos archivos se copian DENTRO del contenedor Kali (Linux). Con finales de
+# línea de Windows (CRLF), `ctf` y la shell dejan de funcionar.
+kali/** text eol=lf
+# Los .bat de Windows necesitan CRLF.
+*.bat text eol=crlf
+# Medios y capturas: nunca tocarlos.
+*.mp4 binary
+*.png binary
+*.jpg binary
+*.pcap binary

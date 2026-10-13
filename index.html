@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- URL del backend. Vacío = mismo servidor que sirve esta página. -->
+    <meta name="wispr-api" content="" />
+    <title>WISPR — Wireless Intelligence for Security, Practice and Response</title>
+    <!-- Sin defer/async y antes del CSS a propósito: aplica el tema guardado
+         antes de pintar, para evitar el flash del tema equivocado. Va en un
+         archivo externo (no inline) porque el CSP del servidor exige
+         script-src 'self'. -->
+    <script src="./theme-init.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Gasoek One para títulos (h1/h2/h3), Teachers para el resto del texto;
+         JetBrains Mono se conserva para los acentos "terminal" (eyebrows,
+         cifras, badges) que ya usaba toda la app. -->
+    <link href="https://fonts.googleapis.com/css2?family=Gasoek+One&family=Teachers:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=12" />
+    <link rel="stylesheet" href="/vendor/xterm.css" />
+  </head>
+  <body>
+    <video class="video-bg" autoplay muted loop playsinline preload="auto">
+      <source src="./img/fondo.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+
+    <div id="wispr-spotlight"></div>
+    <div id="root"></div>
+    <script src="/vendor/xterm.js" defer></script>
+    <script src="/vendor/xterm-fit.js" defer></script>
+    <script src="/vendor/gsap.min.js" defer></script>
+    <script src="/vendor/ScrollTrigger.min.js" defer></script>
+    <script src="./app.js?v=12" defer></script>
+    <script src="./motion.js?v=2" defer></script>
+  </body>
+</html>

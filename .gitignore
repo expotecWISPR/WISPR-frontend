@@ -1,0 +1,11 @@
+node_modules/
+npm-debug.log*
+lab/.platform/
+lab/challenges/
+lab/sessions/
+lab/data/
+.env
+__pycache__/
+.claude/
+# "nul" es un nombre reservado en Windows: un archivo así impide clonar el repo.
+nul
