@@ -5957,7 +5957,9 @@ button.m3-mission-row {
 }
 
 .stories-questions-label { color: var(--orange); font: 700 0.72rem/1 JetBrains Mono, monospace; letter-spacing: 0.12em; text-transform: uppercase; }
-.stories-questions ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; color: var(--text); font-weight: 600; }
+/* Color fijo (como .story-tagline): la sección va sobre fondo oscuro en los dos
+   temas, y var(--text) en modo claro es casi negro. */
+.stories-questions ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; color: #e6ecf8; font-weight: 600; }
 .stories-questions li::marker { color: var(--orange); font-family: JetBrains Mono, monospace; }
 
 .story-status {

@@ -1,4 +1,4 @@
-Videos de "Voces del CTF" (pagina de inicio y dashboard).
+Videos de "Voces del CTF" (pagina de inicio publica, seccion #historias).
 
 Nombres exactos:
   historia-1.mp4   historia-2.mp4   historia-3.mp4   (video, formato MP4 / H.264)
@@ -6,3 +6,12 @@ Nombres exactos:
 
 Mientras un video no exista, su tarjeta se muestra sin boton de reproduccion.
 Nombres y frases de cada persona: arreglo ctfStories en app.js.
+
+Los originales (1080p 60 fps, 300-600 MB) no sirven para la web: GitHub
+rechaza archivos de mas de 100 MB y tardan mucho en cargar. Se convierten a
+720p 30 fps con ffmpeg (13 oct):
+  ffmpeg -i original.mp4 -vf "scale=-2:720,fps=30" -c:v libx264 -preset medium
+         -crf 27 -maxrate 1000k -bufsize 2000k -pix_fmt yuv420p
+         -c:a aac -b:a 128k -movflags +faststart historia-N.mp4
+Portada: un cuadro sin subtitulos, recortado a 16:10 y llevado a 960x600:
+  ffmpeg -ss 45 -i original.mp4 -frames:v 1 -vf "crop=1408:880:100:0,scale=960:600" -q:v 3 historia-N.jpg
