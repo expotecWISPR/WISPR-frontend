@@ -531,13 +531,21 @@ select:focus {
   border-color: rgba(181, 192, 212, 0.18);
 }
 
-.primary-action:hover,
 .ghost-action:hover,
 .topbar nav button:hover,
 .nav-active {
   transform: translateY(-1px);
   border-color: rgba(164, 221, 0, 0.5) !important;
   color: var(--green) !important;
+}
+
+/* El botón naranja conserva el texto blanco al pasar el mouse: verde sobre
+   naranja no se leía (13 oct). Solo se aclara el fondo. */
+.primary-action:hover {
+  transform: translateY(-1px);
+  color: #fff !important;
+  background: linear-gradient(180deg, #ffbd57, #f7a21f);
+  box-shadow: 0 12px 26px rgba(243, 149, 13, 0.32);
 }
 
 .preview-board {
