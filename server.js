@@ -338,11 +338,12 @@ async function forwardSubmission(token, record) {
 }
 
 // Monta en el workspace del jugador el reto tal como lo tiene FastAPI: los
-// MISMOS archivos que se descargan desde la web (fijos por ahora, ver
-// CLAUDE.md del repo WISPR, punto 7c), así la flag que valida FastAPI coincide.
-// Devuelve null si el reto no existe.
+// MISMOS archivos que se descargan desde la web, así la flag que valida
+// FastAPI coincide. Desde el 13 oct XOR y WEP traen archivo y flag propios de
+// cada jugador, y FastAPI crea retos nuevos solo para él: por eso el catálogo
+// se pide con su token. Devuelve null si el reto no existe.
 async function prepareWorkspaceFromBackend(player, token, challengeId) {
-  const catalogResponse = await backendFetch("/api/challenges");
+  const catalogResponse = await backendFetch("/api/challenges", token);
   if (!catalogResponse.ok) throw new Error(`catálogo: FastAPI respondió ${catalogResponse.status}`);
   const catalog = await catalogResponse.json();
   const challenge = (catalog.challenges || []).find(item => item.id === String(challengeId || ""));
@@ -369,7 +370,7 @@ async function prepareWorkspaceFromBackend(player, token, challengeId) {
     objective: challenge.objective || challenge.description || "",
     files: publicFiles,
     directory: "/workspace/challenge",
-    sharedEvidence: true, // `ctf show` no dice "única para tu cuenta"
+    sharedEvidence: !challenge.perPlayer, // `ctf show` dice "única para tu cuenta" solo si lo es
     activatedAt: new Date().toISOString()
   };
   fs.writeFileSync(path.join(environment.workspace, "active.json"), JSON.stringify(active, null, 2), "utf8");

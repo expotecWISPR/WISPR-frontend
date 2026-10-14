@@ -2858,7 +2858,9 @@ async function loadRanking() {
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo cargar el ranking.");
     rankingState = { loaded: true, rows: data.ranking || [] };
-    if (["ranking", "dashboard", "retos", "perfil"].includes(app.activeTab)) render();
+    // El chip del encabezado muestra el puesto: se redibuja en toda pestaña
+    // que no tenga estado vivo (la terminal y una lección en curso se dejan).
+    if (!["terminal", "lesson"].includes(app.activeTab)) render();
   } catch (error) {
     console.warn("[ranking]", error.message);
   }
@@ -2870,24 +2872,6 @@ function leaderboard() {
   const current = stats();
   return [...rankingState.rows.filter(row => !row.current), { name: app.user.name, handle: app.user.handle, score: current.score, solves: current.solves, streak: 0, current: true }]
     .sort((left, right) => right.score - left.score || right.solves - left.solves);
-}
-
-// Textos de la barra animada bajo el menú (la dibuja motion.js): siempre con
-// datos reales del jugador y del laboratorio, nunca valores fijos.
-function tickerItems() {
-  if (!app.user || app.loading) return [];
-  const current = stats();
-  const board = leaderboard();
-  const rank = board.findIndex(player => player.current);
-  const me = board[rank];
-  const lessonsDone = Object.values(app.lessonProgress || {}).filter(entry => entry.completed).length;
-  return [
-    app.platform.dockerReady ? `LABORATORIO EN LÍNEA — ${app.platform.detail}` : "LABORATORIO — Docker no disponible por ahora",
-    `RETOS — ${current.solves}/${current.total} resueltos · ${current.score} pts`,
-    rankingState.loaded && rank >= 0 ? `RANKING — estás en #${rank + 1} de ${board.length}` : null,
-    me && me.streak > 1 ? `RACHA ACTIVA — ${me.streak} envíos correctos seguidos` : null,
-    `TEORÍA — ${lessonsDone} lección${lessonsDone === 1 ? "" : "es"} completada${lessonsDone === 1 ? "" : "s"}`
-  ].filter(Boolean);
 }
 
 function greeting() {
@@ -4269,14 +4253,13 @@ function header() {
     ? [["admin-home", "Inicio"], ["admin-ranking", "Rankings"], ["admin", "Cuentas"], ["admin-groups", "Grupos"]]
     : isProfesor
       ? [["profesor-home", "Mi Panel"], ["grupos", "Mis Grupos"]]
-      : [["dashboard", "Dashboard"], ["terminal", "Terminal"]];
-  const moreItems = (isAdmin || isProfesor) ? [] : [["teoria", "Teoría"], ["retos", "Retos"], ["perfil", "Progreso"], ["ranking", "Ranking"]];
+      : [["dashboard", "Inicio"], ["retos", "Retos"], ["teoria", "Teoría"], ["terminal", "Terminal"], ["ranking", "Ranking"]];
+  // El jugador ya no tiene "Más": sus 5 pestañas caben a la vista y "Progreso"
+  // se abre desde su chip de cuenta (a la derecha).
+  const moreItems = [];
   const activeGroup = navGroupFor(app.activeTab);
   const moreActive = moreItems.some(([id]) => id === activeGroup);
-  // motion.js lee este atributo para no inyectar el ticker decorativo de
-  // "racha/ranking" (texto fijo, no datos reales) encima de una vista de
-  // gestión: todo el panel admin, y todo el panel del profesor (ya no juega
-  // retos, así que ninguna de sus pestañas es la experiencia de jugador).
+  // Admin y profesor no juegan retos: su encabezado no muestra puntos.
   const isManagementView = isAdmin || isProfesor;
   return h("header", { class: "topbar", "data-view": isManagementView ? "management" : "player" }, [
     div({ class: "brand" }, [brandLogo()]),
@@ -4288,7 +4271,7 @@ function header() {
       onclick: () => { navOpen = !navOpen; if (!navOpen) moreMenuOpen = false; render(); }
     }, [span({ class: "burger-bar" }, ""), span({ class: "burger-bar" }, ""), span({ class: "burger-bar" }, "")]),
     h("nav", { class: `main-nav ${navOpen ? "nav-open" : ""}`, "aria-label": "Navegación principal" }, [
-      ...primaryItems.map(([id, label]) => button({ class: app.activeTab === id ? "nav-active" : "", onclick: () => switchTab(id) }, label)),
+      ...primaryItems.map(([id, label]) => button({ class: activeGroup === id ? "nav-active" : "", "aria-current": activeGroup === id ? "page" : null, onclick: () => switchTab(id) }, label)),
       moreItems.length ? div({ class: "nav-more" }, [
         button({
           class: `nav-more-toggle ${moreActive ? "nav-active" : ""}`,
@@ -4300,9 +4283,17 @@ function header() {
       ]) : null,
       moreMenuOpen ? div({ class: "nav-more-scrim", onclick: () => { moreMenuOpen = false; render(); } }, []) : null
     ]),
-    div({ class: "account-chip" }, [
-      div({ class: "avatar" }, app.user.name.slice(0, 1).toUpperCase()),
-      div({}, [h("strong", {}, app.user.name), span({}, isAdmin ? "Panel de administración" : isProfesor ? "Panel del profesor" : `${current.score} pts · ${current.solves} solves`)]),
+    div({ class: `account-chip ${!isManagementView && app.activeTab === "perfil" ? "chip-active" : ""}` }, [
+      // Para el jugador, avatar + nombre abren su Progreso.
+      (isManagementView ? div : button)({
+        class: "chip-profile",
+        type: isManagementView ? null : "button",
+        title: isManagementView ? null : "Ver mi progreso",
+        onclick: isManagementView ? null : () => switchTab("perfil")
+      }, [
+        div({ class: "avatar" }, app.user.name.slice(0, 1).toUpperCase()),
+        div({}, [h("strong", {}, app.user.name), span({}, isAdmin ? "Panel de administración" : isProfesor ? "Panel del profesor" : `${current.score} pts${playerRank() ? ` · puesto #${playerRank()}` : ""}`)])
+      ]),
       app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null,
       button({ class: "chip-exit", onclick: signOut, title: "Cerrar sesión" }, "salir")
     ])
@@ -4310,7 +4301,7 @@ function header() {
 }
 
 function loadingView() {
-  return div({ class: "empty-state panel" }, [h("p", { class: "eyebrow" }, "sincronizando rango"), h("h2", {}, "Preparando tu tablero"), h("p", { class: "muted" }, app.loadError || "Cargando retos, progreso y configuración de laboratorio…"), app.loadError ? button({ class: "primary-action", onclick: hydratePlatform }, "Reintentar") : null]);
+  return div({ class: "empty-state panel" }, [h("h2", {}, "Cargando…"), h("p", { class: "muted" }, app.loadError || "Cargando retos, progreso y configuración de laboratorio…"), app.loadError ? button({ class: "primary-action", onclick: hydratePlatform }, "Reintentar") : null]);
 }
 
 function labSummary() {
@@ -4320,27 +4311,69 @@ function labSummary() {
   return { label: "Requiere atención", detail: app.platform.detail || "Docker Desktop no disponible", state: "blocked" };
 }
 
+// Inicio del jugador: UNA sola vista de su avance (puntos, retos, puesto) y
+// UNA acción principal (el siguiente reto). Los números no se repiten en
+// tarjetas aparte: ya están en esta línea y en el chip del encabezado.
 function dashboardView() {
   const current = stats();
-  const next = app.challenges.find(challenge => !app.solved[challenge.id]) || app.challenges[0];
+  const pending = app.challenges.filter(challenge => !app.solved[challenge.id]);
+  const next = pending[0] || null;
   const progress = current.total ? Math.round((current.solves / current.total) * 100) : 0;
   const lab = labSummary();
-  return div({ class: "dashboard-page" }, [
-    div({ class: "mission-hero" }, [
-      div({}, [h("p", { class: "eyebrow" }, "wireless security operations"), h("h2", {}, greeting()), h("p", { class: "lead" }, "Avanza por escenarios inalámbricos sintéticos, valida tus hallazgos en Kali y mantén tu equipo listo para la siguiente señal."), div({ class: "hero-actions" }, [button({ class: "primary-action", onclick: () => next && openTerminalForChallenge(next) }, next ? "Continuar laboratorio" : "Catálogo cargando"), button({ class: "ghost-action", onclick: () => switchTab("retos") }, "Explorar retos")])]),
-      div({ class: "mission-ring", style: { "--progress": `${progress * 3.6}deg` } }, [span({}, `${progress}%`), h("small", {}, "progreso")])
+  const rank = playerRank();
+  const openChallenge = challenge => { app.selectedId = challenge.id; switchTab("reto"); };
+  return div({ class: "dashboard-page dash" }, [
+    h("section", { class: "mission-hero dash-hero" }, [
+      h("img", { src: "./img/mascot.png", alt: "", class: "dash-mascot" }, []),
+      div({ class: "dash-hero-copy" }, [
+        h("h2", {}, greeting()),
+        h("p", { class: "dash-stats" }, [
+          span({}, [h("strong", {}, String(current.score)), " pts"]),
+          span({}, [h("strong", {}, `${current.solves}/${current.total}`), " retos"]),
+          rank ? span({}, ["puesto ", h("strong", {}, `#${rank}`)]) : null
+        ]),
+        next
+          ? div({ class: "dash-next" }, [
+            span({ class: "eyebrow" }, current.solves ? "sigue con" : "empieza con"),
+            h("strong", { class: "dash-next-title" }, next.title),
+            span({ class: "muted" }, `${next.category} · ${next.difficulty} · ${next.points} pts`)
+          ])
+          : h("p", { class: "dash-next muted" }, "Resolviste todos los retos disponibles. Revisa el ranking o repasa la teoría."),
+        div({ class: "hero-actions" }, next
+          ? [button({ class: "primary-action", onclick: () => openChallenge(next) }, "Ver reto"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(next) }, "Abrir en Kali")]
+          : [button({ class: "primary-action", onclick: () => switchTab("ranking") }, "Ver ranking")]),
+        div({ class: `dash-lab dash-lab-${lab.state}` }, [
+          span({ class: "dash-lab-dot", "aria-hidden": "true" }, ""),
+          span({}, `Laboratorio: ${lab.label}`),
+          span({ class: "dash-lab-detail" }, lab.detail),
+          button({ class: "dash-lab-refresh", type: "button", title: "Comprobar de nuevo", "aria-label": "Comprobar de nuevo el laboratorio", onclick: hydratePlatform }, "⟳")
+        ])
+      ]),
+      div({ class: "mission-ring", style: { "--progress": `${progress * 3.6}deg` }, role: "img", "aria-label": `${progress}% de los retos completados` }, [span({}, `${progress}%`), h("small", {}, "completado")])
     ]),
-    div({ class: "metric-grid" }, [metric("Puntos", current.score, "score acumulado"), metric("Solves", `${current.solves}/${current.total}`, "retos completados"), metric("Pistas", current.hints, "consultadas"), metric("Laboratorio", lab.label, lab.detail, { title: "Actualizar estado", onclick: hydratePlatform })]),
-    div({ class: "dashboard-columns" }, [
-      div({ class: "panel focus-panel" }, [h("p", { class: "eyebrow" }, "siguiente misión"), next ? [h("h3", {}, next.title), h("p", { class: "muted" }, next.description), div({ class: "meta-strip" }, [span({}, next.category), span({}, next.difficulty), span({}, `${next.points} pts`)]), div({ class: "hero-actions" }, [button({ class: "primary-action compact", onclick: () => { app.selectedId = next.id; switchTab("reto"); } }, "Ver briefing"), button({ class: "ghost-action compact", onclick: () => openTerminalForChallenge(next) }, "Abrir Kali")])] : h("p", { class: "muted" }, "No hay retos disponibles todavía.")]),
-      div({ class: "panel protocol-panel" }, [h("p", { class: "eyebrow" }, "flujo de trabajo"), div({ class: "protocol-step" }, [span({}, "01"), div({}, [h("strong", {}, "Lee el briefing"), h("p", { class: "muted tight" }, "Entiende el objetivo y el alcance simulado.")])]), div({ class: "protocol-step" }, [span({}, "02"), div({}, [h("strong", {}, "Analiza en Kali"), h("p", { class: "muted tight" }, "Terminal real, sesión aislada y artefactos de solo lectura.")])]), div({ class: "protocol-step" }, [span({}, "03"), div({}, [h("strong", {}, "Envía y progresa"), h("p", { class: "muted tight" }, "Cada solve desbloquea un reto variado nuevo.")])])])
-    ]),
-    ctfStoriesSection("dashboard"),
-    div({ class: "section-head dashboard-section" }, [div({}, [h("p", { class: "eyebrow" }, "cola de aprendizaje"), h("h2", {}, "Retos activos")]), button({ class: "ghost-action", onclick: () => switchTab("retos") }, "Ver catálogo")]),
-    div({ class: "challenge-grid dashboard-grid" }, app.challenges.slice(0, 3).map(challengeCard))
+    // Guía de 3 pasos solo para quien todavía no resolvió nada.
+    current.solves === 0 ? h("ol", { class: "dash-steps" }, [
+      h("li", {}, [h("strong", {}, "Lee el reto"), " y descarga su evidencia."]),
+      h("li", {}, [h("strong", {}, "Analízala en Kali"), ", aislada de tu equipo."]),
+      h("li", {}, [h("strong", {}, "Envía la flag"), " WISPR{…} y suma puntos."])
+    ]) : null,
+    pending.length > 1 ? h("section", { class: "dash-queue" }, [
+      div({ class: "dash-queue-head" }, [h("h3", {}, "Próximos retos"), button({ class: "text-action", onclick: () => switchTab("retos") }, `Ver los ${current.total} retos →`)]),
+      div({ class: "dash-rows" }, pending.slice(1, 5).map(challenge => challengeRow(challenge, () => openChallenge(challenge))))
+    ]) : null
   ]);
 }
 
+function challengeRow(challenge, onclick) {
+  return button({ class: "dash-row", type: "button", onclick }, [
+    span({ class: "badge", style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty),
+    span({ class: "dash-row-title" }, challenge.title),
+    span({ class: "dash-row-cat" }, challenge.category),
+    span({ class: "dash-row-pts" }, `${challenge.points} pts`)
+  ]);
+}
+
+// Tarjeta de cifra de los paneles de admin y profesor.
 function metric(label, value, detail, action) {
   const icons = {
     "Puntos": "★",
@@ -4360,13 +4393,124 @@ function metric(label, value, detail, action) {
   ]);
 }
 
+// Puesto del jugador en el ranking real, o null mientras no haya cargado.
+function playerRank() {
+  if (!rankingState.loaded) return null;
+  const index = leaderboard().findIndex(player => player.current);
+  return index >= 0 ? index + 1 : null;
+}
+
 function challengesView() {
   const categories = [...new Set(app.challenges.map(challenge => challenge.category))];
   const list = app.challenges.filter(challenge => app.filter === "all" || challenge.category === app.filter).sort((left, right) => app.sort === "points" ? right.points - left.points : app.sort === "difficulty" ? difficultyOrder[right.difficulty] - difficultyOrder[left.difficulty] : Number(Boolean(app.solved[left.id])) - Number(Boolean(app.solved[right.id])));
   return div({ class: "challenges-page" }, [
-    div({ class: "section-head" }, [div({}, [h("p", { class: "eyebrow" }, "wireless challenge catalog"), h("h2", {}, "Laboratorios activos"), h("p", { class: "muted section-copy" }, "Comienzas con cinco retos de currículum. Cada solve correcto agrega automáticamente un laboratorio nuevo generado por el motor de contenido.")]), div({ class: "vm-mini" }, [span({ class: app.terminal.connected ? "vm-dot on" : "vm-dot" }, ""), span({}, app.terminal.connected ? "Kali aislada online" : "Kali en standby")])]),
+    div({ class: "section-head" }, [div({}, [h("h2", {}, "Retos"), h("p", { class: "muted section-copy" }, `${Object.keys(app.solved).length} de ${app.challenges.length} resueltos. Cada reto trae su evidencia para analizar en Kali.`)])]),
+    challengeGeneratorPanel(),
     div({ class: "toolbar" }, [select("filter", app.filter, ["all", ...categories], value => { app.filter = value; saveState(); render(); }), select("sort", app.sort, ["recommended", "difficulty", "points"], value => { app.sort = value; saveState(); render(); })]),
     div({ class: "challenge-grid" }, list.map(challengeCard))
+  ]);
+}
+
+// ---------------------------------------------------------------------------
+// Pedir un reto a la IA (13 oct). Se elige técnica, dificultad y escenario;
+// FastAPI genera la flag y el archivo, y la IA escribe la historia
+// (POST /api/challenges/generate). Estudiante: reto de práctica solo para él,
+// sin puntos. Profesor/admin: reto para todos los estudiantes, cada uno con su
+// propio archivo y su propia flag.
+// ---------------------------------------------------------------------------
+const generatorState = { options: null, loading: false, failed: false, busy: false, technique: "xor_singlebyte", difficulty: "Medium", theme: "", custom: "" };
+
+async function loadGeneratorOptions() {
+  if (generatorState.options || generatorState.loading || generatorState.failed) return;
+  generatorState.loading = true;
+  try {
+    const response = await apiFetch(API + "/api/challenges/options", { cache: "no-store" });
+    const data = await response.json();
+    if (data && data.ok) generatorState.options = data;
+    else generatorState.failed = true;
+  } catch (_) {
+    generatorState.failed = true; // backend sin esta ruta: el panel simplemente no aparece
+  }
+  generatorState.loading = false;
+  render();
+}
+
+async function requestChallenge(event) {
+  event.preventDefault();
+  if (generatorState.busy) return;
+  const custom = generatorState.theme === "__otro";
+  const theme = custom ? generatorState.custom.trim() : generatorState.theme;
+  if (custom && theme.length < 3) return toast("Escribe un escenario de al menos 3 letras.", "warn");
+  generatorState.busy = true;
+  render();
+  try {
+    const response = await apiFetch(API + "/api/challenges/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ technique: generatorState.technique, difficulty: generatorState.difficulty, theme })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo generar el reto.");
+    upsertChallenge(data.challenge);
+    if (data.generationError) toast(data.generationError, "info");
+    generatorState.busy = false;
+    if (data.visibleTo === "everyone") {
+      toast(`Reto publicado para todos los estudiantes: «${data.challenge.title}».`, "success");
+      return render();
+    }
+    toast(`Reto listo: «${data.challenge.title}».`, "success");
+    app.selectedId = data.challenge.id;
+    saveState();
+    return switchTab("reto");
+  } catch (error) {
+    toast(error.message || "No se pudo generar el reto.", "error");
+  }
+  generatorState.busy = false;
+  render();
+}
+
+function challengeGeneratorPanel() {
+  const options = generatorState.options;
+  if (!options) {
+    loadGeneratorOptions();
+    return null;
+  }
+  const teacher = app.user.role === "profesor" || app.user.role === "admin";
+  const set = key => event => {
+    generatorState[key] = event.target.value;
+    if (key === "theme") render(); // muestra u oculta el campo "Otro…"
+  };
+  const published = teacher ? app.challenges.filter(challenge => challenge.generated).slice(-5).reverse() : [];
+  return div({ class: "panel generator-panel" }, [
+    h("h3", {}, teacher ? "Crear un reto con IA para tus estudiantes" : "Pide un reto a la IA"),
+    h("p", { class: "muted tight" }, teacher
+      ? "Eliges técnica, dificultad y escenario; la IA escribe la historia. Lo verán todos los estudiantes, cada uno con su propio archivo y su propia flag."
+      : "Elige qué quieres practicar. La IA escribe la historia y el reto es solo tuyo: es de práctica, no suma puntos."),
+    h("form", { class: "generator-form", onsubmit: requestChallenge }, [
+      h("select", { name: "technique", "aria-label": "Técnica", onchange: set("technique") },
+        options.techniques.map(item => h("option", { value: item.id, selected: item.id === generatorState.technique }, item.name))),
+      h("select", { name: "difficulty", "aria-label": "Dificultad", onchange: set("difficulty") },
+        options.levels.map(level => h("option", { value: level, selected: level === generatorState.difficulty }, level))),
+      h("select", { name: "theme", "aria-label": "Escenario", onchange: set("theme") }, [
+        h("option", { value: "", selected: !generatorState.theme }, "Escenario al azar"),
+        ...options.themes.map(theme => h("option", { value: theme, selected: theme === generatorState.theme }, theme)),
+        h("option", { value: "__otro", selected: generatorState.theme === "__otro" }, "Otro…")
+      ]),
+      generatorState.theme === "__otro"
+        ? h("input", { name: "custom", placeholder: "Ej. la casa de mi abuela", maxlength: "40", value: generatorState.custom, "aria-label": "Escenario", oninput: event => { generatorState.custom = event.target.value; } }, [])
+        : null,
+      button({ class: "primary-action compact", type: "submit", disabled: generatorState.busy }, generatorState.busy ? "La IA está escribiendo…" : "Generar reto")
+    ]),
+    published.length
+      ? div({ class: "generator-published" }, [
+          h("p", { class: "eyebrow" }, "generados"),
+          ...published.map(challenge => div({ class: "history-row" }, [
+            span({ style: { color: difficultyColors[challenge.difficulty] } }, challenge.difficulty),
+            h("strong", {}, challenge.title),
+            span({ class: "muted" }, `${challenge.category} · ${challenge.generator === "ai" ? "historia de la IA" : "plantilla"}`)
+          ]))
+        ])
+      : null
   ]);
 }
 
@@ -4377,9 +4521,9 @@ function select(name, value, options, onChange) {
 function challengeCard(challenge) {
   const solved = Boolean(app.solved[challenge.id]);
   return div({ class: `challenge-card ${solved ? "completed" : ""}`, onclick: () => { app.selectedId = challenge.id; switchTab("reto"); } }, [
-    div({ class: "card-topline" }, [span({ class: "badge", style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({ class: solved ? "status solved" : "status" }, solved ? "owned" : challenge.generated ? "generated" : "open")]),
-    div({}, [h("p", { class: "eyebrow card-category" }, challenge.category), h("h3", {}, challenge.title), h("p", { class: "muted card-desc" }, challenge.description)]),
-    div({ class: "card-footer" }, [div({ class: solved ? "solve solved" : "solve" }, solved ? "resuelto" : `${challenge.points} pts`), span({ class: "open-link" }, "Abrir briefing")])
+    div({ class: "card-topline" }, [span({ class: "badge", style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), h("p", { class: "eyebrow card-category" }, challenge.category)]),
+    div({}, [h("h3", {}, challenge.title), h("p", { class: "muted card-desc" }, challenge.description)]),
+    div({ class: "card-footer" }, [div({ class: solved ? "solve solved" : "solve" }, solved ? "✓ resuelto" : challenge.points ? `${challenge.points} pts` : "práctica"), span({ class: "open-link" }, "Ver reto →")])
   ]);
 }
 
@@ -4388,11 +4532,9 @@ function challengeDetail(challenge) {
   const unlocked = app.hints[challenge.id] || [];
   let input;
   return h("section", { class: "detail detail-page" }, [
-    div({ class: "detail-hero" }, [button({ class: "ghost-action back-action", onclick: () => switchTab("retos") }, "← Volver al catálogo"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({}, `${challenge.points} pts`), span({}, challenge.difficulty), span({}, solved ? "Resuelto" : "Abierto"), span({}, challenge.generated ? "Generado" : "Currículum")])]),
-    panel("Objetivo", challenge.objective),
-    div({ class: "tool-grid" }, challenge.tools.map(tool => span({ class: "tool" }, tool))),
-    div({ class: "panel safety-panel" }, [h("h3", {}, "Alcance del laboratorio"), h("p", { class: "muted" }, "Este reto usa evidencias sintéticas. La terminal se ejecuta en un contenedor aislado y no tiene acceso a tu host ni a redes externas.")]),
-    div({ class: "panel" }, [h("h3", {}, "Artefactos"), ...challenge.files.map(file => div({ class: "file-row" }, [div({}, [h("strong", {}, file.name), h("p", { class: "muted tight" }, file.desc)]), button({ class: "ghost-action", onclick: () => downloadFile(file, challenge) }, "Descargar")]))]),
+    div({ class: "detail-hero" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, "✓ Resuelto") : null])]),
+    div({ class: "panel" }, [h("h3", {}, "Objetivo"), h("p", {}, challenge.objective), challenge.tools.length ? div({ class: "tool-grid" }, [span({ class: "tool-label" }, "Herramientas"), ...challenge.tools.map(tool => span({ class: "tool" }, tool))]) : null]),
+    div({ class: "panel" }, [h("h3", {}, "Archivos"), ...challenge.files.map(file => div({ class: "file-row" }, [div({}, [h("strong", {}, file.name), h("p", { class: "muted tight" }, file.desc)]), button({ class: "ghost-action", onclick: () => downloadFile(file, challenge) }, "Descargar")])), h("p", { class: "muted tight scope-note" }, "Evidencia sintética. Kali corre aislada, sin acceso a tu equipo ni a internet.")]),
     div({ class: "panel" }, [h("h3", {}, "Pistas"), ...challenge.hints.map((hint, index) => div({ class: "hint-row" }, [unlocked.includes(index) ? h("p", {}, hint) : h("p", { class: "muted" }, `Pista ${index + 1} bloqueada`), !unlocked.includes(index) ? button({ class: "ghost-action", onclick: () => unlockHint(challenge.id, index) }, "Mostrar") : null]))]),
     div({ class: "submit-panel" }, solved ? h("strong", { class: "owned-label" }, "Reto completado con esta cuenta") : [input = h("input", { placeholder: "WISPR{flag_aqui}", autocomplete: "off" }, []), button({ class: "primary-action", onclick: () => submitFlag(challenge, input) }, "Enviar flag"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(challenge) }, "Resolver en Kali")])
   ]);
@@ -4404,11 +4546,17 @@ function terminalView() {
   const current = selectedChallenge();
   if (!current) return loadingView();
   return div({ class: "vm-page terminal-page" }, [
-    div({ class: "section-head" }, [div({}, [h("p", { class: "eyebrow" }, "web terminal · isolated execution"), h("h2", {}, "Kali Linux Lab"), h("p", { class: "muted section-copy" }, "Una shell PTY real en tu contenedor Kali. Escribe comandos directamente: no hay lista de comandos simulada ni interpretación oculta.")]), div({ class: "terminal-actions" }, [button({ class: "primary-action", onclick: connectTerminal }, app.terminal.connected ? "Kali conectada" : "Conectar"), button({ class: "ghost-action", onclick: disconnectTerminal }, "Desconectar"), button({ class: "ghost-action", onclick: stopKali }, "Detener entorno"), button({ class: "ghost-action", onclick: runDiagnostic }, "Diagnosticar")])]),
+    div({ class: "section-head" }, [div({}, [h("h2", {}, "Terminal Kali"), h("p", { class: "muted section-copy" }, "Una terminal real en tu propio contenedor, aislado de tu equipo.")]), div({ class: "terminal-actions" }, [
+      app.terminal.connected
+        ? button({ class: "ghost-action", onclick: disconnectTerminal }, "Desconectar")
+        : button({ class: "primary-action", onclick: connectTerminal }, "Conectar"),
+      button({ class: "ghost-action", onclick: stopKali }, "Detener entorno"),
+      button({ class: "text-action", onclick: runDiagnostic }, "Diagnosticar")
+    ])]),
     app.terminal.lastError ? div({ class: "panel terminal-error" }, [h("p", { class: "eyebrow" }, "no se pudo montar el reto"), h("pre", {}, app.terminal.lastError), h("p", { class: "muted tight" }, "Copia este texto tal cual si necesitas ayuda. Pulsa Diagnosticar para comprobar Docker, imágenes y contenedor.")]) : null,
     app.terminal.diagnostic ? div({ class: "panel terminal-error" }, [h("p", { class: "eyebrow" }, "diagnóstico"), h("pre", {}, app.terminal.diagnostic), button({ class: "ghost-action compact", onclick: () => { app.terminal.diagnostic = ""; render(); } }, "Cerrar")]) : null,
     div({ class: "terminal-workspace" }, [
-      div({ class: "panel vm-status" }, [h("p", { class: "eyebrow" }, "reto activo"), h("h3", {}, current.title), h("p", { class: "muted" }, current.objective), h("p", { class: "terminal-path" }, "/workspace/challenge"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(current) }, "Montar este reto"), h("p", { class: "muted tight" }, "Atajos seguros para orientar la sesión:"), div({ class: "terminal-shortcuts" }, [button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf show") }, "ctf show"), button({ class: "shortcut", onclick: () => sendTerminalCommand("cd $(ctf open)") }, "abrir carpeta"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf files") }, "ver archivos"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf help") }, "ayuda")]), h("p", { class: "muted tight" }, "Los atajos solo escriben el comando en la misma terminal real; también puedes teclear cualquier comando disponible en Kali.")]),
+      div({ class: "panel vm-status" }, [h("p", { class: "eyebrow" }, "reto activo"), h("h3", {}, current.title), h("p", { class: "muted" }, current.objective), h("p", { class: "terminal-path" }, "/workspace/challenge"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(current) }, "Montar este reto"), h("p", { class: "muted tight" }, "Atajos (escriben el comando en la terminal):"), div({ class: "terminal-shortcuts" }, [button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf show") }, "ctf show"), button({ class: "shortcut", onclick: () => sendTerminalCommand("cd $(ctf open)") }, "abrir carpeta"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf files") }, "ver archivos"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf help") }, "ayuda")])]),
       div({ class: "terminal-panel xterm-panel" }, [div({ class: "terminal-head" }, [span({}, "kali@wispr · /workspace"), span({ "data-terminal-status": "", class: `terminal-state ${app.terminal.connected ? "online" : "offline"}` }, app.terminal.connected ? "Kali aislada · online" : "Desconectada")]), div({ id: "kali-terminal", class: "xterm-host", tabindex: "0" }, [])])
     ])
   ]);
@@ -4417,8 +4565,8 @@ function terminalView() {
 function profileView() {
   const current = stats();
   return div({ class: "profile-grid" }, [
-    div({ class: "profile-hero" }, [div({ class: "avatar big" }, app.user.name.slice(0, 1).toUpperCase()), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} puntos`), span({}, `${current.solves} solves`), span({}, `${current.hints} pistas`)])]),
-    div({ class: "panel" }, [h("p", { class: "eyebrow" }, "actividad"), h("h3", {}, "Envíos recientes"), app.submissions.length ? app.submissions.slice(0, 10).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "" }, item.ok ? "OK" : "FAIL"), h("strong", {}, item.title), span({ class: "muted" }, `${item.source} · ${new Date(item.time).toLocaleTimeString()}`)])) : h("p", { class: "muted" }, "Todavía no hay envíos. Tu primer solve aparecerá aquí.")])
+    div({ class: "profile-hero" }, [div({ class: "avatar big" }, app.user.name.slice(0, 1).toUpperCase()), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} pts`), span({}, `${current.solves}/${current.total} retos`), span({}, `${current.hints} pistas usadas`)])]),
+    div({ class: "panel" }, [h("h3", {}, "Envíos recientes"), app.submissions.length ? app.submissions.slice(0, 10).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "fail" }, item.ok ? "Correcta" : "Incorrecta"), h("strong", {}, item.title), span({ class: "muted" }, `${item.source} · ${new Date(item.time).toLocaleTimeString()}`)])) : h("p", { class: "muted" }, "Todavía no enviaste ninguna flag.")])
   ]);
 }
 
@@ -4587,6 +4735,7 @@ function adminHomeView() {
         ])
       ])
     ]),
+    challengeGeneratorPanel(),
     div({ class: "metric-grid" }, [
       metric("Cuentas", summary.total, `${summary.estudiante} estudiantes · ${summary.profesor} profesores`),
       metric("Grupos", adminGroupsState.groups.length, "creados por profesores"),
@@ -4866,7 +5015,7 @@ function studentDetailView() {
     div({ class: "panel" }, [
       h("p", { class: "eyebrow" }, "envíos recientes"),
       (student.submissions || []).length
-        ? div({}, student.submissions.slice(0, 15).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "" }, item.ok ? "OK" : "FAIL"), h("strong", {}, item.title || item.id), span({ class: "muted" }, `${item.source || "—"} · ${item.time ? new Date(item.time).toLocaleString() : "—"}`)])))
+        ? div({}, student.submissions.slice(0, 15).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "fail" }, item.ok ? "Correcta" : "Incorrecta"), h("strong", {}, item.title || item.id), span({ class: "muted" }, `${item.source || "—"} · ${item.time ? new Date(item.time).toLocaleString() : "—"}`)])))
         : h("p", { class: "muted" }, "Todavía no hay envíos registrados.")
     ])
   ]);
@@ -4957,6 +5106,7 @@ function professorHomeView() {
         ])
       ])
     ]),
+    challengeGeneratorPanel(),
     div({ class: "metric-grid metric-grid-2" }, [
       metric("Grupos", groups.length, "clases creadas"),
       metric("Estudiantes", leaderboard.length, "en tus grupos")
@@ -7870,18 +8020,8 @@ m3PracticeInits["steps-mission"] = stepsMissionInit;
 missionViews["steps-mission"] = stepsMissionView;
 
 function rankingView() {
-  return div({ class: "ranking-page" }, [div({ class: "section-head" }, [div({}, [h("p", { class: "eyebrow" }, "scoreboard"), h("h2", {}, "Ranking del rango")])]), ...leaderboard().map((player, index) => div({ class: `ranking-row ${player.current ? "current" : ""}` }, [span({ class: "rank" }, `#${index + 1}`), div({ class: "avatar" }, player.name.slice(0, 1).toUpperCase()), div({ class: "grow" }, [h("strong", {}, player.name), h("p", { class: "muted tight" }, `${player.handle} · ${player.solves} solves`)]), span({ class: "streak" }, `${player.streak} streak`), h("strong", { class: "score" }, String(player.score))]))]);
+  return div({ class: "ranking-page" }, [div({ class: "section-head" }, [div({}, [h("h2", {}, "Ranking")])]), ...leaderboard().map((player, index) => div({ class: `ranking-row ${player.current ? "current" : ""}` }, [span({ class: "rank" }, `#${index + 1}`), div({ class: "avatar" }, player.name.slice(0, 1).toUpperCase()), div({ class: "grow" }, [h("strong", {}, player.name), h("p", { class: "muted tight" }, `${player.handle} · ${player.solves} retos`)]), span({ class: "streak" }, `racha ${player.streak}`), h("strong", { class: "score" }, String(player.score))]))]);
 }
-
-function sidebar() {
-  const current = stats();
-  const rank = leaderboard().findIndex(player => player.current);
-  return h("aside", {}, [
-    div({ class: "panel kpis" }, [kpi("Puntos", current.score), kpi("Resueltos", `${current.solves}/${current.total}`), kpi("Ranking", rank >= 0 ? `#${rank + 1}` : "—")])
-  ]);
-}
-
-function kpi(label, value) { return div({ class: "kpi" }, [span({}, label), h("strong", {}, String(value))]); }
 
 const adminViewsByTab = { "admin-home": adminHomeView, "admin-ranking": adminRankingView, "admin": adminView, "admin-groups": adminGroupsView, estudiante: studentDetailView };
 const profesorViewsByTab = { "profesor-home": professorHomeView, "grupos": groupsView, "estudiante": studentDetailView };
@@ -7901,7 +8041,9 @@ function shell() {
   }
   const current = selectedChallenge();
   const content = app.activeTab === "dashboard" ? dashboardView() : app.activeTab === "teoria" ? theoryView() : app.activeTab === "lesson" ? lessonView() : app.activeTab === "ranking" ? rankingView() : app.activeTab === "perfil" ? profileView() : app.activeTab === "reto" ? challengeDetail(current) : app.activeTab === "terminal" ? terminalView() : challengesView();
-  return div({ class: "page" }, [header(), div({ class: "main-grid" }, [h("main", {}, content), sidebar()])]);
+  // Sin columna lateral de KPIs: puntos y puesto ya están en el chip del
+  // encabezado, así el contenido usa todo el ancho.
+  return div({ class: "page" }, [header(), h("main", { class: "player-main" }, content)]);
 }
 
 function render() {

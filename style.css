@@ -6028,3 +6028,431 @@ body.story-open { overflow: hidden; }
 .lesson-page,
 .lesson-stage { min-width: 0; }
 .sm-scan { max-width: 100%; }
+
+/* =========================================================================
+   Pulido y simplificación (12 oct): dashboard del jugador, navegación y
+   pestañas. Mismos colores, tipografías, logo y mascota; menos contenedores
+   y sin datos repetidos. Va al final a propósito para ganar a las reglas
+   anteriores sin tener que tocarlas.
+   ========================================================================= */
+
+/* Sin columna lateral de KPIs: el contenido usa todo el ancho. */
+.player-main {
+  min-width: 0;
+}
+
+/* --- Inicio del jugador --------------------------------------------------- */
+.dash {
+  gap: 22px;
+}
+
+.dash-hero {
+  grid-template-columns: 150px minmax(0, 1fr) 140px;
+  gap: 28px;
+  min-height: 0;
+  padding: 26px 30px;
+}
+
+.dash-mascot {
+  width: 150px;
+  height: auto;
+  align-self: end;
+  margin-bottom: -26px; /* apoya los pies en el borde inferior del panel */
+  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.4));
+}
+
+.dash-hero-copy h2 {
+  margin: 0 0 8px;
+}
+
+.dash-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0 0 18px;
+  color: #b9c3da;
+  font-size: 0.95rem;
+}
+
+.dash-stats strong {
+  color: #f4f7ff;
+  font: 700 1rem/1 JetBrains Mono, monospace;
+}
+
+.dash-next {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--orange);
+}
+
+.dash-next .eyebrow {
+  margin: 0;
+}
+
+.dash-next-title {
+  color: #f4f7ff;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.dash-next .muted,
+p.dash-next {
+  color: #b9c3da;
+  font-size: 0.88rem;
+}
+
+.dash-hero .hero-actions {
+  margin-top: 18px;
+}
+
+.dash-lab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 16px;
+  color: #b9c3da;
+  font-size: 0.82rem;
+}
+
+.dash-lab-detail {
+  opacity: 0.75;
+}
+
+.dash-lab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.dash-lab-ready .dash-lab-dot { background: var(--green); box-shadow: 0 0 8px rgba(164, 221, 0, 0.6); }
+.dash-lab-blocked .dash-lab-dot { background: var(--red); }
+.dash-lab-checking .dash-lab-dot { background: var(--orange); }
+
+.dash-lab-refresh {
+  min-height: 28px;
+  min-width: 28px;
+  padding: 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  background: transparent;
+  color: #dce7fb;
+  line-height: 1;
+}
+
+.dash-lab-refresh:hover {
+  border-color: rgba(164, 221, 0, 0.5);
+  color: var(--green);
+}
+
+.dash-hero .mission-ring {
+  width: 132px;
+  height: 132px;
+  justify-self: end;
+}
+
+/* Guía de 3 pasos: solo hasta el primer reto resuelto. */
+.dash-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.dash-steps li {
+  counter-increment: paso;
+  padding: 0 0 0 14px;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.dash-steps li::before {
+  content: counter(paso, decimal-leading-zero);
+  display: block;
+  margin-bottom: 4px;
+  color: var(--green);
+  font: 700 0.72rem/1 JetBrains Mono, monospace;
+}
+
+.dash-steps strong {
+  color: var(--text);
+}
+
+/* Lista de próximos retos: filas, no tarjetas. */
+.dash-queue-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.dash-queue-head h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.dash-rows {
+  display: grid;
+  border: 1px solid rgba(181, 192, 212, 0.16);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.dash-row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr) auto 72px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border: 0;
+  border-top: 1px solid rgba(181, 192, 212, 0.12);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.dash-row:first-child {
+  border-top: 0;
+}
+
+.dash-row:hover,
+.dash-row:focus-visible {
+  background: rgba(164, 221, 0, 0.06);
+}
+
+.dash-row .badge {
+  justify-self: start;
+}
+
+.dash-row-title {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-row-cat {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.dash-row-pts {
+  color: var(--orange);
+  font: 700 0.9rem/1 JetBrains Mono, monospace;
+  text-align: right;
+}
+
+/* Acción de texto: para acciones secundarias que no merecen un botón. */
+.text-action {
+  min-height: 32px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--green);
+  font-weight: 700;
+}
+
+.text-action:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.detail-hero .text-action {
+  color: #c9f25a;
+}
+
+/* --- Encabezado: chip de cuenta abre "Progreso" ------------------------------ */
+.chip-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+.chip-profile > div {
+  min-width: 0;
+}
+
+button.chip-profile:hover strong,
+.chip-active strong {
+  color: var(--green);
+}
+
+.chip-active {
+  border-color: rgba(164, 221, 0, 0.5);
+}
+
+/* --- Catálogo -------------------------------------------------------------- */
+.card-topline {
+  align-items: center;
+}
+
+.card-topline .card-category {
+  margin: 0;
+  text-align: right;
+}
+
+/* --- Detalle de un reto ---------------------------------------------------- */
+.detail .panel .tool-grid {
+  align-items: center;
+  padding: 12px 0 0;
+}
+
+.tool-label {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.meta-strip .meta-solved {
+  border-color: rgba(164, 221, 0, 0.5);
+  color: var(--green);
+}
+
+.scope-note {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+}
+
+/* --- Progreso -------------------------------------------------------------- */
+.history-row .fail {
+  color: var(--red);
+}
+
+/* --- Responsivo ------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .dash-hero {
+    grid-template-columns: minmax(0, 1fr) 112px;
+  }
+
+  .dash-mascot {
+    display: none;
+  }
+
+  .dash-hero .mission-ring {
+    width: 112px;
+    height: 112px;
+  }
+}
+
+@media (max-width: 680px) {
+  .dash-hero {
+    grid-template-columns: minmax(0, 1fr) 84px;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .dash-hero .mission-ring {
+    width: 84px;
+    height: 84px;
+    align-self: start;
+  }
+
+  .dash-hero .mission-ring span {
+    font-size: 1.15rem;
+  }
+
+  .dash-hero .mission-ring small {
+    display: none;
+  }
+
+  .dash-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+  }
+
+  .dash-row .badge { grid-row: 1; grid-column: 1; }
+  .dash-row-title { grid-row: 2; grid-column: 1; }
+  .dash-row-cat { display: none; }
+  .dash-row-pts { grid-row: 1 / span 2; grid-column: 2; }
+}
+
+/* Tarjetas del catálogo: título siempre a la misma altura; el pie se va abajo. */
+.challenge-card {
+  justify-content: flex-start;
+  gap: 14px;
+  min-height: 0;
+}
+
+.challenge-card .card-footer {
+  margin-top: auto;
+}
+
+.challenge-card .card-desc {
+  min-height: 0;
+  -webkit-line-clamp: 3;
+}
+
+/* El detalle de un reto es texto para leer: líneas de largo cómodo. */
+.player-main > .detail-page {
+  max-width: 980px;
+  margin-inline: auto;
+}
+
+.submit-panel button {
+  white-space: nowrap;
+}
+
+@media (max-width: 680px) {
+  .dash-hero-copy h2 {
+    font-size: 1.6rem;
+  }
+}
+
+/* El hero es oscuro en ambos temas: su texto no usa --muted (que oscurece en modo claro). */
+.dash-hero .mission-ring small {
+  color: #b9c3da;
+}
+
+/* Pedir un reto a la IA (13 oct): mismo patrón de fila que .task-form. */
+.generator-panel h3 {
+  margin-bottom: 4px;
+}
+
+.generator-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.generator-form select,
+.generator-form input {
+  flex: 1 1 170px;
+  width: auto;
+}
+
+.generator-form button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.generator-published {
+  margin-top: 14px;
+}
+
+@media (max-width: 680px) {
+  .generator-form button {
+    flex: 1 1 100%;
+  }
+}
