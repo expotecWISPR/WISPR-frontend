@@ -9,7 +9,7 @@ const difficultyOrder = { Foundation: 1, Medium: 2, Hard: 3, Expert: 4 };
 const difficultyColors = { Foundation: "#65e6b4", Medium: "#f5b544", Hard: "#ff7c5c", Expert: "#ca7dff" };
 const theoryModules = [
   { id: 1, title: "Fundamentos Wi-Fi", topics: ["802.11", "SSID / BSSID", "MAC", "AP y clientes", "Canales y frecuencias", "Frames"] },
-  { id: 2, title: "Seguridad Wi-Fi", topics: ["WEP", "WPA", "WPA2", "WPA3", "Cifrado", "Autenticación"] },
+  { id: 2, title: "Seguridad Wi-Fi", topics: ["WEP", "WPA y WPA2", "WPA3", "Cifrado", "Autenticación"] },
   { id: 3, title: "Autenticación", topics: ["Four-Way Handshake", "PMK", "PTK", "GTK", "Nonce", "MIC", "PMKID"] },
   { id: 4, title: "Ataques a Wi-Fi", topics: ["Deauthentication", "Evil Twin", "Rogue AP", "Captive Portal", "WPS / Pixie Dust", "MAC Spoofing"] },
   { id: 5, title: "Bluetooth", topics: ["Bluetooth clásico vs BLE", "Descubrimiento", "Emparejamiento", "Seguridad Bluetooth", "Amenazas comunes"] },
@@ -25,6 +25,11 @@ const topicLessons = {
   "AP y clientes": "ap-clientes",
   "Canales y frecuencias": "canales-frecuencias",
   "Frames": "frames-802-11",
+  "WEP": "m2-wep",
+  "WPA y WPA2": "m2-wpa-wpa2",
+  "WPA3": "m2-wpa3",
+  "Cifrado": "m2-cifrado",
+  "Autenticación": "m2-autenticacion",
   "Bluetooth clásico vs BLE": "bt-classic-ble",
   "Descubrimiento": "bt-descubrimiento",
   "Emparejamiento": "bt-emparejamiento",
@@ -2643,6 +2648,757 @@ lessons[M1_MISSION_ID] = {
   ]
 };
 
+// ===========================================================================
+// MÓDULO 2 — SEGURIDAD WI-FI
+// Cinco temas (WEP, WPA y WPA2, WPA3, Cifrado, Autenticación) + la misión
+// final "Operación: Red Segura". Reutiliza el motor de lecciones, los
+// registros del Módulo 3/5 y moduleMissions (progreso, XP, insignia y
+// desbloqueo de la misión). Componentes propios: "m2-flow", "m2-cipher" y la
+// práctica "m2-decisions" (ver "MÓDULO 2 — componentes"). Enfoque defensivo:
+// reconocer y configurar bien, sin procedimientos para atacar redes. Redes,
+// nombres y contraseñas son ficticios.
+// ===========================================================================
+
+const M2_SEQUENCE = ["m2-wep", "m2-wpa-wpa2", "m2-wpa3", "m2-cifrado", "m2-autenticacion"];
+const M2_MISSION_ID = "m2-mision";
+moduleMissions[2] = { missionId: M2_MISSION_ID, sequence: M2_SEQUENCE };
+
+// Feedback con el formato pedido para este módulo (texto + color, nunca solo color).
+const M2_OK = "✓ Correcto";
+const M2_RETRY = "✗ Inténtalo de nuevo";
+const M2_COMMON = { labTheme: true, feedbackTitles: [M2_OK, M2_RETRY], quizOkTitle: M2_OK, quizWrongTitle: M2_RETRY };
+
+Object.assign(lessons, {
+  "m2-wep": {
+    ...M2_COMMON,
+    id: "m2-wep",
+    moduleId: 2,
+    title: "WEP",
+    subtitle: "WEP: los inicios de la seguridad Wi-Fi",
+    quizTitle: "Desafío: WEP",
+    bridge: "WEP demostró que «tener una clave» no basta. Descubre cómo WPA y WPA2 respondieron a sus fallas.",
+    ctf: "En un reto, reconocer WEP te indica de inmediato que la red usa una protección obsoleta.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué era WEP?",
+          explanation: "El primer mecanismo de seguridad del estándar Wi-Fi. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "name", label: "🔤 Significado", sublabel: "Wired Equivalent Privacy", detail: "«Privacidad equivalente a la cableada»: la idea era que el aire fuera tan privado como un cable." },
+              { id: "goal", label: "🎯 Propósito", sublabel: "Proteger lo que viaja por el aire", detail: "Cifraba las tramas entre los dispositivos y el punto de acceso para que alguien cercano no pudiera leerlas." },
+              { id: "how", label: "🔑 Cómo", sublabel: "Una clave para todos + RC4", detail: "La misma clave se configuraba en el AP y en cada dispositivo, y se combinaba con el cifrador RC4." },
+              { id: "era", label: "📅 Su época", sublabel: "1997, el 802.11 original", detail: "Fue un avance histórico: la primera protección estándar de Wi-Fi. Pero se diseñó antes de entender bien sus riesgos." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué buscaba WEP?",
+            options: ["Hacer la red más rápida", "Proteger los datos que viajan por el aire"],
+            correct: 1,
+            feedback: ["Correcto: su objetivo era la confidencialidad del enlace inalámbrico.", "Revisa: WEP no tenía que ver con la velocidad, sino con proteger las tramas."]
+          }
+        },
+        {
+          concept: "Con WEP vs con seguridad moderna",
+          explanation: "Dos laptops se comunican a través del punto de acceso. Cambia entre los dos modos y mira qué podría lograr alguien cerca.",
+          visual: {
+            type: "m2-flow",
+            prompt: "Elige un modo para ver la comunicación.",
+            modes: [
+              {
+                id: "wep", label: "Con WEP", icon: "🔓", tone: "bad",
+                nodes: [{ icon: "💻", label: "Laptop A" }, { icon: "📡", label: "Punto de acceso" }, { icon: "💻", label: "Laptop B" }],
+                links: [{ label: "RC4 · clave compartida" }, { label: "RC4 · clave compartida" }],
+                packet: "WEP",
+                observer: { title: "Alguien cerca, con suficientes tramas…", text: "puede recuperar la clave WEP con herramientas conocidas desde hace años y leer el tráfico." },
+                detail: "WEP sí cifraba, pero mal: su vector de inicialización (IV) es de solo 24 bits y se repite, la misma clave sirve para todos y casi nunca cambia, y su control de integridad (CRC-32) no impide alterar mensajes."
+              },
+              {
+                id: "modern", label: "Con seguridad moderna", icon: "🔒", tone: "ok",
+                nodes: [{ icon: "💻", label: "Laptop A" }, { icon: "📡", label: "Punto de acceso" }, { icon: "💻", label: "Laptop B" }],
+                links: [{ label: "AES-CCMP · clave de sesión" }, { label: "AES-CCMP · clave de sesión" }],
+                packet: "🔒",
+                observer: { title: "Alguien cerca…", text: "ve que hay tráfico, pero no puede leerlo sin la clave de la sesión, y el protocolo detecta si alguien altera un mensaje." },
+                detail: "WPA2 y WPA3-Personal cifran con AES-CCMP y derivan claves nuevas en cada conexión. Aun así, el nivel real depende del protocolo configurado, de la contraseña y del estado de los equipos."
+              }
+            ],
+            summary: "WEP fue un avance histórico, pero sus debilidades están en el diseño: no sirve para proteger una red actual."
+          },
+          check: {
+            prompt: "Una red usa WEP con una contraseña larguísima. ¿Está bien protegida?",
+            options: ["Sí, porque la clave es larga", "No: las fallas de WEP están en su diseño"],
+            correct: 1,
+            feedback: ["Revisa: el problema de WEP no es la longitud de la clave, sino cómo la usa.", "Correcto: aunque la clave sea larga, el IV repetido y la clave estática siguen ahí."]
+          }
+        },
+        {
+          concept: "¿Por qué ya no es seguro?",
+          explanation: "Sus problemas son de diseño, no de configuración. Toca cada uno.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada debilidad.",
+            nodes: [
+              { id: "iv", label: "🔁 IV de 24 bits", sublabel: "Se repite pronto", detail: "Solo hay unos 16,7 millones de valores: en una red con tráfico se repiten rápido, y repetir un IV con la misma clave filtra información." },
+              { id: "key", label: "🔑 Clave estática y compartida", sublabel: "La misma para todos", detail: "No se renueva por sesión: si se descubre, sirve para leer el tráfico de todos los dispositivos." },
+              { id: "icv", label: "🧩 Integridad débil", sublabel: "CRC-32", detail: "Su comprobación de integridad no es criptográfica: un atacante puede modificar paquetes sin que se note." },
+              { id: "status", label: "🚫 Estado actual", sublabel: "Obsoleto desde 2004", detail: "El IEEE lo declaró obsoleto al aprobar 802.11i (la base de WPA2). Los equipos modernos ya no lo ofrecen o lo marcan como inseguro." }
+            ]
+          },
+          check: {
+            prompt: "¿Dónde está el problema principal de WEP?",
+            options: ["En la contraseña que elige el usuario", "En el diseño de su cifrado (IV corto, clave estática, integridad débil)"],
+            correct: 1,
+            feedback: ["Revisa: aunque la contraseña sea buena, el diseño sigue siendo débil.", "Correcto: por eso no se arregla con una contraseña mejor."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "Auditoría de una red antigua",
+      instructions: "Clasifica cada red según su nivel general de protección. Las que queden como «Sin protección Wi-Fi» u «Obsoleta» necesitan actualizarse. Recuerda: el protocolo es solo una parte; contraseñas, firmware y configuración también cuentan.",
+      panelTitle: "Auditoría de redes (simulada)",
+      categories: [
+        { id: "none", label: "Sin protección Wi-Fi" },
+        { id: "obsolete", label: "Obsoleta" },
+        { id: "ok", label: "Adecuada" },
+        { id: "modern", label: "Más moderna" }
+      ],
+      items: [
+        { id: "bodega", icon: "🏚️", name: "Bodega_2009", clues: ["Seguridad: WEP", "Router de 2009"], answer: "obsolete", explain: "WEP es obsoleto: necesita actualizarse a WPA2 (solo AES) o WPA3.", hint: "Piensa en lo que viste: ¿las fallas de WEP se arreglan con una buena clave?" },
+        { id: "oficina", icon: "🏢", name: "Oficina_Central", clues: ["WPA2-Personal", "Cifrado AES-CCMP", "Contraseña larga y única"], answer: "ok", explain: "Protocolo vigente, cifrado AES y contraseña robusta: adecuada si se mantiene actualizada.", hint: "Es un protocolo vigente y bien configurado, pero no el más reciente." },
+        { id: "docentes", icon: "🏫", name: "Sala_Docentes", clues: ["WPA3-Personal (SAE)", "Firmware al día"], answer: "modern", explain: "WPA3 es la generación más reciente; con firmware al día es la opción más moderna de la lista.", hint: "Busca el protocolo de generación más reciente." },
+        { id: "cafe", icon: "☕", name: "Cafe_Libre", clues: ["Red abierta", "Sin contraseña ni cifrado Wi-Fi"], answer: "none", explain: "Sin autenticación ni cifrado Wi-Fi: cualquiera puede conectarse y el enlace no tiene la protección de Wi-Fi. Necesita actualizarse.", hint: "No pide contraseña y no cifra el enlace: ¿qué protección Wi-Fi tiene?" }
+      ],
+      success: "WEP y las redes abiertas necesitan actualizarse. WPA2 con AES bien configurado es adecuado; WPA3 es lo más moderno. Pero ninguna etiqueta garantiza la seguridad por sí sola: también importan la contraseña, el firmware y la configuración."
+    },
+    quiz: [
+      { id: "q1", concept: "Significado de WEP", prompt: "¿Qué significa WEP?", options: ["Wireless Encryption Protocol", "Wired Equivalent Privacy", "Wi-Fi Enterprise Protection", "Web Encryption Process"], correct: 1, feedback: ["Correcto: Wired Equivalent Privacy.", "WEP es Wired Equivalent Privacy: privacidad «equivalente» a la de un cable."] },
+      { id: "q2", concept: "Propósito original", prompt: "¿Cuál era el propósito original de WEP?", options: ["Aumentar la velocidad de la red", "Dar al enlace inalámbrico una privacidad parecida a la de una red cableada", "Asignar direcciones IP", "Ocultar el nombre de la red"], correct: 1, feedback: ["Correcto: proteger lo que viaja por el aire.", "WEP buscaba proteger las tramas del enlace inalámbrico, no la velocidad ni las direcciones."] },
+      { id: "q3", concept: "Debilidades de WEP", prompt: "¿Cuál es una debilidad conocida de WEP?", options: ["Su IV de 24 bits se repite y la clave es estática y compartida", "Exige contraseñas demasiado largas", "Solo funciona en 5 GHz", "Necesita un servidor RADIUS"], correct: 0, feedback: ["Correcto: IV corto, clave estática e integridad débil.", "La debilidad está en su diseño: IV corto que se repite, clave estática y CRC-32."] },
+      { id: "q4", concept: "Por qué fue reemplazado", prompt: "¿Qué reemplazó a WEP como protección recomendada?", options: ["Las redes abiertas", "WPA y, sobre todo, WPA2", "Ocultar el SSID", "El filtrado por MAC"], correct: 1, feedback: ["Correcto: primero WPA como transición y luego WPA2.", "Ocultar el SSID o filtrar MAC no cifran nada; el reemplazo fue WPA y luego WPA2."] },
+      { id: "q5", concept: "Uso actual", prompt: "Verdadero o falso: una red WEP con una contraseña muy larga es segura hoy.", options: ["Verdadero", "Falso"], correct: 1, feedback: ["Correcto: es falso. Las fallas de WEP no dependen de la clave.", "Es falso: la longitud de la clave no corrige el diseño de WEP."] }
+    ]
+  },
+
+  "m2-wpa-wpa2": {
+    ...M2_COMMON,
+    id: "m2-wpa-wpa2",
+    moduleId: 2,
+    title: "WPA y WPA2",
+    subtitle: "La evolución de la protección inalámbrica",
+    quizTitle: "Desafío: WPA y WPA2",
+    bridge: "WPA2 sigue siendo muy usado, pero tiene límites. Descubre qué cambia con WPA3.",
+    ctf: "Distinguir AES de TKIP y Personal de Enterprise te dice cómo está protegida una red antes de analizarla.",
+    learn: {
+      steps: [
+        {
+          concept: "WEP → WPA → WPA2",
+          explanation: "Toca cada etapa de la línea de tiempo para ver su contexto, su mejora y sus límites.",
+          visual: {
+            type: "bt-compare",
+            prompt: "Toca cada etapa.",
+            options: [
+              { id: "wep", icon: "🕰️", label: "WEP", tag: "1997", tone: "bad", rows: [
+                { k: "Contexto", v: "La primera protección del estándar 802.11." },
+                { k: "Mejora", v: "Introdujo el cifrado en Wi-Fi." },
+                { k: "Limitaciones", v: "IV corto, clave estática, integridad débil." },
+                { k: "Hoy", v: "Obsoleto: no debe usarse." }
+              ] },
+              { id: "wpa", icon: "🩹", label: "WPA", tag: "2003", tone: "warn", rows: [
+                { k: "Contexto", v: "Una solución de transición mientras se terminaba 802.11i, pensada para que equipos de la época de WEP pudieran actualizarse." },
+                { k: "Mejora", v: "TKIP: mezcla una clave distinta para cada paquete y agrega un control de integridad (Michael) en lugar de CRC-32." },
+                { k: "Limitaciones", v: "TKIP sigue basado en RC4 y tiene debilidades conocidas." },
+                { k: "Hoy", v: "Heredado: conviene pasar a WPA2 o WPA3." }
+              ] },
+              { id: "wpa2", icon: "🛡️", label: "WPA2", tag: "2004", tone: "ok", rows: [
+                { k: "Contexto", v: "Implementa el estándar 802.11i completo." },
+                { k: "Mejora", v: "AES-CCMP: cifrado AES con un control de integridad robusto, obligatorio en equipos certificados WPA2." },
+                { k: "Limitaciones", v: "En modo Personal, una contraseña débil puede adivinarse; y algunos equipos aún permiten activar TKIP." },
+                { k: "Hoy", v: "Muy usado y adecuado si se configura solo con AES y una contraseña robusta." }
+              ] }
+            ],
+            summary: "Cada generación respondió a los problemas de la anterior: WPA fue el puente y WPA2, con AES-CCMP, el reemplazo definitivo de WEP."
+          },
+          check: {
+            prompt: "¿Por qué WPA se considera una solución de transición?",
+            options: ["Porque permitía mejorar equipos de la época de WEP mientras llegaba WPA2", "Porque solo funcionaba durante un año"],
+            correct: 0,
+            feedback: ["Correcto: TKIP podía funcionar en hardware pensado para WEP.", "Revisa: fue un paso intermedio entre WEP y el estándar completo (WPA2)."]
+          }
+        },
+        {
+          concept: "AES-CCMP: el corazón de WPA2",
+          explanation: "WPA2 no es solo un nombre: lo que lo hace robusto es el mecanismo que usa. Toca cada pieza.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada pieza.",
+            nodes: [
+              { id: "aes", label: "🔐 AES", sublabel: "El cifrador", detail: "Un cifrador por bloques moderno y muy estudiado: sin la clave, los datos son ilegibles." },
+              { id: "ccmp", label: "🧾 CCMP", sublabel: "Cómo se usa AES en Wi-Fi", detail: "Cifra cada trama y le agrega un código de integridad: si alguien la altera, el receptor lo detecta." },
+              { id: "session", label: "🔄 Claves por sesión", sublabel: "No es la contraseña", detail: "La clave de cifrado se deriva en cada conexión (lo verás en el Four-Way Handshake del Módulo 3)." },
+              { id: "tkip", label: "⚠️ TKIP", sublabel: "El modo heredado", detail: "Algunos routers lo siguen ofreciendo por compatibilidad. Si ves «WPA2-TKIP» o «AES+TKIP», conviene dejar solo AES." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué aporta CCMP además de cifrar?",
+            options: ["Detectar si una trama fue alterada", "Ocultar el nombre de la red"],
+            correct: 0,
+            feedback: ["Correcto: protege también la integridad.", "Revisa: CCMP agrega un código de integridad; ocultar el SSID no tiene que ver."]
+          }
+        },
+        {
+          concept: "WPA2-Personal y WPA2-Enterprise",
+          explanation: "WPA2 no funciona siempre igual: cambia cómo entra cada persona. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "WPA2-Personal", rows: [
+              { label: "Credencial", value: "Una contraseña compartida (PSK)" },
+              { label: "Dónde se usa", value: "Hogares y redes pequeñas" },
+              { label: "Si alguien se va", value: "Hay que cambiar la contraseña a todos" },
+              { label: "Cifrado de los datos", value: "AES-CCMP" }
+            ] },
+            right: { title: "WPA2-Enterprise", rows: [
+              { label: "Credencial", value: "Una por persona (802.1X)" },
+              { label: "Dónde se usa", value: "Organizaciones e instituciones" },
+              { label: "Si alguien se va", value: "Se desactiva solo su cuenta" },
+              { label: "Cifrado de los datos", value: "AES-CCMP" }
+            ] }
+          },
+          check: {
+            prompt: "Una red WPA2-Personal y otra WPA2-Enterprise. ¿En qué se diferencian principalmente?",
+            options: ["En cómo se autentican las personas", "En que una cifra los datos y la otra no"],
+            correct: 0,
+            feedback: ["Correcto: las dos cifran con AES-CCMP; cambia la autenticación.", "Revisa la última fila: las dos cifran igual. Lo que cambia es la credencial."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "packet-sort",
+      prompt: "Selecciona la protección adecuada",
+      instructions: "Decide si cada configuración es recomendable o necesita actualizarse. El nombre del protocolo no lo es todo: fíjate también en el cifrado, el modo y la contraseña.",
+      itemLabel: "📶 Configuración",
+      countLabel: "Configuraciones revisadas",
+      binPrefix: "",
+      okTitle: M2_OK,
+      wrongTitle: M2_RETRY,
+      bins: [
+        { id: "ok", label: "Recomendable", caption: "Mantener", icon: "✅" },
+        { id: "update", label: "Necesita actualizarse", caption: "Cambiar configuración o equipo", icon: "🔧" }
+      ],
+      items: [
+        { id: "wep", icon: "🏚️", text: "Red antigua que todavía usa WEP.", bin: "update", explain: "WEP es obsoleto: no basta con cambiarle la clave.", hint: "¿La debilidad de WEP está en la clave o en su diseño?" },
+        { id: "wpa2aes", icon: "🛡️", text: "Router con WPA2-Personal, solo AES-CCMP y una contraseña larga y única.", bin: "ok", explain: "Protocolo vigente, cifrado AES y contraseña robusta: buena combinación.", hint: "Revisa los tres factores: protocolo, cifrado y contraseña. ¿Alguno falla?" },
+        { id: "wpa2tkip", icon: "⚠️", text: "Router con WPA2, pero configurado con TKIP por un equipo viejo.", bin: "update", explain: "El nombre dice WPA2, pero TKIP es heredado: conviene usar solo AES-CCMP.", hint: "Mira el mecanismo de cifrado, no solo el nombre del protocolo." },
+        { id: "wpa", icon: "🩹", text: "Red con WPA original (TKIP).", bin: "update", explain: "WPA original fue una transición; hoy se considera heredado.", hint: "WPA fue el puente entre WEP y WPA2: ¿sigue siendo lo recomendado?" },
+        { id: "weak", icon: "🔑", text: "WPA2 con AES, pero la contraseña es «12345678».", bin: "update", explain: "El protocolo está bien, pero en modo Personal una contraseña débil puede adivinarse: hay que cambiarla.", hint: "El protocolo no es el único factor: ¿qué pasa con esa contraseña?" },
+        { id: "ent", icon: "🏫", text: "Colegio con WPA2-Enterprise, cuentas individuales y AES.", bin: "ok", explain: "Autenticación individual (802.1X) y cifrado AES: adecuado para una institución.", hint: "Credenciales por persona y cifrado AES: ¿qué le faltaría?" }
+      ],
+      hints: { ok: "Revisa si el protocolo, el cifrado y la contraseña son adecuados.", update: "Busca el factor débil: protocolo, cifrado o contraseña." },
+      success: "El nombre del protocolo no lo es todo: importan también el cifrado (AES, no TKIP), el modo (Personal o Enterprise) y la contraseña."
+    },
+    quiz: [
+      { id: "q1", concept: "WPA vs WPA2", prompt: "¿Cuál es una diferencia clave entre WPA original y WPA2?", options: ["WPA2 usa AES-CCMP; WPA original se basaba en TKIP", "WPA2 no usa contraseña", "WPA es más moderno que WPA2", "No hay ninguna diferencia"], correct: 0, feedback: ["Correcto: AES-CCMP es la gran mejora de WPA2.", "WPA original usaba TKIP; WPA2 hizo obligatorio AES-CCMP."] },
+      { id: "q2", concept: "Evolución desde WEP", prompt: "¿Por qué apareció WPA?", options: ["Para reemplazar rápido a WEP mientras se completaba un estándar más robusto", "Para que las redes fueran abiertas", "Para aumentar la velocidad", "Para reemplazar a WPA3"], correct: 0, feedback: ["Correcto: fue la respuesta urgente a las fallas de WEP.", "WPA nació como transición tras las fallas de WEP, antes de WPA2."] },
+      { id: "q3", concept: "AES-CCMP", prompt: "¿Qué función cumple AES-CCMP en WPA2?", options: ["Cifrar las tramas y proteger su integridad", "Elegir el canal", "Ocultar el SSID", "Autenticar con un servidor RADIUS"], correct: 0, feedback: ["Correcto: confidencialidad e integridad de las tramas.", "AES-CCMP es el mecanismo de cifrado e integridad; la autenticación es otra cosa."] },
+      { id: "q4", concept: "Configuración adecuada", prompt: "Un router dice «WPA2», pero usa TKIP y la contraseña «12345678». ¿Qué conviene?", options: ["Nada: si dice WPA2, ya es suficiente", "Usar solo AES-CCMP y una contraseña larga y única", "Volver a WEP", "Ocultar el SSID"], correct: 1, feedback: ["Correcto: el nombre no basta; la configuración importa.", "El nombre del protocolo no garantiza nada: hay que usar AES y una buena contraseña."] },
+      { id: "q5", concept: "Personal vs Enterprise", prompt: "¿Cuál es la diferencia general entre WPA2-Personal y WPA2-Enterprise?", options: ["Personal usa una contraseña compartida; Enterprise, credenciales individuales con 802.1X", "Enterprise no cifra", "Personal solo funciona en 5 GHz", "Son exactamente iguales"], correct: 0, feedback: ["Correcto: cambia el modo de autenticación.", "La diferencia está en la autenticación: compartida (Personal) o individual (Enterprise)."] }
+    ]
+  },
+
+  "m2-wpa3": {
+    ...M2_COMMON,
+    id: "m2-wpa3",
+    moduleId: 2,
+    title: "WPA3",
+    subtitle: "WPA3: una nueva generación de seguridad",
+    quizTitle: "Desafío: WPA3",
+    bridge: "Ya conoces los protocolos. Ahora mira de cerca qué hace el cifrado con la información que viaja por Wi-Fi.",
+    ctf: "Saber qué cambia SAE frente al PSK de WPA2 te ayuda a entender qué es posible —y qué no— en un escenario con WPA3.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es WPA3?",
+          explanation: "La generación de seguridad Wi-Fi que la Wi-Fi Alliance presentó en 2018. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "why", label: "🎯 Por qué nació", sublabel: "Reforzar a WPA2", detail: "Para cubrir puntos débiles de WPA2, sobre todo cuando la contraseña de una red Personal es débil." },
+              { id: "sae", label: "🔑 SAE", sublabel: "En WPA3-Personal", detail: "SAE (Simultaneous Authentication of Equals) reemplaza el intercambio con clave precompartida (PSK) de WPA2-Personal." },
+              { id: "pmf", label: "🛡️ PMF obligatorio", sublabel: "Tramas de gestión protegidas", detail: "WPA3 exige protección de tramas de gestión (802.11w), que dificulta, por ejemplo, falsificar desautenticaciones." },
+              { id: "ent", label: "🏢 WPA3-Enterprise", sublabel: "802.1X + más exigencias", detail: "Sigue usando 802.1X y suma requisitos; tiene un modo opcional de 192 bits para entornos con necesidades altas." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué mecanismo usa WPA3-Personal para autenticar?",
+            options: ["SAE", "WEP"],
+            correct: 0,
+            feedback: ["Correcto: SAE reemplaza al PSK de WPA2-Personal.", "Revisa: WEP es obsoleto; WPA3-Personal usa SAE."]
+          }
+        },
+        {
+          concept: "WPA2 vs WPA3",
+          explanation: "Selecciona cada protocolo y compara sus características.",
+          visual: {
+            type: "bt-compare",
+            prompt: "Toca cada protocolo.",
+            options: [
+              { id: "wpa2", icon: "🛡️", label: "WPA2-Personal", tag: "PSK", tone: "warn", rows: [
+                { k: "Autenticación", v: "Clave precompartida (PSK) y Four-Way Handshake" },
+                { k: "Contraseña débil", v: "Si alguien captura el handshake, puede probar contraseñas sin conexión (offline), sin límite de intentos" },
+                { k: "Si la contraseña se filtra luego", v: "Se podría descifrar tráfico capturado antes" },
+                { k: "Tramas de gestión", v: "Protección (PMF) opcional" },
+                { k: "Compatibilidad", v: "Prácticamente todos los dispositivos" }
+              ] },
+              { id: "wpa3", icon: "🔰", label: "WPA3-Personal", tag: "SAE", tone: "ok", rows: [
+                { k: "Autenticación", v: "SAE: ambos lados prueban que conocen la contraseña sin exponerla" },
+                { k: "Contraseña débil", v: "Capturar el intercambio no basta para probar contraseñas offline: cada intento exige interactuar con la red" },
+                { k: "Si la contraseña se filtra luego", v: "El tráfico capturado antes sigue protegido (secreto hacia adelante)" },
+                { k: "Tramas de gestión", v: "PMF obligatorio" },
+                { k: "Compatibilidad", v: "Requiere equipos compatibles; existe un modo de transición WPA2/WPA3" }
+              ] }
+            ],
+            summary: "WPA3 mejora puntos concretos, pero no vuelve invulnerable a una red: una contraseña adivinable, un firmware sin parches o un dispositivo comprometido siguen siendo riesgos."
+          },
+          check: {
+            prompt: "Con WPA3-Personal, ¿se puede usar la contraseña «12345678» sin problema?",
+            options: ["Sí, WPA3 lo protege todo", "No: una contraseña fácil sigue siendo un riesgo"],
+            correct: 1,
+            feedback: ["Revisa: WPA3 dificulta adivinarla sin conexión, pero no la vuelve segura.", "Correcto: se puede filtrar, compartir o probar directamente contra la red."]
+          }
+        },
+        {
+          concept: "No todo WPA3-Enterprise es igual",
+          explanation: "El nombre no garantiza un nivel único de protección. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "base", label: "🏢 WPA3-Enterprise", sublabel: "Base", detail: "Usa 802.1X como WPA2-Enterprise y exige PMF." },
+              { id: "192", label: "🔒 Modo de 192 bits", sublabel: "Opcional", detail: "Para entornos con requisitos altos: exige suites criptográficas más fuertes (como GCMP-256)." },
+              { id: "config", label: "⚙️ La configuración manda", sublabel: "EAP y certificados", detail: "El nivel real depende del método de autenticación (EAP), de que los equipos validen el certificado del servidor y de cómo se administre." }
+            ]
+          },
+          check: {
+            prompt: "¿Todos los modos de WPA3-Enterprise ofrecen el mismo nivel de protección?",
+            options: ["Sí, todos son iguales", "No, depende del modo y de la configuración"],
+            correct: 1,
+            feedback: ["Revisa: hay un modo base y uno de 192 bits, y la configuración pesa mucho.", "Correcto: el modo y la configuración marcan la diferencia."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "m2-decisions",
+      prompt: "Actualiza la red",
+      instructions: "Toma cada decisión y observa sus consecuencias. No hay una configuración ideal para todos: elige según los dispositivos y las necesidades.",
+      scenario: {
+        title: "Escenario: colegio pequeño (ficticio)",
+        text: "El router admite WPA2 y WPA3. Las laptops y los teléfonos del personal son nuevos y compatibles con WPA3; la impresora es de 2015 y solo admite WPA2.",
+        devices: ["📡 Router WPA2/WPA3", "💻 Laptops (WPA3)", "📱 Teléfonos (WPA3)", "🖨️ Impresora (solo WPA2)"]
+      },
+      decisions: [
+        {
+          id: "staff", title: "1 · Red del personal", context: "Todos los equipos del personal son compatibles con WPA3.",
+          options: [
+            { id: "wep", label: "Mantener WEP «porque ya funciona»", ok: false, effects: [["Seguridad", "bad"], ["Compatibilidad", "ok"]], text: "WEP es obsoleto: su clave se puede recuperar. Que funcione no significa que proteja." },
+            { id: "wpa3", label: "WPA3-Personal con una contraseña larga y única", ok: true, effects: [["Seguridad", "ok"], ["Compatibilidad", "ok"]], text: "Los equipos lo admiten: es la opción más robusta para este caso." },
+            { id: "weak", label: "WPA3-Personal con la contraseña «colegio2024»", ok: false, effects: [["Seguridad", "warn"], ["Compatibilidad", "ok"]], text: "WPA3 dificulta adivinarla sin conexión, pero una contraseña predecible se filtra, se comparte y se puede probar contra la red." }
+          ]
+        },
+        {
+          id: "printer", title: "2 · La impresora de 2015", context: "Solo admite WPA2 y no tiene actualización para WPA3.",
+          options: [
+            { id: "tkip", label: "Pasar toda la red a WPA2-TKIP para que funcione", ok: false, effects: [["Seguridad", "bad"], ["Compatibilidad", "ok"]], text: "TKIP es heredado, y además bajaría la protección de todos los equipos." },
+            { id: "separate", label: "Una red aparte para la impresora, con WPA2 (solo AES) y contraseña robusta", ok: true, effects: [["Seguridad", "ok"], ["Compatibilidad", "ok"]], text: "Cuando hace falta compatibilidad, WPA2 bien configurado es razonable, y separarla limita el impacto si algo falla." },
+            { id: "open", label: "Dejarla en una red abierta", ok: false, effects: [["Seguridad", "bad"], ["Compatibilidad", "ok"]], text: "Sin autenticación ni cifrado Wi-Fi: cualquiera cercano podría conectarse a esa red." }
+          ]
+        },
+        {
+          id: "visitors", title: "3 · Una sola red para todos", context: "La dirección pide una sola red en la que también entren teléfonos viejos de visitantes que solo admiten WPA2.",
+          options: [
+            { id: "transition", label: "Modo de transición WPA2/WPA3 mientras se renuevan los equipos", ok: true, effects: [["Seguridad", "warn"], ["Compatibilidad", "ok"]], text: "Cada equipo usa lo mejor que soporta. Es un paso intermedio: los que entran por WPA2 conservan los límites de WPA2." },
+            { id: "only3", label: "Solo WPA3, aunque los teléfonos viejos queden sin red", ok: false, effects: [["Seguridad", "ok"], ["Compatibilidad", "bad"]], text: "Es lo más robusto, pero no cumple lo que se pidió: los equipos viejos no podrían conectarse." },
+            { id: "tkip", label: "Todo en WPA2-TKIP para que nadie tenga problemas", ok: false, effects: [["Seguridad", "bad"], ["Compatibilidad", "ok"]], text: "Resuelve la compatibilidad, pero con un mecanismo heredado para todos." }
+          ]
+        },
+        {
+          id: "maintenance", title: "4 · Mantenimiento del router", context: "El router tiene firmware de 2019 y la contraseña de administración de fábrica.",
+          options: [
+            { id: "leave", label: "Dejarlo así: ya usamos WPA3", ok: false, effects: [["Seguridad", "bad"], ["Compatibilidad", "ok"]], text: "WPA3 no protege un router con fallas sin parchear ni con la contraseña de fábrica." },
+            { id: "update", label: "Actualizar el firmware y cambiar la contraseña de administración", ok: true, effects: [["Seguridad", "ok"], ["Compatibilidad", "ok"]], text: "El protocolo es una parte; el equipo también tiene que estar al día." }
+          ]
+        }
+      ],
+      success: "No hay una única configuración ideal: WPA3 cuando los equipos lo permitan, WPA2 bien configurado cuando haga falta compatibilidad, y siempre contraseñas robustas y firmware al día."
+    },
+    quiz: [
+      { id: "q1", concept: "Qué es WPA3", prompt: "¿Qué es WPA3?", options: ["La generación más reciente de seguridad Wi-Fi certificada por la Wi-Fi Alliance", "Un tipo de antena", "Una versión mejorada de WEP", "Un protocolo de Bluetooth"], correct: 0, feedback: ["Correcto: la generación más reciente.", "WPA3 es la generación de seguridad Wi-Fi que sucede a WPA2."] },
+      { id: "q2", concept: "Diferencias con WPA2", prompt: "¿Qué cambia en las tramas de gestión con WPA3?", options: ["Su protección (PMF) pasa a ser obligatoria", "Dejan de existir", "Se envían sin cifrar a propósito", "Nada, es igual que en WEP"], correct: 0, feedback: ["Correcto: en WPA2 era opcional, en WPA3 es obligatoria.", "WPA3 exige PMF (802.11w); en WPA2 era opcional."] },
+      { id: "q3", concept: "Función de SAE", prompt: "¿Qué reemplaza SAE en WPA3-Personal?", options: ["El intercambio con clave precompartida (PSK) de WPA2", "El cifrado AES", "El nombre de la red", "El servidor RADIUS"], correct: 0, feedback: ["Correcto: SAE sustituye al PSK.", "SAE reemplaza al PSK de WPA2-Personal; el cifrado sigue siendo AES."] },
+      { id: "q4", concept: "Adivinación de contraseñas", prompt: "¿Cómo ayuda SAE frente a quien captura el intercambio de autenticación?", options: ["Capturarlo no basta para probar contraseñas sin conexión: cada intento exige interactuar con la red", "Hace que la contraseña no importe", "Oculta la red", "Impide que existan contraseñas débiles"], correct: 0, feedback: ["Correcto: elimina el ataque offline sobre lo capturado.", "SAE evita probar contraseñas offline con lo capturado, pero no hace que la contraseña deje de importar."] },
+      { id: "q5", concept: "Configuración y credenciales", prompt: "Verdadero o falso: con WPA3, la contraseña y las actualizaciones ya no importan.", options: ["Verdadero", "Falso"], correct: 1, feedback: ["Correcto: es falso. WPA3 no vuelve invulnerable una red.", "Es falso: contraseña, firmware y configuración siguen siendo clave."] }
+    ]
+  },
+
+  "m2-cifrado": {
+    ...M2_COMMON,
+    id: "m2-cifrado",
+    moduleId: 2,
+    title: "Cifrado",
+    subtitle: "¿Cómo se protege la información que viaja por Wi-Fi?",
+    quizTitle: "Desafío: Cifrado",
+    bridge: "El cifrado protege lo que viaja; pero ¿quién puede entrar a la red? Eso lo decide la autenticación.",
+    ctf: "Saber qué tramo protege cada capa te ayuda a interpretar qué es legible y qué no dentro de una captura.",
+    learn: {
+      steps: [
+        {
+          concept: "Un mensaje por el aire",
+          explanation: "Una laptop envía un formulario. Cambia entre los dos modos y mira qué captaría alguien cerca.",
+          visual: {
+            type: "m2-flow",
+            prompt: "Elige un modo.",
+            modes: [
+              {
+                id: "open", label: "Sin cifrado Wi-Fi", icon: "🔓", tone: "bad",
+                nodes: [{ icon: "💻", label: "Laptop" }, { icon: "📡", label: "Punto de acceso" }, { icon: "🌐", label: "Internet" }],
+                links: [{ label: "aire · sin cifrado Wi-Fi", packet: "nota=95" }, { label: "cable / internet", tone: "plain" }],
+                observer: { title: "Lo que captaría alguien cerca del AP", text: "usuario=ana&nota=95 → legible, salvo que la aplicación use su propio cifrado (como HTTPS)." },
+                detail: "En una red abierta, el tramo inalámbrico no tiene la protección criptográfica de Wi-Fi."
+              },
+              {
+                id: "wifi", label: "Con cifrado Wi-Fi", icon: "🔒", tone: "ok",
+                nodes: [{ icon: "💻", label: "Laptop" }, { icon: "📡", label: "Punto de acceso" }, { icon: "🌐", label: "Internet" }],
+                links: [{ label: "aire · cifrado (AES-CCMP)", packet: "9f3a…" }, { label: "cable / internet · sin la protección de Wi-Fi", tone: "plain" }],
+                observer: { title: "Lo que captaría alguien cerca del AP", text: "9f 3a c1 7e 02 d8 … → ilegible sin la clave de la sesión." },
+                detail: "El cifrado Wi-Fi protege el tramo entre la laptop y el AP. Después del AP los datos ya no tienen esa protección: para todo el recorrido hacen falta medidas como HTTPS."
+              }
+            ],
+            summary: "El cifrado Wi-Fi protege el enlace inalámbrico. No reemplaza a HTTPS ni a otras protecciones de extremo a extremo."
+          },
+          check: {
+            prompt: "Con cifrado Wi-Fi, ¿el mensaje va protegido por Wi-Fi también en internet?",
+            options: ["Sí, en todo el recorrido", "No, solo en el tramo inalámbrico"],
+            correct: 1,
+            feedback: ["Revisa el segundo tramo del diagrama: después del AP ya no hay cifrado Wi-Fi.", "Correcto: Wi-Fi protege el aire; el resto depende de otras capas."]
+          }
+        },
+        {
+          concept: "Texto en claro, clave y texto cifrado",
+          explanation: "Prueba cada acción. Es una simulación visual: no usa el algoritmo real.",
+          visual: {
+            type: "m2-cipher",
+            plaintext: "Reunión a las 3 pm",
+            terms: [
+              ["Texto en claro", "El mensaje original, legible."],
+              ["Cifrado", "Transformar el texto en claro usando una clave."],
+              ["Texto cifrado", "El resultado: ilegible sin la clave."],
+              ["Clave", "El dato secreto que permite cifrar y descifrar."],
+              ["Descifrado", "Recuperar el texto en claro con la clave correcta."],
+              ["Integridad", "Detectar si alguien alteró el mensaje (CCMP la incluye)."]
+            ],
+            summary: "Sin la clave correcta el texto cifrado no dice nada, y si alguien lo altera, un mecanismo con integridad lo detecta."
+          },
+          check: {
+            prompt: "¿Qué necesita el receptor para leer el texto cifrado?",
+            options: ["La clave correcta", "Solo el nombre de la red"],
+            correct: 0,
+            feedback: ["Correcto: con otra clave el resultado es ilegible.", "Revisa: con una clave distinta, el resultado sale como basura."]
+          }
+        },
+        {
+          concept: "Cifrado ≠ autenticación",
+          explanation: "Cumplen funciones relacionadas, pero distintas. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "🔒 Cifrado", rows: [
+              { label: "Responde", value: "¿Quién puede leer el mensaje?" },
+              { label: "Protege", value: "El contenido (y su integridad, si el mecanismo la incluye)" },
+              { label: "Ejemplo en Wi-Fi", value: "AES-CCMP en WPA2" }
+            ] },
+            right: { title: "🪪 Autenticación", rows: [
+              { label: "Responde", value: "¿Quién puede entrar a la red?" },
+              { label: "Protege", value: "El acceso: verifica credenciales" },
+              { label: "Ejemplo en Wi-Fi", value: "Contraseña (Personal) o 802.1X (Enterprise)" }
+            ] }
+          },
+          check: {
+            prompt: "Verificar la contraseña de quien se conecta es…",
+            options: ["Cifrado", "Autenticación"],
+            correct: 1,
+            feedback: ["Revisa: el cifrado protege el contenido; verificar credenciales es autenticación.", "Correcto: decide quién entra."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "Protege el mensaje",
+      instructions: "Clasifica cada situación según la protección que tiene. Lee la explicación: cada capa protege un tramo distinto.",
+      panelTitle: "Situaciones observadas",
+      categories: [
+        { id: "none", label: "Sin cifrado en el enlace Wi-Fi" },
+        { id: "wifi", label: "Protegido por cifrado Wi-Fi" },
+        { id: "https", label: "Cifrado Wi-Fi + HTTPS" },
+        { id: "app", label: "Cifrado Wi-Fi, app sin protección propia" }
+      ],
+      items: [
+        { id: "cafe", icon: "☕", name: "Café con red abierta", clues: ["Red sin contraseña", "Página http://"], answer: "none", explain: "Ni el enlace Wi-Fi ni la página están cifrados: alguien cerca podría leer lo que se envía.", hint: "¿La red pide contraseña y cifra el enlace?" },
+        { id: "printer", icon: "🖨️", name: "Documento a la impresora", clues: ["Oficina con WPA2-AES", "Laptop → impresora de la misma red"], answer: "wifi", explain: "El tramo inalámbrico va cifrado por WPA2: protege contra quien escucha el aire. Los equipos de la propia red siguen siendo puntos a cuidar.", hint: "Todo ocurre dentro de una red Wi-Fi cifrada, sin salir a internet." },
+        { id: "bank", icon: "🏦", name: "Banca en línea", clues: ["Red WPA3 del colegio", "Sitio https://"], answer: "https", explain: "Dos capas: Wi-Fi protege el aire y HTTPS protege los datos de extremo a extremo hasta el banco.", hint: "Fíjate en la dirección del sitio: además de la red, ¿hay otra capa?" },
+        { id: "chat", icon: "💬", name: "App de chat antigua", clues: ["Red WPA2 de la casa", "La app envía los mensajes sin cifrar a su servidor"], answer: "app", explain: "Wi-Fi solo protege hasta el router; desde ahí los mensajes viajan legibles por internet. Hace falta una app con cifrado propio.", hint: "La red está cifrada, pero ¿qué pasa con los mensajes después del router?" },
+        { id: "airport", icon: "✈️", name: "Aeropuerto", clues: ["Red abierta", "Sitio https://"], answer: "none", explain: "El enlace Wi-Fi no está cifrado. HTTPS sí protege el contenido de esa página, pero otro tráfico del equipo sin cifrado propio quedaría expuesto.", hint: "Clasifica según el enlace Wi-Fi: ¿la red cifra el aire?" }
+      ],
+      success: "Cada capa protege un tramo: el cifrado Wi-Fi cuida el aire; HTTPS o el cifrado de la aplicación cuidan el recorrido completo. Una no reemplaza a la otra."
+    },
+    quiz: [
+      { id: "q1", concept: "Propósito del cifrado", prompt: "¿Cuál es el propósito del cifrado?", options: ["Que solo quien tenga la clave pueda leer la información", "Aumentar la velocidad", "Elegir el canal", "Anunciar el nombre de la red"], correct: 0, feedback: ["Correcto: confidencialidad.", "El cifrado sirve para que solo quien tenga la clave pueda leer."] },
+      { id: "q2", concept: "Texto en claro y cifrado", prompt: "¿Qué es el texto cifrado?", options: ["El mensaje original legible", "El mensaje transformado, ilegible sin la clave", "La contraseña de la red", "El nombre del AP"], correct: 1, feedback: ["Correcto.", "El texto en claro es el original; el texto cifrado es el resultado ilegible sin la clave."] },
+      { id: "q3", concept: "Función de las claves", prompt: "¿Qué papel cumple la clave?", options: ["Permite cifrar y descifrar: con otra clave el resultado es ilegible", "Decide el canal", "Es el nombre de la red", "Ninguno"], correct: 0, feedback: ["Correcto: sin la clave correcta no hay descifrado.", "La clave es lo que permite cifrar y descifrar."] },
+      { id: "q4", concept: "Cifrado vs autenticación", prompt: "¿En qué se diferencian cifrado y autenticación?", options: ["El cifrado protege el contenido; la autenticación verifica quién accede", "Son lo mismo", "La autenticación hace ilegible el mensaje", "El cifrado decide quién entra a la red"], correct: 0, feedback: ["Correcto: funciones relacionadas, pero distintas.", "Cifrado = proteger el contenido; autenticación = verificar quién accede."] },
+      { id: "q5", concept: "Wi-Fi y HTTPS", prompt: "Estás en una red WPA3 y entras a un sitio http:// (sin HTTPS). ¿Qué protege el cifrado Wi-Fi?", options: ["Todo el recorrido hasta el sitio", "Solo el tramo entre tu equipo y el AP"], correct: 1, feedback: ["Correcto: después del AP no hay cifrado Wi-Fi.", "Wi-Fi solo protege el enlace inalámbrico; el resto del camino necesita HTTPS."] }
+    ]
+  },
+
+  "m2-autenticacion": {
+    ...M2_COMMON,
+    id: "m2-autenticacion",
+    moduleId: 2,
+    title: "Autenticación",
+    subtitle: "¿Quién puede conectarse a la red?",
+    quizTitle: "Desafío: Autenticación",
+    bridge: "Tienes los cinco temas. Ponlos a prueba en la misión «Operación: Red Segura».",
+    ctf: "Entender cómo se autentica una red te indica quién puede acceder y cómo se verifica esa identidad.",
+    learn: {
+      steps: [
+        {
+          concept: "WPA-Personal vs WPA-Enterprise",
+          explanation: "La autenticación verifica credenciales o identidad antes de dar acceso. Cambia de modo y toca cada parte del diagrama.",
+          visual: {
+            type: "m2-flow",
+            prompt: "Elige un modo.",
+            modes: [
+              {
+                id: "personal", label: "WPA-Personal", icon: "🏠", tone: "info",
+                nodes: [
+                  { icon: "📱", label: "Dispositivo", detail: "Conoce la contraseña de la red: la misma que usan todos." },
+                  { icon: "📡", label: "Punto de acceso", detail: "Comprueba que el dispositivo conoce la contraseña compartida." },
+                  { icon: "🌐", label: "Red", detail: "Una vez dentro, el dispositivo usa la red." }
+                ],
+                links: [{ label: "🔑 contraseña compartida" }, { label: "acceso" }],
+                detail: "Todos comparten una contraseña. Es simple y habitual en hogares y redes pequeñas; su seguridad depende, entre otras cosas, de que sea robusta y se mantenga privada."
+              },
+              {
+                id: "enterprise", label: "WPA-Enterprise", icon: "🏢", tone: "info",
+                nodes: [
+                  { icon: "📱", label: "Dispositivo", detail: "Presenta una credencial propia: usuario y contraseña, o un certificado." },
+                  { icon: "📡", label: "Punto de acceso", detail: "No decide solo: reenvía la solicitud al servidor de autenticación (802.1X)." },
+                  { icon: "🗄️", label: "Servidor RADIUS", detail: "Verifica la credencial y responde si se permite el acceso, según las políticas." },
+                  { icon: "🌐", label: "Red", detail: "El acceso puede depender de quién es la persona (por ejemplo, docente o estudiante)." }
+                ],
+                links: [{ label: "👤 credencial individual" }, { label: "802.1X: el AP consulta" }, { label: "acceso según políticas" }],
+                detail: "Cada persona tiene su credencial y un servidor de autenticación (como RADIUS) la verifica. Los detalles dependen del método (EAP) configurado."
+              }
+            ],
+            summary: "Personal: una contraseña para todos. Enterprise: una identidad por persona, verificada por un servidor."
+          },
+          check: {
+            prompt: "En WPA-Enterprise, ¿quién verifica la credencial?",
+            options: ["El servidor de autenticación (por ejemplo, RADIUS), a pedido del AP", "Cada dispositivo se verifica a sí mismo"],
+            correct: 0,
+            feedback: ["Correcto: el AP reenvía y el servidor decide.", "Revisa el diagrama Enterprise: hay un servidor que verifica."]
+          }
+        },
+        {
+          concept: "¿Qué pasa cuando alguien se va?",
+          explanation: "La diferencia se nota al administrar los accesos. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "🏠 WPA-Personal", rows: [
+              { label: "Credencial", value: "Una contraseña para todos" },
+              { label: "Alguien deja la organización", value: "Hay que cambiar la contraseña y avisar a todos" },
+              { label: "Saber quién se conectó", value: "Difícil: todos usan la misma" },
+              { label: "Infraestructura", value: "Solo el router" }
+            ] },
+            right: { title: "🏢 WPA-Enterprise", rows: [
+              { label: "Credencial", value: "Una por persona" },
+              { label: "Alguien deja la organización", value: "Se desactiva solo su cuenta" },
+              { label: "Saber quién se conectó", value: "Cada acceso se asocia a un usuario" },
+              { label: "Infraestructura", value: "Router + servidor de autenticación" }
+            ] }
+          },
+          check: {
+            prompt: "Una empresa con 200 empleados y altas y bajas frecuentes. ¿Qué enfoque facilita la gestión?",
+            options: ["WPA-Personal", "WPA-Enterprise"],
+            correct: 1,
+            feedback: ["Revisa: con 200 personas, cambiar una contraseña compartida cada vez es inmanejable.", "Correcto: cuentas individuales que se activan y desactivan."]
+          }
+        },
+        {
+          concept: "Autenticar no es cifrar",
+          explanation: "Toca cada acción para ver qué función cumple.",
+          visual: {
+            type: "list-select",
+            prompt: "Toca cada acción.",
+            items: [
+              { id: "auth", label: "🔑 Verificar la contraseña al conectarse", note: "Autenticación: decide quién entra a la red." },
+              { id: "crypto", label: "🔒 Hacer ilegibles las tramas en el aire", note: "Cifrado: protege el contenido de lo que viaja." },
+              { id: "both", label: "🤝 El Four-Way Handshake", note: "Las une: confirma que ambos lados comparten la clave correcta y deriva las claves de cifrado de la sesión (lo verás en el Módulo 3)." }
+            ]
+          },
+          check: {
+            prompt: "Si una red verificara bien quién entra pero no cifrara, ¿la información viajaría protegida?",
+            options: ["Sí", "No: autenticar no hace ilegible el tráfico"],
+            correct: 1,
+            feedback: ["Revisa: autenticar controla el acceso, no protege el contenido.", "Correcto: hacen falta las dos funciones."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "packet-sort",
+      prompt: "Elige el sistema de acceso",
+      instructions: "Relaciona cada escenario con el enfoque que mejor se ajusta a sus necesidades. Arrástralo o toca un compartimento.",
+      itemLabel: "🧭 Escenario",
+      countLabel: "Escenarios resueltos",
+      binPrefix: "",
+      okTitle: M2_OK,
+      wrongTitle: M2_RETRY,
+      bins: [
+        { id: "personal", label: "WPA-Personal", caption: "Contraseña compartida", icon: "🏠" },
+        { id: "enterprise", label: "WPA-Enterprise", caption: "802.1X + servidor", icon: "🏢" }
+      ],
+      items: [
+        { id: "home", icon: "🏠", text: "Una vivienda con 6 dispositivos de la familia.", bin: "personal", explain: "Pocos dispositivos y personas de confianza: una contraseña robusta y privada suele bastar.", hint: "¿Hace falta un servidor y cuentas individuales para una familia?" },
+        { id: "school", icon: "🏫", text: "Una institución educativa con cientos de estudiantes y docentes, cada uno con su usuario.", bin: "enterprise", explain: "Credenciales individuales y control por persona: Enterprise.", hint: "Cada persona ya tiene su propio usuario: ¿qué enfoque lo aprovecha?" },
+        { id: "company", icon: "🏢", text: "Una empresa que debe dar y quitar acceso a empleados de varios departamentos.", bin: "enterprise", explain: "Enterprise permite políticas por persona y revocar accesos de forma individual.", hint: "Dar y quitar accesos uno por uno es difícil con una sola contraseña." },
+        { id: "shared", icon: "🔁", text: "Una oficina donde todos comparten una sola contraseña y ya nadie sabe quién la tiene.", bin: "enterprise", explain: "Es el problema típico de una clave compartida a escala: pasar a credenciales individuales facilita la gestión.", hint: "El problema es justamente la contraseña compartida." },
+        { id: "shop", icon: "🛍️", text: "Una tienda pequeña con 3 empleados de confianza y sin servidor propio.", bin: "personal", accept: ["personal", "enterprise"], explain: "Depende de sus necesidades: Personal con una contraseña robusta suele bastar; Enterprise también es posible, pero exige más infraestructura. Ambas respuestas son válidas." }
+      ],
+      hints: { personal: "Piensa en cuántas personas hay y si hace falta gestionarlas una por una.", enterprise: "Piensa en cuántas personas hay y si hace falta gestionarlas una por una." },
+      success: "No hay una opción universal: Personal es simple para pocos usuarios de confianza; Enterprise escala y permite gestionar identidades cuando hay muchas personas o se necesita control individual."
+    },
+    quiz: [
+      { id: "q1", concept: "Propósito de la autenticación", prompt: "¿Cuál es el propósito de la autenticación en Wi-Fi?", options: ["Verificar credenciales o identidad antes de dar acceso a la red", "Hacer ilegibles los datos", "Elegir el canal", "Aumentar el alcance"], correct: 0, feedback: ["Correcto: decide quién puede entrar.", "La autenticación verifica quién accede; hacer ilegibles los datos es el cifrado."] },
+      { id: "q2", concept: "WPA-Personal", prompt: "¿Qué usa normalmente WPA-Personal?", options: ["Una contraseña compartida", "Un certificado obligatorio por persona", "Un servidor RADIUS", "La huella digital"], correct: 0, feedback: ["Correcto.", "WPA-Personal se basa normalmente en una contraseña que comparten todos."] },
+      { id: "q3", concept: "WPA-Enterprise", prompt: "¿Qué caracteriza a WPA-Enterprise?", options: ["Autenticación 802.1X con un servidor y credenciales individuales", "No usa credenciales", "Solo funciona en viviendas", "Todos comparten una contraseña"], correct: 0, feedback: ["Correcto.", "Enterprise usa 802.1X y un servidor de autenticación, con credenciales por persona."] },
+      { id: "q4", concept: "802.1X y RADIUS", prompt: "En WPA-Enterprise, ¿qué hace el servidor RADIUS?", options: ["Verifica las credenciales que el AP le reenvía y responde si se permite el acceso", "Emite la señal Wi-Fi", "Cifra las páginas web", "Asigna los canales"], correct: 0, feedback: ["Correcto: el AP pregunta y el servidor decide.", "El servidor verifica credenciales; el AP solo hace de intermediario."] },
+      { id: "q5", concept: "Autenticación vs cifrado", prompt: "¿Cuál es la diferencia entre autenticación y cifrado?", options: ["La autenticación decide quién entra; el cifrado protege el contenido", "Son lo mismo", "El cifrado decide quién entra", "La autenticación hace ilegibles los mensajes"], correct: 0, feedback: ["Correcto: funciones distintas que se complementan.", "Autenticación = acceso; cifrado = contenido."] }
+    ]
+  }
+});
+
+// Misión final: un mismo conjunto de perfiles de red que se analiza en las
+// cinco etapas (motor "steps-mission", el mismo de la misión del Módulo 1).
+lessons[M2_MISSION_ID] = {
+  ...M2_COMMON,
+  id: M2_MISSION_ID,
+  moduleId: 2,
+  mission: true,
+  missionType: "steps-mission",
+  title: "Operación: Red Segura",
+  subtitle: "Misión final del Módulo 2",
+  doneTitle: "MISIÓN COMPLETADA",
+  claim: "Revisaste una red como un auditor: protocolos, configuración, cifrado y autenticación, hasta emitir una recomendación fundamentada.",
+  badge: { icon: "🛡️", name: "Guardián Wi-Fi" },
+  brief: {
+    file: "Expediente · Módulo 2",
+    heading: "🛡️ Operación: Red Segura",
+    text: "El equipo de WISPR recibió el encargo de revisar la configuración de una red inalámbrica. Hay varios perfiles disponibles, pero algunos utilizan mecanismos antiguos o configuraciones inadecuadas. Analiza las evidencias y recomienda una configuración más segura."
+  },
+  scan: {
+    title: "Perfiles de red del centro (simulado)",
+    columns: [
+      { key: "ssid", label: "SSID", code: true },
+      { key: "security", label: "Seguridad" },
+      { key: "cipher", label: "Cifrado" },
+      { key: "auth", label: "Autenticación" },
+      { key: "note", label: "Nota" }
+    ],
+    rows: [
+      { ssid: "Bodega_Vieja", security: "WEP", cipher: "RC4 (WEP)", auth: "Clave compartida", note: "Router de 2008" },
+      { ssid: "Admin_Centro", security: "WPA", cipher: "TKIP", auth: "Clave compartida", note: "—" },
+      { ssid: "Oficina", security: "WPA2-Personal", cipher: "TKIP", auth: "Contraseña «oficina123»", note: "—" },
+      { ssid: "Docentes", security: "WPA2-Enterprise", cipher: "AES-CCMP", auth: "802.1X", note: "Cuentas individuales" },
+      { ssid: "Laboratorio", security: "WPA3-Personal", cipher: "AES-CCMP", auth: "SAE", note: "Contraseña larga y única" }
+    ]
+  },
+  phases: [
+    { id: "s1", label: "Protocolo" },
+    { id: "s2", label: "Configuración" },
+    { id: "s3", label: "Cifrado" },
+    { id: "s4", label: "Autenticación" },
+    { id: "s5", label: "Diagnóstico" },
+    { id: "done", label: "Informe" }
+  ],
+  steps: [
+    {
+      id: "s1", kind: "per-item", lesson: "WEP, WPA, WPA2 y WPA3",
+      prompt: "Etapa 1 · Identifica el protocolo: ¿cada perfil usa un mecanismo obsoleto o una alternativa vigente?",
+      options: [{ id: "obsolete", label: "Obsoleto" }, { id: "current", label: "Vigente (bien configurado)" }, { id: "modern", label: "Más moderno" }],
+      items: [
+        { id: "p1", label: "Bodega_Vieja", detail: "WEP", answer: "obsolete", explain: "WEP es obsoleto por diseño.", hint: "Recuerda el Tema 1: ¿WEP se corrige con una buena clave?" },
+        { id: "p2", label: "Admin_Centro", detail: "WPA", answer: "obsolete", explain: "WPA original (TKIP) fue una transición: hoy es heredado.", hint: "WPA fue el puente entre WEP y WPA2." },
+        { id: "p4", label: "Docentes", detail: "WPA2-Enterprise", answer: "current", explain: "WPA2 sigue vigente, sobre todo bien configurado y con AES.", hint: "Es el protocolo que reemplazó a WEP, pero no el más reciente." },
+        { id: "p5", label: "Laboratorio", detail: "WPA3-Personal", answer: "modern", explain: "WPA3 es la generación más reciente.", hint: "Busca la generación más reciente." }
+      ]
+    },
+    {
+      id: "s2", kind: "multi", lesson: "WPA y WPA2: la configuración",
+      prompt: "Etapa 2 · Analiza la configuración: marca SOLO los puntos problemáticos y pulsa «Comprobar».",
+      items: [
+        { id: "c1", label: "Bodega_Vieja: cifrado WEP", target: true, explain: "Problema: WEP es obsoleto." },
+        { id: "c2", label: "Admin_Centro: WPA con TKIP", target: true, explain: "Problema: TKIP es heredado." },
+        { id: "c3", label: "Oficina: TKIP en lugar de AES", target: true, explain: "Problema: aunque diga WPA2, usa el mecanismo heredado." },
+        { id: "c4", label: "Oficina: contraseña «oficina123»", target: true, explain: "Problema: es predecible y en modo Personal se puede adivinar." },
+        { id: "c5", label: "Docentes: WPA2-Enterprise con AES-CCMP", target: false, explain: "Adecuado: autenticación individual y cifrado AES." },
+        { id: "c6", label: "Laboratorio: WPA3-SAE con contraseña larga", target: false, explain: "Adecuado: protocolo moderno y contraseña robusta." }
+      ]
+    },
+    {
+      id: "s3", kind: "single", lesson: "Cifrado",
+      prompt: "Etapa 3 · Una docente envía calificaciones desde «Docentes» (WPA2-AES) a una plataforma web con https://. ¿Qué afirmación es correcta?",
+      options: [
+        { label: "El cifrado Wi-Fi protege los datos en todo el recorrido, así que HTTPS sobra", correct: false, explain: "Wi-Fi solo protege el tramo inalámbrico, hasta el AP." },
+        { label: "Wi-Fi protege el tramo hasta el AP y HTTPS protege los datos hasta la plataforma", correct: true, explain: "Cada capa cubre un tramo y se complementan." },
+        { label: "Como hay HTTPS, el cifrado Wi-Fi no aporta nada", correct: false, explain: "Sí aporta: protege también el tráfico del enlace que no usa HTTPS." },
+        { label: "Al ser una red Enterprise, ninguna de las dos capas hace falta", correct: false, explain: "Enterprise trata de la autenticación; no reemplaza al cifrado ni a HTTPS." }
+      ]
+    },
+    {
+      id: "s4", kind: "per-item", lesson: "Autenticación",
+      prompt: "Etapa 4 · Selecciona la autenticación que mejor se ajusta a cada contexto.",
+      options: [{ id: "personal", label: "WPA-Personal" }, { id: "enterprise", label: "WPA-Enterprise" }],
+      items: [
+        { id: "h1", label: "Casa de la conserje: 4 dispositivos de la familia", answer: "personal", explain: "Pocos dispositivos de confianza: una contraseña robusta basta.", hint: "¿Una familia necesita cuentas individuales y un servidor?" },
+        { id: "h2", label: "Personal del centro: 60 personas con altas y bajas", answer: "enterprise", explain: "Cuentas individuales que se activan y desactivan sin cambiar nada a los demás.", hint: "Piensa en qué pasa cada vez que alguien se va." },
+        { id: "h3", label: "Estudiantes del laboratorio con usuario institucional", answer: "enterprise", explain: "Ya tienen usuario propio: Enterprise lo aprovecha y permite políticas por grupo.", hint: "Cada estudiante ya tiene una identidad institucional." }
+      ]
+    },
+    {
+      id: "s5", kind: "single", lesson: "WPA3 y el diagnóstico final",
+      prompt: "Etapa 5 · Emite el diagnóstico: ¿qué recomiendas para la red del centro?",
+      options: [
+        { label: "Retirar WEP y WPA; Enterprise para el personal; WPA3 donde los equipos lo admitan y WPA2 solo con AES donde haga falta compatibilidad; contraseñas robustas y firmware al día", correct: true, explain: "Combina todo: protocolo según los equipos, buena configuración, autenticación acorde al contexto y mantenimiento." },
+        { label: "Mantener todo igual: todas las redes tienen contraseña", correct: false, explain: "Tener contraseña no basta: WEP, WPA y TKIP siguen siendo débiles." },
+        { label: "Todo en WPA3-Personal con la contraseña «centro2024» para todos: WPA3 lo vuelve invulnerable", correct: false, explain: "WPA3 no vuelve invulnerable una red, y una sola contraseña predecible para 60 personas es difícil de gestionar." },
+        { label: "Abrir las redes: con HTTPS ya basta", correct: false, explain: "HTTPS no protege todo el tráfico ni controla quién se conecta a la red." }
+      ]
+    }
+  ],
+  ctfLinks: [
+    ["WEP", "reconocer una red con protección obsoleta"],
+    ["WPA y WPA2", "distinguir AES de TKIP y Personal de Enterprise"],
+    ["WPA3", "entender qué cambia SAE frente a un handshake de WPA2"],
+    ["Cifrado", "saber qué tramo protege cada capa en una captura"],
+    ["Autenticación", "interpretar quién accede a una red y cómo se verifica"]
+  ]
+};
+
 let terminalClient = null;
 let terminalEpoch = 0;
 let pendingTerminalCommand = "";
@@ -2890,6 +3646,9 @@ function applyServerProfile(player) {
   app.solved = player.solved || {};
   app.attempts = player.attempts || {};
   app.submissions = player.submissions || [];
+  // Pistas abiertas guardadas en el servidor (backend FastAPI); el prototipo
+  // Node solo no las manda y se conservan las del navegador.
+  if (player.hints && typeof player.hints === "object") app.hints = player.hints;
   if (legacyLessonProgress && legacyLessonProgress.handle === player.handle) {
     app.lessonProgress = { ...legacyLessonProgress.progress, ...(app.lessonProgress || {}) };
   }
@@ -3572,18 +4331,46 @@ async function downloadFile(file, challenge) {
   }
 }
 
-function unlockHint(id, index) {
+function rememberHint(id, index) {
   app.hints[id] = app.hints[id] || [];
   if (!app.hints[id].includes(index)) app.hints[id].push(index);
   saveState();
-  render();
+}
+
+// Con el backend FastAPI (20 oct) las pistas cerradas llegan vacías: el texto
+// se pide al abrirla, y cada pista abierta antes de resolver resta puntos
+// (`hintCost`). Sin `hintCost` (prototipo Node solo) se abre como antes, gratis.
+async function unlockHint(id, index) {
+  const challenge = app.challenges.find(item => item.id === id);
+  if (!challenge || challenge.hintCost === undefined) {
+    rememberHint(id, index);
+    return render();
+  }
+  const cost = app.solved[id] ? 0 : challenge.hintCost;
+  if (cost > 0 && !confirm(`Ver esta pista te resta ${cost} pts cuando resuelvas el reto. ¿La quieres ver?`)) return;
+  try {
+    const response = await apiFetch(`${API}/api/challenges/${encodeURIComponent(id)}/hints/${index}`, { method: "POST" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo abrir la pista.");
+    challenge.hints[index] = data.hint;
+    rememberHint(id, index);
+    if (data.cost > 0) toast(`Pista abierta: −${data.cost} pts. Si lo resuelves ahora ganas ${data.pointsIfSolved} pts.`, "info");
+    render();
+  } catch (error) {
+    toast(error.message || "No se pudo abrir la pista.", "error");
+  }
+}
+
+function hintButtonLabel(challenge) {
+  return challenge.hintCost && !app.solved[challenge.id] ? `Mostrar (−${challenge.hintCost} pts)` : "Mostrar";
 }
 
 function applySubmissionResult(challenge, data, source, shouldRender = true) {
   app.attempts[challenge.id] = (app.attempts[challenge.id] || 0) + 1;
   app.submissions.unshift({ id: challenge.id, title: challenge.title, ok: data.ok, time: Date.now(), source });
   if (data.ok && !app.solved[challenge.id]) {
-    app.solved[challenge.id] = { time: Date.now(), points: challenge.points };
+    // `data.points` ya trae el descuento por pistas (backend FastAPI).
+    app.solved[challenge.id] = { time: Date.now(), points: typeof data.points === "number" ? data.points : challenge.points };
     if (data.nextChallenge) upsertChallenge(data.nextChallenge);
     toast(data.nextChallenge ? "Reto resuelto. El motor creó un nuevo laboratorio para tu cola." : "Reto resuelto. Tu progreso fue actualizado.", "success");
   } else if (data.ok) {
@@ -4535,7 +5322,7 @@ function challengeDetail(challenge) {
     div({ class: "detail-hero" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, "✓ Resuelto") : null])]),
     div({ class: "panel" }, [h("h3", {}, "Objetivo"), h("p", {}, challenge.objective), challenge.tools.length ? div({ class: "tool-grid" }, [span({ class: "tool-label" }, "Herramientas"), ...challenge.tools.map(tool => span({ class: "tool" }, tool))]) : null]),
     div({ class: "panel" }, [h("h3", {}, "Archivos"), ...challenge.files.map(file => div({ class: "file-row" }, [div({}, [h("strong", {}, file.name), h("p", { class: "muted tight" }, file.desc)]), button({ class: "ghost-action", onclick: () => downloadFile(file, challenge) }, "Descargar")])), h("p", { class: "muted tight scope-note" }, "Evidencia sintética. Kali corre aislada, sin acceso a tu equipo ni a internet.")]),
-    div({ class: "panel" }, [h("h3", {}, "Pistas"), ...challenge.hints.map((hint, index) => div({ class: "hint-row" }, [unlocked.includes(index) ? h("p", {}, hint) : h("p", { class: "muted" }, `Pista ${index + 1} bloqueada`), !unlocked.includes(index) ? button({ class: "ghost-action", onclick: () => unlockHint(challenge.id, index) }, "Mostrar") : null]))]),
+    div({ class: "panel" }, [h("h3", {}, "Pistas"), ...challenge.hints.map((hint, index) => ({ hint, index, open: unlocked.includes(index) && Boolean(hint) })).map(({ hint, index, open }) => div({ class: "hint-row" }, [open ? h("p", {}, hint) : h("p", { class: "muted" }, `Pista ${index + 1} bloqueada`), !open ? button({ class: "ghost-action", onclick: () => unlockHint(challenge.id, index) }, hintButtonLabel(challenge)) : null]))]),
     div({ class: "submit-panel" }, solved ? h("strong", { class: "owned-label" }, "Reto completado con esta cuenta") : [input = h("input", { placeholder: "WISPR{flag_aqui}", autocomplete: "off" }, []), button({ class: "primary-action", onclick: () => submitFlag(challenge, input) }, "Enviar flag"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(challenge) }, "Resolver en Kali")])
   ]);
 }
@@ -6054,7 +6841,7 @@ function lessonQuizStage(lesson, state) {
       return button({ class: `quiz-option ${cls}`, disabled: Boolean(answered), onclick: () => answerQuiz(question, index) }, option);
     })),
     answered ? div({ class: `quiz-feedback ${selected === question.correct ? "ok" : "bad"}` }, [
-      h("strong", {}, selected === question.correct ? "✓ ¡Correcto!" : (lesson.quizWrongTitle || "✗ No es correcto")),
+      h("strong", {}, selected === question.correct ? (lesson.quizOkTitle || "✓ ¡Correcto!") : (lesson.quizWrongTitle || "✗ No es correcto")),
       h("p", {}, question.feedback[selected === question.correct ? 0 : 1])
     ]) : null,
     answered ? div({ class: "lesson-actions" }, [
@@ -7402,6 +8189,20 @@ function finishMission(lesson) {
   render();
 }
 
+function missionConceptReview(lesson, state) {
+  const errors = state.stepErrors || {};
+  const mastered = lesson.steps.filter(step => !errors[step.id]);
+  const review = lesson.steps.filter(step => errors[step.id]);
+  return div({ class: "m3-concepts" }, [
+    div({ class: "m3-concept-col ok" }, [h("strong", {}, "✓ Conceptos dominados"), mastered.length
+      ? h("ul", {}, mastered.map(step => h("li", {}, step.lesson)))
+      : h("p", { class: "muted tight" }, "Repite la misión para afianzarlos.")]),
+    div({ class: "m3-concept-col bad" }, [h("strong", {}, "↻ Conviene repasar"), review.length
+      ? h("ul", {}, review.map(step => h("li", {}, `${step.lesson} (${errors[step.id]} error${errors[step.id] === 1 ? "" : "es"})`)))
+      : h("p", { class: "muted tight" }, "Nada: resolviste cada etapa sin errores.")])
+  ]);
+}
+
 function missionComplete(lesson, state) {
   const info = moduleSequenceInfo(lesson.moduleId);
   const animate = m3Flashing("mission-done");
@@ -7412,6 +8213,7 @@ function missionComplete(lesson, state) {
     h("h2", {}, lesson.doneTitle || `¡Módulo ${lesson.moduleId} completado!`),
     h("p", { class: "m3-module-claim" }, lesson.claim),
     div({ class: "m3-complete-row" }, [span({ class: "xp-badge" }, `+${state.xp} XP misión`), span({ class: "m3-xp-total" }, `${info.xp} XP en el módulo`), masteryStars(state.percent)]),
+    lesson.steps ? missionConceptReview(lesson, state) : null,
     div({ class: "m3-mastery-list" }, info.config.sequence.map(id => {
       const progress = app.lessonProgress[id] || {};
       return div({ class: "m3-mastery-row" }, [span({}, lessons[id].title), span({ class: "muted tight" }, `${progress.percent ?? 0}%`), masteryStars(progress.percent || 0)]);
@@ -7437,7 +8239,9 @@ function missionComplete(lesson, state) {
 // ===========================================================================
 
 function btFeedback(ok, text) {
-  return div({ class: `bt-fb ${ok ? "ok" : "bad"}`, role: "status" }, [h("strong", {}, ok ? BT_OK : BT_REVIEW), h("p", {}, text)]);
+  // Una lección puede pedir otros títulos (el Módulo 2 usa "✗ Inténtalo de nuevo").
+  const titles = (app.lesson && lessons[app.lesson.id]?.feedbackTitles) || [BT_OK, BT_REVIEW];
+  return div({ class: `bt-fb ${ok ? "ok" : "bad"}`, role: "status" }, [h("strong", {}, ok ? titles[0] : titles[1]), h("p", {}, text)]);
 }
 
 function btSignalBars(level) {
@@ -7451,8 +8255,8 @@ function renderBtCompare(visual, state, stepIndex) {
   const active = visual.options.find(option => option.id === sel.sel);
   const allSeen = visual.options.every(option => sel.seen.includes(option.id));
   return div({ class: "m3-lab bt-compare" }, [
-    div({ class: "bt-compare-grid" }, visual.options.map(option => button({
-      class: `bt-tech bt-tech-${option.id} ${sel.sel === option.id ? "active" : ""} ${sel.seen.includes(option.id) ? "seen" : ""}`,
+    div({ class: `bt-compare-grid cols-${visual.options.length}` }, visual.options.map(option => button({
+      class: `bt-tech bt-tech-${option.id} ${option.tone ? `tone-${option.tone}` : ""} ${sel.sel === option.id ? "active" : ""} ${sel.seen.includes(option.id) ? "seen" : ""}`,
       type: "button",
       "aria-pressed": sel.sel === option.id ? "true" : "false",
       onclick: () => { app.lesson.stepSelections[stepIndex] = { sel: option.id, seen: m3Toggle(sel.seen, option.id) }; m3Play(`btc-${option.id}`); render(); }
@@ -7460,12 +8264,13 @@ function renderBtCompare(visual, state, stepIndex) {
       span({ class: "bt-tech-icon", "aria-hidden": "true" }, option.icon),
       h("strong", {}, option.label),
       span({ class: "m3-chip tone-plain mini" }, option.tag),
-      div({ class: "bt-meter", "aria-label": `Consumo relativo ${option.power}%` }, [span({ class: "bt-meter-label" }, "Consumo"), div({ class: "bt-meter-track" }, [div({ class: "bt-meter-fill", style: { width: `${option.power}%` } }, [])])])
+      // Medidor opcional: el Módulo 2 no lo usa (un "porcentaje de seguridad" inventado sería engañoso).
+      option.power === undefined ? null : div({ class: "bt-meter", "aria-label": `${visual.meterLabel || "Consumo"} relativo ${option.power}%` }, [span({ class: "bt-meter-label" }, visual.meterLabel || "Consumo"), div({ class: "bt-meter-track" }, [div({ class: "bt-meter-fill", style: { width: `${option.power}%` } }, [])])])
     ]))),
     active ? div({ class: `bt-tech-detail ${m3Flashing(`btc-${active.id}`) ? "anim-pop" : ""}` }, [
       div({ class: "bt-rows" }, active.rows.map(row => div({ class: "bt-row" }, [span({ class: "m3-capture-key" }, row.k), span({}, row.v)]))),
-      div({ class: "bt-device-chips" }, active.devices.map(device => span({ class: "m3-chip tone-plain" }, device)))
-    ]) : h("p", { class: "m3-caption" }, "Toca cada dispositivo."),
+      active.devices?.length ? div({ class: "bt-device-chips" }, active.devices.map(device => span({ class: "m3-chip tone-plain" }, device))) : null
+    ]) : h("p", { class: "m3-caption" }, visual.prompt || "Toca cada dispositivo."),
     allSeen ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Explorados: ${sel.seen.length}/${visual.options.length}`)
   ]);
 }
@@ -7630,7 +8435,7 @@ function scanClassifyStage(lesson, state) {
   const solvedCount = practice.items.filter(item => state.answers[item.id] === item.answer).length;
   return m3PracticeShell(practice, [
     div({ class: "m3-lab bt-scanner" }, [
-      div({ class: "m3-capture-title" }, ["◉ Escáner WISPR (simulado) · ", `${solvedCount}/${practice.items.length} clasificados`]),
+      div({ class: "m3-capture-title" }, [`◉ ${practice.panelTitle || "Escáner WISPR (simulado)"} · `, `${solvedCount}/${practice.items.length} clasificados`]),
       ...practice.items.map(item => {
         const answer = state.answers[item.id];
         const ok = answer === item.answer;
@@ -7638,7 +8443,7 @@ function scanClassifyStage(lesson, state) {
           div({ class: "bt-scan-item-head" }, [
             span({ class: "bt-scan-icon", "aria-hidden": "true" }, item.icon),
             div({}, [h("strong", {}, item.name), div({ class: "bt-clues" }, item.clues.map(clue => span({ class: "m3-chip tone-plain mini" }, clue)))]),
-            btSignalBars(item.bars)
+            item.bars === undefined ? null : btSignalBars(item.bars)
           ]),
           div({ class: "bt-choice-row" }, practice.categories.map(category => button({
             class: `m3-option bt-choice ${answer === category.id ? (ok ? "active" : "wrong") : ""}`,
@@ -7894,9 +8699,17 @@ function btMissionView(lesson, state) {
 // Lo usa la misión del Módulo 1; sirve para futuras misiones solo con datos.
 // ---------------------------------------------------------------------------
 function stepsMissionInit(lesson) {
-  const state = { phase: "brief", answers: {}, errors: 0 };
+  const state = { phase: "brief", answers: {}, errors: 0, stepErrors: {} };
   lesson.steps.filter(step => step.kind === "multi").forEach(step => { state[`sel_${step.id}`] = []; state[`chk_${step.id}`] = false; });
   return state;
+}
+
+// Un error en un paso de la misión: cuenta para el XP total y para saber qué
+// concepto conviene repasar en la pantalla final.
+function stepMiss(step) {
+  app.lesson.errors += 1;
+  app.lesson.stepErrors = app.lesson.stepErrors || {};
+  app.lesson.stepErrors[step.id] = (app.lesson.stepErrors[step.id] || 0) + 1;
 }
 
 function stepComplete(step, state) {
@@ -7915,6 +8728,17 @@ function stepsMissionNext(lesson, index) {
 }
 
 function scanPanel(scan) {
+  if (scan.columns) {
+    return div({ class: "m3-lab sm-scan" }, [
+      div({ class: "m3-capture-title" }, ["◉ ", scan.title]),
+      div({ class: "sm-table-wrap" }, [
+        h("table", { class: "sm-table" }, [
+          h("thead", {}, [h("tr", {}, scan.columns.map(column => h("th", {}, column.label)))]),
+          h("tbody", {}, scan.rows.map(row => h("tr", {}, scan.columns.map(column => h("td", {}, column.code ? [h("code", {}, row[column.key])] : row[column.key])))))
+        ])
+      ])
+    ]);
+  }
   return div({ class: "m3-lab sm-scan" }, [
     div({ class: "m3-capture-title" }, ["◉ ", scan.title]),
     div({ class: "sm-table-wrap" }, [
@@ -7944,7 +8768,7 @@ function perItemStep(step, state) {
         type: "button",
         disabled: ok,
         onclick: () => {
-          if (option.id !== item.answer) app.lesson.errors += 1;
+          if (option.id !== item.answer) stepMiss(step);
           app.lesson.answers[step.id] = { ...(app.lesson.answers[step.id] || {}), [item.id]: option.id };
           render();
         }
@@ -7962,7 +8786,7 @@ function singleStep(step, state) {
       class: `m3-option ${answer === index ? (option.correct ? "active" : "wrong") : ""}`,
       type: "button",
       disabled: solved,
-      onclick: () => { if (!option.correct) app.lesson.errors += 1; app.lesson.answers[step.id] = index; render(); }
+      onclick: () => { if (!option.correct) stepMiss(step); app.lesson.answers[step.id] = index; render(); }
     }, option.label))),
     answer !== undefined ? btFeedback(step.options[answer].correct, step.options[answer].explain) : null
   ]);
@@ -7979,7 +8803,7 @@ function multiStep(step, state) {
       class: "ghost-action compact",
       type: "button",
       disabled: !state[selKey].length,
-      onclick: () => { if (!allRight) app.lesson.errors += 1; app.lesson[chkKey] = true; render(); }
+      onclick: () => { if (!allRight) stepMiss(step); app.lesson[chkKey] = true; render(); }
     }, "Comprobar")])
   ]);
 }
@@ -8018,6 +8842,162 @@ function stepsMissionView(lesson, state) {
 
 m3PracticeInits["steps-mission"] = stepsMissionInit;
 missionViews["steps-mission"] = stepsMissionView;
+
+// ===========================================================================
+// MÓDULO 2 — componentes (Seguridad Wi-Fi)
+// Se registran en los mismos registros del motor que los módulos 3 y 5
+// (m3LearnVisuals, m3PracticeStages, m3PracticeInits). Cada estado se
+// comunica con texto e icono además del color (✓ / ⚠ / ✗).
+// ===========================================================================
+
+const M2_TONE_ICON = { ok: "✓", warn: "⚠", bad: "✗", info: "ℹ", plain: "·" };
+
+// --- m2-flow: diagrama de comunicación con modos alternables -------------
+// Cada modo define sus nodos, los enlaces entre ellos (con un paquete que
+// viaja animado), lo que vería un observador cercano y una explicación. Lo
+// usan WEP vs seguridad moderna, sin/con cifrado Wi-Fi y Personal vs Enterprise.
+function renderM2Flow(visual, state, stepIndex) {
+  const sel = state.stepSelections[stepIndex] || { mode: null, seen: [], node: null };
+  const mode = visual.modes.find(item => item.id === sel.mode);
+  const pickMode = id => { app.lesson.stepSelections[stepIndex] = { mode: id, seen: m3Toggle(sel.seen, id), node: null }; m3Play(`m2flow-${stepIndex}-${id}`); render(); };
+  const pickNode = index => { app.lesson.stepSelections[stepIndex] = { ...sel, node: sel.node === index ? null : index }; render(); };
+  const allSeen = visual.modes.every(item => sel.seen.includes(item.id));
+  const diagram = mode ? div({ class: `m2-flow tone-${mode.tone} ${m3Flashing(`m2flow-${stepIndex}-${mode.id}`) ? "anim" : ""}`, role: "img", "aria-label": `${mode.label}: ${mode.nodes.map(node => node.label).join(" → ")}` },
+    mode.nodes.flatMap((node, index) => {
+      const nodeEl = button({
+        class: `m2-node ${sel.node === index ? "active" : ""} ${node.detail ? "" : "static"}`,
+        type: "button",
+        disabled: !node.detail,
+        "aria-pressed": sel.node === index ? "true" : "false",
+        onclick: () => pickNode(index)
+      }, [span({ class: "m2-node-icon", "aria-hidden": "true" }, node.icon), h("small", {}, node.label)]);
+      const link = mode.links[index];
+      if (!link) return [nodeEl];
+      const tone = link.tone || mode.tone;
+      const packet = link.packet ?? mode.packet;
+      return [nodeEl, div({ class: `m2-link tone-${tone}` }, [
+        span({ class: "m2-link-line", "aria-hidden": "true" }, ""),
+        packet && tone !== "plain" ? span({ class: "m2-packet", "aria-hidden": "true", style: { animationDelay: `${index * 0.6}s` } }, packet) : null,
+        h("small", { class: "m2-link-label" }, [span({ "aria-hidden": "true" }, `${M2_TONE_ICON[tone] || ""} `), link.label])
+      ])];
+    })) : null;
+  return div({ class: "m3-lab m2-flow-lab" }, [
+    div({ class: "m2-tabs", role: "group", "aria-label": "Modos" }, visual.modes.map(item => button({
+      class: `m2-tab tone-${item.tone} ${sel.mode === item.id ? "active" : ""} ${sel.seen.includes(item.id) ? "seen" : ""}`,
+      type: "button",
+      "aria-pressed": sel.mode === item.id ? "true" : "false",
+      onclick: () => pickMode(item.id)
+    }, [span({ "aria-hidden": "true" }, item.icon), span({}, item.label)]))),
+    diagram || h("p", { class: "m3-caption" }, visual.prompt || "Elige un modo."),
+    mode && sel.node !== null && mode.nodes[sel.node]?.detail ? m3Note(`${mode.nodes[sel.node].icon} ${mode.nodes[sel.node].label}`, mode.nodes[sel.node].detail) : null,
+    mode?.observer ? div({ class: `m2-observer tone-${mode.tone}` }, [
+      span({ class: "m3-behind-label" }, `👀 ${mode.observer.title}`),
+      h("code", {}, mode.observer.text)
+    ]) : null,
+    mode ? m3Note(`${M2_TONE_ICON[mode.tone] || ""} ${mode.label}`, mode.detail, mode.tone === "ok" ? "ok" : mode.tone === "bad" ? "bad" : "") : null,
+    allSeen ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Modos explorados: ${sel.seen.length}/${visual.modes.length}`)
+  ]);
+}
+
+// --- m2-cipher: texto en claro → texto cifrado → descifrado --------------
+// Simulación visual, NO criptografía real: el "texto cifrado" es un resumen
+// de juguete (m3SimMic) para que el mismo mensaje siempre se vea igual.
+function m2Garble(text) {
+  const symbols = "#%&@ÆØ§¶µ¤¿ß×ÞðþÐ";
+  return m3SimMic(`otra-clave|${text}`).replace(/ /g, "").slice(0, text.length).split("").map(char => symbols[parseInt(char, 16) % symbols.length]).join("");
+}
+
+function renderM2Cipher(visual, state, stepIndex) {
+  const sel = state.stepSelections[stepIndex] || { action: null, seen: [] };
+  const cipher = m3SimMic(visual.plaintext);
+  const tampered = cipher.replace(/^(\w)/, char => (char === "0" ? "1" : "0"));
+  const encrypted = sel.seen.includes("encrypt");
+  const act = action => { app.lesson.stepSelections[stepIndex] = { action, seen: m3Toggle(sel.seen, action) }; m3Play(`m2c-${stepIndex}-${action}`); render(); };
+  const views = {
+    encrypt: { cipher, result: "—", tone: "", title: "🔒 Cifrado", text: "La clave transformó el texto en claro en texto cifrado: alguien que lo capture solo ve esto." },
+    decrypt: { cipher, result: visual.plaintext, tone: "ok", title: "✓ Descifrado con la clave correcta", text: "El receptor, que tiene la misma clave de sesión, recupera el mensaje original." },
+    wrong: { cipher, result: m2Garble(visual.plaintext), tone: "bad", title: "✗ Descifrado con otra clave", text: "Sin la clave correcta sale basura: el texto cifrado no revela nada útil." },
+    tamper: { cipher: tampered, result: "⚠ Trama rechazada", tone: "bad", title: "⚠ Alguien alteró el texto cifrado", text: "Cambió un solo carácter y el control de integridad ya no coincide: el receptor descarta la trama (CCMP incluye esta comprobación)." }
+  };
+  const view = views[sel.action] || { cipher: "—", result: "—", tone: "", title: null, text: null };
+  const box = (label, value, extra = "") => div({ class: `m2-cbox ${extra}` }, [span({ class: "m3-behind-label" }, label), h("code", {}, value)]);
+  const actions = [
+    ["encrypt", "🔒 Cifrar", false],
+    ["decrypt", "🔓 Descifrar (clave correcta)", !encrypted],
+    ["wrong", "🗝️ Descifrar con otra clave", !encrypted],
+    ["tamper", "✂️ Alterar el texto cifrado", !encrypted]
+  ];
+  return div({ class: "m3-lab m2-cipher" }, [
+    div({ class: `m2-cipher-row ${m3Flashing(`m2c-${stepIndex}-${sel.action}`) ? "anim" : ""}` }, [
+      box("Texto en claro", visual.plaintext),
+      span({ class: "m2-carrow", "aria-hidden": "true" }, "→ 🔑 →"),
+      box("Texto cifrado", view.cipher, sel.action === "tamper" ? "bad" : ""),
+      span({ class: "m2-carrow", "aria-hidden": "true" }, "→ 🔑 →"),
+      box("Resultado", view.result, view.tone)
+    ]),
+    div({ class: "m3-actions m2-cipher-actions" }, actions.map(([id, label, disabled]) => button({
+      class: `m3-option ${sel.action === id ? "active" : ""}`,
+      type: "button",
+      disabled,
+      title: disabled ? "Primero cifra el mensaje" : "",
+      onclick: () => act(id)
+    }, label))),
+    view.title ? m3Note(view.title, view.text, view.tone) : h("p", { class: "m3-caption" }, "Empieza por «Cifrar»."),
+    h("dl", { class: "m2-terms" }, visual.terms.flatMap(([term, meaning]) => [h("dt", {}, term), h("dd", {}, meaning)])),
+    sel.seen.length === actions.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Acciones probadas: ${sel.seen.length}/${actions.length}`)
+  ]);
+}
+
+Object.assign(m3LearnVisuals, {
+  "m2-flow": renderM2Flow,
+  "m2-cipher": renderM2Cipher
+});
+
+// --- m2-decisions: escenario con decisiones y consecuencias visibles ------
+// Cada decisión muestra su efecto en "Seguridad" y "Compatibilidad" (icono +
+// texto, no solo color). Se resuelve cuando todas tienen la opción adecuada.
+function m2DecisionsInit() { return { picks: {} }; }
+
+function m2DecisionsStage(lesson, state) {
+  const practice = lesson.practice;
+  const done = practice.decisions.filter(decision => decision.options.find(option => option.id === state.picks[decision.id])?.ok).length;
+  const pick = (decision, option) => {
+    app.lesson.attempts += 1;
+    app.lesson.picks[decision.id] = option.id;
+    m3Play(`m2d-${decision.id}`);
+    if (practice.decisions.every(item => item.options.find(entry => entry.id === app.lesson.picks[item.id])?.ok)) app.lesson.practiceSolved = true;
+    render();
+  };
+  return m3PracticeShell(practice, [
+    div({ class: "m3-lab m2-scenario" }, [
+      span({ class: "m3-behind-label" }, practice.scenario.title),
+      h("p", {}, practice.scenario.text),
+      div({ class: "bt-device-chips" }, practice.scenario.devices.map(device => span({ class: "m3-chip tone-plain" }, device))),
+      h("p", { class: "m3-caption small" }, `Decisiones resueltas: ${done}/${practice.decisions.length}`)
+    ]),
+    ...practice.decisions.map(decision => {
+      const chosen = decision.options.find(option => option.id === state.picks[decision.id]);
+      return div({ class: `m3-lab m2-decision ${chosen ? (chosen.ok ? "ok" : "bad") : ""}` }, [
+        h("strong", {}, decision.title),
+        h("p", { class: "m3-caption" }, decision.context),
+        div({ class: "m2-decision-options" }, decision.options.map(option => button({
+          class: `m3-option ${chosen?.id === option.id ? (option.ok ? "active" : "wrong") : ""}`,
+          type: "button",
+          disabled: Boolean(chosen?.ok),
+          onclick: () => pick(decision, option)
+        }, option.label))),
+        chosen ? div({ class: `m2-effects ${m3Flashing(`m2d-${decision.id}`) ? "anim-pop" : ""}` }, chosen.effects.map(([label, tone]) => span({ class: `m2-effect tone-${tone}` }, [
+          span({ "aria-hidden": "true" }, M2_TONE_ICON[tone]), ` ${label}: `, h("strong", {}, { ok: "adecuada", warn: "con límites", bad: "insuficiente" }[tone])
+        ]))) : null,
+        chosen ? btFeedback(chosen.ok, chosen.text) : null
+      ]);
+    }),
+    state.practiceSolved ? m3Success(practice.success, "✓ ¡Red actualizada!") : null
+  ], m3PracticeFooter(state));
+}
+
+Object.assign(m3PracticeStages, { "m2-decisions": m2DecisionsStage });
+Object.assign(m3PracticeInits, { "m2-decisions": m2DecisionsInit });
 
 function rankingView() {
   return div({ class: "ranking-page" }, [div({ class: "section-head" }, [div({}, [h("h2", {}, "Ranking")])]), ...leaderboard().map((player, index) => div({ class: `ranking-row ${player.current ? "current" : ""}` }, [span({ class: "rank" }, `#${index + 1}`), div({ class: "avatar" }, player.name.slice(0, 1).toUpperCase()), div({ class: "grow" }, [h("strong", {}, player.name), h("p", { class: "muted tight" }, `${player.handle} · ${player.solves} retos`)]), span({ class: "streak" }, `racha ${player.streak}`), h("strong", { class: "score" }, String(player.score))]))]);

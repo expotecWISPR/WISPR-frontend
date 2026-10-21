@@ -11,6 +11,15 @@ export PS1="\[\e[1;92m\]kali\[\e[1;93m\]@\[\e[1;96m\]wispr\[\e[0m\]:\[\e[1;94m\]
 # comandos y herramientas que existen y funcionan en este laboratorio.
 help() { command ctf help; }
 
+# Colores en ls/grep/ip: este archivo REEMPLAZA al .bashrc de Kali (--rcfile),
+# que es donde normalmente se activan. Sin esto, carpetas, archivos y
+# coincidencias salen todos en blanco.
+if [ -x /usr/bin/dircolors ]; then eval "$(dircolors -b)"; fi
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
+alias ip='ip --color=auto'
+
 # Atajos cómodos y sin sorpresas.
 alias ll='ls -lah'
 alias cls='clear'

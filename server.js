@@ -337,6 +337,24 @@ async function forwardSubmission(token, record) {
   }
 }
 
+// `ctf hint` (20 oct): FastAPI entrega la pista y la anota, porque cada pista
+// abierta antes de resolver resta puntos. Las cerradas ya no vienen en
+// active.json (llegan vacías), así que no se pueden leer con `cat`.
+async function forwardHint(token, record) {
+  const challengeId = String(record.challengeId || "").slice(0, 120);
+  const index = Number.parseInt(record.index, 10);
+  if (!Number.isInteger(index) || index < 0 || index > 50) return { ok: false, error: "Esa pista no existe." };
+  try {
+    const response = await backendFetch(`/api/challenges/${encodeURIComponent(challengeId)}/hints/${index}`, token, { method: "POST" });
+    if (response.status === 401) return { ok: false, error: "Tu sesión expiró. Inicia sesión de nuevo en la web." };
+    const data = await response.json();
+    return data && typeof data === "object" ? data : { ok: false, error: "Respuesta inválida del servidor." };
+  } catch (error) {
+    console.error("[ctf hint] FastAPI no responde:", error.message);
+    return { ok: false, error: "No se pudo contactar al servidor de WISPR. Intenta de nuevo." };
+  }
+}
+
 // Monta en el workspace del jugador el reto tal como lo tiene FastAPI: los
 // MISMOS archivos que se descargan desde la web, así la flag que valida
 // FastAPI coincide. Desde el 13 oct XOR y WEP traen archivo y flag propios de
@@ -371,6 +389,7 @@ async function prepareWorkspaceFromBackend(player, token, challengeId) {
     files: publicFiles,
     directory: "/workspace/challenge",
     sharedEvidence: !challenge.perPlayer, // `ctf show` dice "única para tu cuenta" solo si lo es
+    hintsRemote: true, // `ctf hint` pide cada pista a FastAPI (cuesta puntos), no la lee de aquí
     activatedAt: new Date().toISOString()
   };
   fs.writeFileSync(path.join(environment.workspace, "active.json"), JSON.stringify(active, null, 2), "utf8");
@@ -1409,6 +1428,42 @@ function writeTerminalResult(environment, record, result) {
   try { fs.appendFileSync(path.join(environment.workspace, "results.ndjson"), line + "\n", "utf8"); } catch (error) { console.error("No se pudo escribir results.ndjson:", error.message); }
 }
 
+// `ctf hint` en modo conectado: cada línea de hint-requests.ndjson es un
+// pedido; la respuesta de FastAPI va a hint-results.ndjson, que `ctf` espera.
+const terminalHintResults = new Map();
+async function readTerminalHintRequests(player, cursor, token) {
+  const environment = environmentFor(player);
+  const file = path.join(environment.workspace, "hint-requests.ndjson");
+  if (!CONNECTED || !fs.existsSync(file)) return cursor;
+  const lines = fs.readFileSync(file, "utf8").split("\n").filter(Boolean).slice(0, 2000);
+  const start = Math.max(0, Math.min(lines.length, Number(cursor) || 0));
+  for (let index = start; index < lines.length; index += 1) {
+    let record;
+    try { record = JSON.parse(lines[index]); } catch { continue; }
+    const key = `${player}:${String(record.id || "").slice(0, 64)}`;
+    if (!record.id || terminalHintResults.has(key)) continue;
+    terminalHintResults.set(key, true);
+    const result = await forwardHint(token, record);
+    const line = JSON.stringify({
+      id: record.id,
+      challengeId: record.challengeId,
+      index: result.index ?? record.index,
+      ok: Boolean(result.ok),
+      hint: result.hint || "",
+      cost: result.cost || 0,
+      pointsIfSolved: result.pointsIfSolved ?? null,
+      error: result.error || ""
+    });
+    try { fs.appendFileSync(path.join(environment.workspace, "hint-results.ndjson"), line + "\n", "utf8"); } catch (error) { console.error("No se pudo escribir hint-results.ndjson:", error.message); }
+  }
+  return lines.length;
+}
+
+function countHintRequestLines(player) {
+  const file = path.join(environmentFor(player).workspace, "hint-requests.ndjson");
+  try { return fs.readFileSync(file, "utf8").split("\n").filter(Boolean).length; } catch { return 0; }
+}
+
 function countSubmissionLines(player) {
   const file = path.join(environmentFor(player).workspace, "submissions.ndjson");
   try { return fs.readFileSync(file, "utf8").split("\n").filter(Boolean).length; } catch { return 0; }
@@ -2101,6 +2156,7 @@ wss.on("connection", (ws, _req, player, token) => {
 
   // Vigila los `ctf submit` hechos desde la shell y empuja el resultado al navegador.
   let cursor = countSubmissionLines(player);
+  let hintCursor = countHintRequestLines(player);
   let checking = false;
   const watcher = setInterval(async () => {
     if (checking || ws.readyState !== ws.OPEN) return;
@@ -2109,6 +2165,7 @@ wss.on("connection", (ws, _req, player, token) => {
       const { cursor: next, submissions } = await readTerminalSubmissions(player, cursor, token);
       cursor = next;
       submissions.forEach(result => send({ type: "submission", result }));
+      hintCursor = await readTerminalHintRequests(player, hintCursor, token);
     } catch (error) {
       console.error("Error leyendo envíos de terminal:", error.message);
     } finally {

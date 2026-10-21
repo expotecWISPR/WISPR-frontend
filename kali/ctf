@@ -140,7 +140,105 @@ def _hint_progress():
         return {}
 
 
+HINT_REQUESTS = WORKSPACE / "hint-requests.ndjson"
+HINT_RESULTS = WORKSPACE / "hint-results.ndjson"
+HINT_CACHE = WORKSPACE / ".hint-cache.json"
+
+
+def _known_hints(challenge):
+    """Textos de las pistas ya abiertas: las que vinieron en active.json más
+    las que se pidieron desde esta terminal (caché local)."""
+    known = {i: text for i, text in enumerate(challenge.get("hints", [])) if text}
+    try:
+        cached = json.loads(HINT_CACHE.read_text(encoding="utf-8")).get(challenge["id"], {})
+        known.update({int(i): text for i, text in cached.items() if text})
+    except (OSError, json.JSONDecodeError, ValueError, AttributeError):
+        pass
+    return known
+
+
+def _cache_hint(challenge_id, index, text):
+    try:
+        data = json.loads(HINT_CACHE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        data = {}
+    data.setdefault(challenge_id, {})[str(index)] = text
+    try:
+        HINT_CACHE.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _wait_hint_result(record_id):
+    deadline = time.time() + RESULT_TIMEOUT
+    while time.time() < deadline:
+        if HINT_RESULTS.exists():
+            for line in HINT_RESULTS.read_text(encoding="utf-8").splitlines():
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if item.get("id") == record_id:
+                    return item
+        time.sleep(0.4)
+    return None
+
+
+def remote_hint(challenge, arg):
+    """Con el backend FastAPI: cada pista se pide al servidor, que la anota y
+    la descuenta de los puntos si el reto todavía no está resuelto."""
+    width = term_width()
+    total = len(challenge.get("hints", []))
+    if not total:
+        print("Este reto no tiene pistas registradas. Revisa challenge/README.md.")
+        return 0
+    known = _known_hints(challenge)
+    if arg == "all":
+        for index in range(total):
+            tag = f"{YELLOW}[Pista {index + 1}/{total}]{RESET} "
+            text = known.get(index) or f"{DIM}(bloqueada: 'ctf hint' para abrirla){RESET}"
+            print(wrap_block(text, width, indent="  ", first_indent=tag))
+        return 0
+    pending = [i for i in range(total) if i not in known]
+    if not pending:
+        print(f"{YELLOW}Ya viste todas las pistas ({total}). Usa 'ctf hint all' para repasarlas.{RESET}")
+        return 0
+    index = pending[0]
+    cost = int(challenge.get("hintCost") or 0)
+    if cost > 0 and arg not in ("-y", "--yes", "si", "sí"):
+        print(wrap_block(f"La pista {index + 1}/{total} te resta {cost} pts cuando resuelvas el reto "
+                         "(si ya lo resolviste, es gratis).", width))
+        try:
+            answer = input("¿La quieres ver? [s/N] ").strip().lower()
+        except EOFError:
+            answer = ""
+        if answer not in ("s", "si", "sí", "y", "yes"):
+            print("Pista no abierta.")
+            return 0
+
+    record = {"id": uuid.uuid4().hex, "challengeId": challenge["id"], "index": index}
+    with HINT_REQUESTS.open("a", encoding="utf-8") as output:
+        output.write(json.dumps(record) + "\n")
+    result = _wait_hint_result(record["id"])
+    if result is None:
+        print(f"{YELLOW}[WISPR] Sin respuesta del servidor. Mantén la terminal conectada e intenta de nuevo.{RESET}")
+        return 1
+    if not result.get("ok"):
+        print(f"{RED}[WISPR] {result.get('error') or 'No se pudo abrir la pista.'}{RESET}")
+        return 1
+    _cache_hint(challenge["id"], index, result.get("hint", ""))
+    tag = f"{YELLOW}[Pista {index + 1}/{total}]{RESET} "
+    print(wrap_block(result.get("hint", ""), width, indent="  ", first_indent=tag))
+    if result.get("cost"):
+        print(f"{DIM}(−{result['cost']} pts · si lo resuelves ahora ganas {result.get('pointsIfSolved')} pts){RESET}")
+    if len(pending) > 1:
+        print(f"{DIM}(Escribe 'ctf hint' otra vez para la siguiente.){RESET}")
+    return 0
+
+
 def hint(challenge, arg):
+    if challenge.get("hintsRemote"):
+        return remote_hint(challenge, arg)
     width = term_width()
     hints = challenge.get("hints", [])
     if not hints:
@@ -250,7 +348,8 @@ def usage():
     for cmd, desc in [
         ("ctf show", "Muestra el reto: objetivo, archivos y herramienta a usar."),
         ("ctf files", "Lista la evidencia (la captura) del reto."),
-        ("ctf hint", "Da una pista del reto (cuesta puntos)."),
+        ("ctf hint", "Da una pista del reto (resta puntos si aún no lo resolviste)."),
+        ("ctf hint all", "Repasa las pistas que ya abriste."),
         ("ctf submit <flag>", "Envía la flag que encontraste."),
     ]:
         print(wrap_row(cmd, desc, 18, width))
