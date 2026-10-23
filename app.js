@@ -5223,8 +5223,45 @@ function challengesView() {
     div({ class: "section-head" }, [div({}, [h("h2", {}, "Retos"), h("p", { class: "muted section-copy" }, `${Object.keys(app.solved).length} de ${app.challenges.length} resueltos. Cada reto trae su evidencia para analizar en Kali.`)])]),
     challengeGeneratorPanel(),
     div({ class: "toolbar" }, [select("filter", app.filter, ["all", ...categories], value => { app.filter = value; saveState(); render(); }), select("sort", app.sort, ["recommended", "difficulty", "points"], value => { app.sort = value; saveState(); render(); })]),
-    div({ class: "challenge-grid" }, list.map(challengeCard))
+    ...challengeSections(list)
   ]);
+}
+
+// La lista se divide en "Por resolver" (máximo 15, contando el catálogo: cada
+// reto resuelto libera un espacio para pedir otro) y "Resueltos", que empieza
+// cerrada para que la página no se sature.
+let showSolvedChallenges = false;
+
+function maxPendingChallenges() {
+  return generatorState.options?.maxPending || 15;
+}
+
+function pendingChallengeCount() {
+  return app.challenges.filter(challenge => !app.solved[challenge.id]).length;
+}
+
+function challengeSections(list) {
+  const pending = list.filter(challenge => !app.solved[challenge.id]);
+  const solved = list.filter(challenge => app.solved[challenge.id]);
+  return [
+    div({ class: "challenge-section" }, [
+      div({ class: "challenge-section-head" }, [
+        h("h3", {}, "Por resolver"),
+        span({ class: "challenge-count" }, `${pendingChallengeCount()} de ${maxPendingChallenges()}`)
+      ]),
+      pending.length
+        ? div({ class: "challenge-grid" }, pending.map(challengeCard))
+        : h("p", { class: "muted tight" }, app.filter === "all" ? "¡Resolviste todos tus retos! Pide uno nuevo a la IA." : "No te queda ningún reto por resolver en esta categoría.")
+    ]),
+    solved.length ? div({ class: "challenge-section" }, [
+      div({ class: "challenge-section-head" }, [
+        h("h3", {}, "Resueltos"),
+        span({ class: "challenge-count done" }, String(solved.length)),
+        button({ class: "ghost-action compact", type: "button", "aria-expanded": showSolvedChallenges ? "true" : "false", onclick: () => { showSolvedChallenges = !showSolvedChallenges; render(); } }, showSolvedChallenges ? "Ocultar" : "Ver resueltos")
+      ]),
+      showSolvedChallenges ? div({ class: "challenge-grid" }, solved.map(challengeCard)) : null
+    ]) : null
+  ];
 }
 
 // ---------------------------------------------------------------------------
@@ -5299,6 +5336,14 @@ function practiceWorth(options) {
   return h("p", { class: `generator-worth ${points === 0 ? "none" : points < full ? "reduced" : ""}` }, [span({ "aria-hidden": "true" }, points === 0 ? "○ " : "★ "), text]);
 }
 
+// Cuántos espacios le quedan al estudiante para pedir retos (el backend frena igual).
+function pendingSlots() {
+  const free = maxPendingChallenges() - pendingChallengeCount();
+  return h("p", { class: `pending-slots ${free > 0 ? "" : "full"}`.trim() }, free > 0
+    ? `Tienes ${pendingChallengeCount()} de ${maxPendingChallenges()} retos por resolver: puedes pedir ${free === 1 ? "1 más" : `${free} más`}.`
+    : `Tu lista está llena (${maxPendingChallenges()} de ${maxPendingChallenges()}). Resuelve un reto para liberar un espacio y pedir otro.`);
+}
+
 function challengeGeneratorPanel() {
   const options = generatorState.options;
   if (!options) {
@@ -5317,6 +5362,7 @@ function challengeGeneratorPanel() {
       ? "Eliges técnica, dificultad y escenario; la IA escribe la historia. Lo verán todos los estudiantes, cada uno con su propio archivo y su propia flag."
       : "Elige qué quieres practicar. La IA escribe la historia y el reto es solo tuyo. El primero de cada tipo y nivel vale los puntos completos; repetir el mismo vale cada vez menos."),
     teacher ? null : practiceWorth(options),
+    teacher ? null : pendingSlots(),
     h("form", { class: "generator-form", onsubmit: requestChallenge }, [
       h("select", { name: "technique", "aria-label": "Técnica", onchange: set("technique") },
         options.techniques.map(item => h("option", { value: item.id, selected: item.id === generatorState.technique }, item.name))),
@@ -5330,7 +5376,7 @@ function challengeGeneratorPanel() {
       generatorState.theme === "__otro"
         ? h("input", { name: "custom", placeholder: "Ej. la casa de mi abuela", maxlength: "40", value: generatorState.custom, "aria-label": "Escenario", oninput: event => { generatorState.custom = event.target.value; } }, [])
         : null,
-      button({ class: "primary-action compact", type: "submit", disabled: generatorState.busy }, generatorState.busy ? "La IA está escribiendo…" : "Generar reto")
+      button({ class: "primary-action compact", type: "submit", disabled: generatorState.busy || (!teacher && pendingChallengeCount() >= maxPendingChallenges()) }, generatorState.busy ? "La IA está escribiendo…" : "Generar reto")
     ]),
     published.length
       ? div({ class: "generator-published" }, [
