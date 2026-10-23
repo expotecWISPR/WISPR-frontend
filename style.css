@@ -6967,3 +6967,216 @@ button.chip-profile:hover strong,
     padding-right: 12px;
   }
 }
+
+/* =====================================================================
+   wispr :: recorrido de bienvenida con Wisp (22 oct)
+   Capa fija que oscurece la página. El hueco iluminado (.wtour-spot) es una
+   caja con una sombra enorme: todo lo que queda fuera se oscurece. La burbuja
+   de Wisp es oscura en ambos temas, como los encabezados.
+   ===================================================================== */
+
+.wtour {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+}
+
+.wtour-spot {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(2, 9, 24, 0.74);
+  outline: 2px solid rgba(164, 221, 0, 0.85);
+  outline-offset: 2px;
+  pointer-events: none;
+  animation: wtour-glow 2.4s ease-in-out infinite;
+}
+
+.wtour.centered .wtour-spot {
+  inset: 0;
+  border-radius: 0;
+  outline: 0;
+  box-shadow: none;
+  background: rgba(2, 9, 24, 0.74);
+  animation: none;
+}
+
+@keyframes wtour-glow {
+  0%, 100% { outline-color: rgba(164, 221, 0, 0.85); }
+  50% { outline-color: rgba(164, 221, 0, 0.35); }
+}
+
+.wtour-card {
+  position: fixed;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  width: min(460px, calc(100vw - 32px));
+  padding: 18px 20px 16px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(164, 221, 0, 0.35);
+  color: #f5f5f5;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(164, 221, 0, 0.14), transparent 45%),
+    linear-gradient(140deg, #0f2c67, #081a3a 70%);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+  animation: wtour-in 0.28s ease-out;
+}
+
+.wtour.centered .wtour-card {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, calc(100vw - 32px));
+  animation-name: wtour-in-center;
+}
+
+@keyframes wtour-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes wtour-in-center {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.wtour-wisp {
+  width: 92px;
+  height: auto;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.4));
+  animation: wtour-float 3.2s ease-in-out infinite;
+}
+
+@keyframes wtour-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.wtour-body {
+  min-width: 0;
+}
+
+.wtour-step {
+  margin: 0 0 4px;
+  color: #a4dd00;
+  font: 700 0.72rem/1 JetBrains Mono, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wtour-card h3 {
+  margin: 0 0 6px;
+  color: #f4f7ff;
+  font-size: 1.2rem;
+}
+
+.wtour-text {
+  margin: 0;
+  color: #d3dbea;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.wtour-rules {
+  display: grid;
+  gap: 5px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wtour-rules li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  background: rgba(4, 18, 43, 0.5);
+  font-size: 0.84rem;
+  color: #e6ecf7;
+}
+
+.wtour-rules strong {
+  flex: 0 0 auto;
+  font: 800 0.86rem/1 JetBrains Mono, monospace;
+}
+
+.wtour-rules .penalty { border-left-color: #cd1818; }
+.wtour-rules .penalty strong { color: #ff9c9c; }
+.wtour-rules .bonus { border-left-color: #5eae52; }
+.wtour-rules .bonus strong { color: #9fdc95; }
+
+.wtour-dots {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0 12px;
+}
+
+.wtour-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: width 0.2s ease;
+}
+
+.wtour-dots .done { background: rgba(164, 221, 0, 0.45); }
+.wtour-dots .on { width: 20px; background: #a4dd00; }
+
+.wtour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wtour-nav {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.wtour-nav button {
+  white-space: nowrap;
+}
+
+.wtour-card .wtour-skip {
+  padding-left: 0;
+  color: #9aa7bf;
+}
+
+.wtour-card .ghost-action {
+  color: #f4f7ff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.wtour-replay {
+  margin-top: 12px;
+}
+
+@media (max-width: 560px) {
+  .wtour-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .wtour-wisp {
+    width: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wtour-spot,
+  .wtour-card,
+  .wtour-wisp,
+  .wtour-dots span {
+    animation: none;
+    transition: none;
+  }
+}

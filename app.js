@@ -3643,6 +3643,9 @@ function applyServerProfile(player) {
   // Si el admin emitió una contraseña temporal, se obliga a cambiarla antes de
   // usar la plataforma (ver el gate en render()).
   app.mustChangePassword = Boolean(player.mustChangePassword);
+  // Recorrido de bienvenida con Wisp: el prototipo Node solo no manda la llave
+  // (queda undefined y el recorrido no se muestra).
+  app.tourSeen = player.tourSeen;
   app.solved = player.solved || {};
   app.attempts = player.attempts || {};
   app.submissions = player.submissions || [];
@@ -3756,6 +3759,7 @@ async function hydratePlatform() {
     saveState();
     render();
   }
+  maybeStartTour();
   loadRanking();
 }
 
@@ -4301,6 +4305,8 @@ function signOut() {
 // Limpia todo lo local de la sesión. El progreso ya vive en el backend, así
 // que se recupera al volver a entrar.
 function endLocalSession() {
+  tour.active = false;
+  tour.offered = false;
   disconnectTerminal();
   clearSessionToken();
   localStorage.removeItem(SESSION_KEY);
@@ -5081,7 +5087,7 @@ function header() {
       onclick: () => { navOpen = !navOpen; if (!navOpen) moreMenuOpen = false; render(); }
     }, [span({ class: "burger-bar" }, ""), span({ class: "burger-bar" }, ""), span({ class: "burger-bar" }, "")]),
     h("nav", { class: `main-nav ${navOpen ? "nav-open" : ""}`, "aria-label": "Navegación principal" }, [
-      ...primaryItems.map(([id, label]) => button({ class: activeGroup === id ? "nav-active" : "", "aria-current": activeGroup === id ? "page" : null, onclick: () => switchTab(id) }, label)),
+      ...primaryItems.map(([id, label]) => button({ "data-nav": id, class: activeGroup === id ? "nav-active" : "", "aria-current": activeGroup === id ? "page" : null, onclick: () => switchTab(id) }, label)),
       moreItems.length ? div({ class: "nav-more" }, [
         button({
           class: `nav-more-toggle ${moreActive ? "nav-active" : ""}`,
@@ -5533,7 +5539,7 @@ function terminalView() {
 function profileView() {
   const current = stats();
   return div({ class: "profile-grid" }, [
-    div({ class: "profile-hero" }, [div({ class: "avatar big" }, app.user.name.slice(0, 1).toUpperCase()), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} pts`), span({}, `${current.solves}/${current.total} retos`), span({}, `${current.hints} pistas usadas`)])]),
+    div({ class: "profile-hero" }, [div({ class: "avatar big" }, app.user.name.slice(0, 1).toUpperCase()), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} pts`), span({}, `${current.solves}/${current.total} retos`), span({}, `${current.hints} pistas usadas`)]), app.user.role === "estudiante" ? button({ class: "ghost-action wtour-replay", onclick: startTour }, "Ver el recorrido de Wisp") : null]),
     div({ class: "panel" }, [h("h3", {}, "Envíos recientes"), app.submissions.length ? app.submissions.slice(0, 10).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "fail" }, item.ok ? "Correcta" : "Incorrecta"), h("strong", {}, item.title), span({ class: "muted" }, `${item.source} · ${new Date(item.time).toLocaleTimeString()}`)])) : h("p", { class: "muted" }, "Todavía no enviaste ninguna flag.")])
   ]);
 }
@@ -9207,6 +9213,197 @@ function shell() {
   return div({ class: "page" }, [header(), h("main", { class: "player-main" }, content)]);
 }
 
+// ---------------------------------------------------------------------------
+// Recorrido de bienvenida con Wisp (22 oct). Se muestra una sola vez a cada
+// estudiante (el backend guarda users.tour_seen_at) y se puede repetir desde
+// Progreso. Oscurece la página y deja iluminada la parte de la que habla Wisp;
+// si esa parte no se ve (p. ej. en el celular), Wisp aparece centrado.
+// ---------------------------------------------------------------------------
+const tour = { active: false, step: 0, offered: false };
+
+const TOUR_STEPS = [
+  {
+    title: "¡Hola! Soy Wisp",
+    text: "Voy a ser tu guía en WISPR. Aquí practicas ciberseguridad inalámbrica con retos reales, sin instalar nada en tu computadora. Te muestro todo en menos de un minuto."
+  },
+  {
+    target: ".mission-ring",
+    title: "Tu avance",
+    text: "Este anillo muestra qué porcentaje de los retos ya resolviste. Cada reto que ganes lo llena un poco más."
+  },
+  {
+    nav: "retos",
+    title: "Los retos",
+    text: "Aquí están todos los retos. En cada uno descargas la evidencia (una captura, un archivo…), encuentras la flag con formato WISPR{…} y la envías para ganar puntos."
+  },
+  {
+    nav: "teoria",
+    title: "Aprende primero",
+    text: "Si un tema es nuevo para ti, empieza por la Teoría. Cada módulo te explica, te deja practicar y termina con un quiz."
+  },
+  {
+    nav: "terminal",
+    title: "Tu propia Kali Linux",
+    text: "Una terminal Kali real, aislada y lista para usar. Con ctf hint pides una pista y con ctf submit envías la flag sin salir de la terminal."
+  },
+  {
+    nav: "ranking",
+    title: "El ranking",
+    text: "Compite con tus compañeros: los puntos que ganas en cada reto te hacen subir de puesto."
+  },
+  {
+    rules: true,
+    title: "Cómo se ganan los puntos",
+    text: "El cronómetro arranca la primera vez que abres un reto. Sobre los puntos de cada reto:"
+  },
+  {
+    target: ".chip-profile",
+    title: "Tu progreso",
+    text: "Toca tu nombre para ver tus puntos, tu puesto y tus envíos. Desde ahí también puedes repetir este recorrido. ¡Mucha suerte!",
+    last: true
+  }
+];
+
+function tourRules() {
+  const r = app.scoring || { hintPct: 15, wrongPct: 5, wrongMaxPct: 25, speedPct: 15, speedSeconds: 600, streakPct: 5, streakMaxPct: 25 };
+  return [
+    ["Cada pista que abras", `−${r.hintPct} %`, "penalty"],
+    [`Cada intento fallido (hasta −${r.wrongMaxPct} %)`, `−${r.wrongPct} %`, "penalty"],
+    [`Resolverlo en menos de ${Math.round(r.speedSeconds / 60)} minutos`, `+${r.speedPct} %`, "bonus"],
+    [`Cada reto limpio seguido, sin pistas ni fallos (hasta +${r.streakMaxPct} %)`, `+${r.streakPct} %`, "bonus"]
+  ];
+}
+
+function maybeStartTour() {
+  if (tour.offered || !app.user || app.user.role !== "estudiante" || app.tourSeen !== false) return;
+  if (app.mustChangePassword || app.loadError) return;
+  tour.offered = true;
+  startTour();
+}
+
+function startTour() {
+  tour.active = true;
+  tour.step = 0;
+  app.activeTab = "dashboard";
+  tourGo(0);
+}
+
+function tourGo(delta) {
+  tour.step = Math.max(0, Math.min(TOUR_STEPS.length - 1, tour.step + delta));
+  // En pantallas angostas el menú vive en la hamburguesa: se abre mientras
+  // Wisp habla de una pestaña para poder iluminarla.
+  const burger = document.querySelector(".nav-burger");
+  navOpen = Boolean(TOUR_STEPS[tour.step].nav && burger && getComputedStyle(burger).display !== "none");
+  render();
+}
+
+function endTour(goToChallenge = false) {
+  tour.active = false;
+  navOpen = false;
+  if (app.tourSeen === false) {
+    app.tourSeen = true;
+    apiFetch(API + "/api/players/tour", { method: "POST" }).catch(() => {});
+  }
+  const first = goToChallenge && (app.challenges.find(item => !app.solved[item.id] && item.difficulty === "Foundation") || app.challenges.find(item => !app.solved[item.id]));
+  if (first) {
+    app.selectedId = first.id;
+    switchTab("reto");
+  } else {
+    render();
+  }
+}
+
+function tourTarget(step) {
+  const selector = step.nav ? `[data-nav="${step.nav}"]` : step.target;
+  const node = selector ? document.querySelector(selector) : null;
+  if (!node) return null;
+  const rect = node.getBoundingClientRect();
+  return rect.width && rect.height ? node : null;
+}
+
+function tourCard(step) {
+  const total = TOUR_STEPS.length;
+  const index = tour.step;
+  const actions = step.last
+    ? [button({ class: "ghost-action", onclick: () => endTour() }, "Explorar"), button({ class: "primary-action", "data-tour-primary": "", onclick: () => endTour(true) }, "Ir a mi primer reto")]
+    : [
+        index ? button({ class: "ghost-action", onclick: () => tourGo(-1) }, "Atrás") : null,
+        button({ class: "primary-action", "data-tour-primary": "", onclick: () => tourGo(1) }, index ? "Siguiente" : "Empezar")
+      ];
+  return div({ class: "wtour-card" }, [
+    h("img", { src: "./img/mascot.png", alt: "", class: "wtour-wisp" }, []),
+    div({ class: "wtour-body" }, [
+      h("p", { class: "wtour-step" }, `Wisp · ${index + 1} de ${total}`),
+      h("h3", { id: "wtour-title" }, step.title),
+      h("p", { class: "wtour-text" }, step.text),
+      step.rules ? h("ul", { class: "wtour-rules" }, tourRules().map(([label, value, tone]) => h("li", { class: tone }, [span({}, label), h("strong", {}, value)]))) : null,
+      div({ class: "wtour-dots", "aria-hidden": "true" }, TOUR_STEPS.map((_, dot) => span({ class: dot === index ? "on" : dot < index ? "done" : "" }, ""))),
+      div({ class: "wtour-actions" }, [
+        step.last ? null : button({ class: "text-action wtour-skip", onclick: () => endTour() }, "Saltar recorrido"),
+        div({ class: "wtour-nav" }, actions)
+      ])
+    ])
+  ]);
+}
+
+function mountTour(root) {
+  const step = TOUR_STEPS[tour.step];
+  const card = tourCard(step);
+  const spot = div({ class: "wtour-spot" }, []);
+  const layer = div({ class: "wtour", role: "dialog", "aria-modal": "true", "aria-labelledby": "wtour-title" }, [spot, card]);
+  root.appendChild(layer);
+  const target = tourTarget(step);
+  if (target) target.scrollIntoView({ block: "center", inline: "nearest" });
+  positionTour();
+  card.querySelector("[data-tour-primary]")?.focus();
+}
+
+// Coloca el hueco iluminado sobre la parte de la que se habla y la burbuja de
+// Wisp debajo (o encima, si no cabe). Se repite al cambiar el tamaño.
+function positionTour() {
+  if (!tour.active) return;
+  const layer = document.querySelector(".wtour");
+  if (!layer) return;
+  const spot = layer.querySelector(".wtour-spot");
+  const card = layer.querySelector(".wtour-card");
+  const target = tourTarget(TOUR_STEPS[tour.step]);
+  layer.classList.toggle("centered", !target);
+  if (!target) {
+    Object.assign(card.style, { top: "", left: "" });
+    return;
+  }
+  const rect = target.getBoundingClientRect();
+  const pad = 8;
+  Object.assign(spot.style, { top: `${rect.top - pad}px`, left: `${rect.left - pad}px`, width: `${rect.width + pad * 2}px`, height: `${rect.height + pad * 2}px` });
+  const gap = 16;
+  const width = card.offsetWidth;
+  const height = card.offsetHeight;
+  const below = rect.bottom + pad + gap;
+  const top = below + height <= innerHeight - gap ? below : Math.max(gap, rect.top - pad - gap - height);
+  const left = Math.max(gap, Math.min(innerWidth - width - gap, rect.left + rect.width / 2 - width / 2));
+  Object.assign(card.style, { top: `${top}px`, left: `${left}px` });
+}
+
+window.addEventListener("resize", positionTour);
+window.addEventListener("scroll", positionTour, { passive: true });
+
+document.addEventListener("keydown", event => {
+  if (!tour.active) return;
+  const step = TOUR_STEPS[tour.step];
+  if (event.key === "Escape") { event.preventDefault(); endTour(); return; }
+  if (event.key === "ArrowRight" && !step.last) { event.preventDefault(); tourGo(1); return; }
+  if (event.key === "ArrowLeft" && tour.step) { event.preventDefault(); tourGo(-1); return; }
+  if (event.key !== "Tab") return;
+  // El foco se queda dentro de la burbuja de Wisp mientras dure el recorrido.
+  const focusable = [...document.querySelectorAll(".wtour-card button")];
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (!focusable.includes(document.activeElement)) { event.preventDefault(); first.focus(); }
+  else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
+
 function render() {
   const root = document.getElementById("root");
   // Si el jugador estaba escribiendo la flag, se le devuelve el foco y el
@@ -9221,6 +9418,7 @@ function render() {
   // landing (que trae su propio fondo animado) y reaparece al entrar de verdad.
   document.body.classList.toggle("landing-active", onLanding);
   root.appendChild(app.user ? (app.mustChangePassword ? forcedPasswordView() : shell()) : (onLanding ? landingView() : loginView()));
+  if (tour.active && app.user && !app.mustChangePassword) mountTour(root);
   if (typing) {
     const input = [...document.querySelectorAll("[data-flag-input]")].find(node => node.getAttribute("data-flag-input") === typing.id);
     if (input && !input.disabled) {
