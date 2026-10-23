@@ -295,6 +295,8 @@ def print_result(item):
         print(f"{YELLOW}[WISPR] Flag correcta, pero este reto ya estaba resuelto.{RESET}")
     elif item.get("ok"):
         print(f"{GREEN}[WISPR] ¡Correcta! {item.get('title', '')} +{item.get('points', 0)} pts{RESET}")
+        if item.get("detail"):
+            print(f"{DIM}        {item['detail']}{RESET}")
         if item.get("nextChallenge"):
             print(f"{GREEN}[WISPR] Nuevo reto en tu cola: {item['nextChallenge']}{RESET}")
     else:

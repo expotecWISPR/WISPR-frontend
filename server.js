@@ -1411,6 +1411,19 @@ async function readTerminalSubmissions(player, cursor, token) {
   return { cursor: lines.length, submissions };
 }
 
+// Desglose de puntos de FastAPI (22 oct) en una línea para `ctf submit`:
+// "base 200 · pistas −30 · velocidad +30 · racha +10".
+function breakdownSummary(detail) {
+  if (!detail || typeof detail !== "object") return "";
+  const sign = n => (n > 0 ? `+${n}` : `−${Math.abs(n)}`);
+  const parts = [`base ${detail.base}`];
+  for (const [key, label] of [["hints", "pistas"], ["wrong", "fallos"], ["speed", "velocidad"], ["streak", "racha"]]) {
+    const points = detail[key] && detail[key].points;
+    if (points) parts.push(`${label} ${sign(points)}`);
+  }
+  return parts.join(" · ");
+}
+
 // El comando `ctf submit` de Kali espera esta línea para imprimir el resultado directamente en la shell.
 function writeTerminalResult(environment, record, result) {
   const challenge = challengeRegistry.get(result.challengeId || record.challengeId);
@@ -1423,6 +1436,7 @@ function writeTerminalResult(environment, record, result) {
     points: result.points || 0,
     error: result.error || "",
     nextChallenge: result.nextChallenge ? result.nextChallenge.title : "",
+    detail: breakdownSummary(result.breakdown),
     at: new Date().toISOString()
   });
   try { fs.appendFileSync(path.join(environment.workspace, "results.ndjson"), line + "\n", "utf8"); } catch (error) { console.error("No se pudo escribir results.ndjson:", error.message); }

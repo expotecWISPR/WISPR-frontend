@@ -15,6 +15,14 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Herramientas de los retos agregados el 22 oct (esteganografía: metadatos,
+# datos tras el final del archivo y LSB con PIL). Capa aparte a propósito: así
+# Docker reutiliza la caché de la instalación grande de arriba.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libimage-exiftool-perl binwalk python3-pil \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY kali/ctf /usr/local/bin/ctf
 COPY kali/wispr.bashrc /etc/wispr.bashrc
 RUN chmod 0755 /usr/local/bin/ctf \

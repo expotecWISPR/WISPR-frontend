@@ -6057,7 +6057,7 @@ body.story-open { overflow: hidden; }
 }
 
 .dash-hero {
-  grid-template-columns: 150px minmax(0, 1fr) 140px;
+  grid-template-columns: 150px minmax(0, 1fr) 300px;
   gap: 28px;
   min-height: 0;
   padding: 26px 30px;
@@ -6158,10 +6158,25 @@ p.dash-next {
   color: var(--green);
 }
 
+/* Anillo de progreso: proporcional al cuadro de bienvenida (antes 132 px se
+   veía chico al lado del saludo). El texto escala con el anillo. */
 .dash-hero .mission-ring {
-  width: 132px;
-  height: 132px;
-  justify-self: end;
+  width: 236px;
+  height: 236px;
+  justify-self: center; /* centrado en su columna: separado del borde derecho */
+}
+
+.dash-hero .mission-ring::before {
+  inset: 16px;
+}
+
+.dash-hero .mission-ring span {
+  font-size: 3.2rem;
+}
+
+.dash-hero .mission-ring small {
+  margin-top: 10px;
+  font-size: 0.95rem;
 }
 
 /* Guía de 3 pasos: solo hasta el primer reto resuelto. */
@@ -6347,7 +6362,7 @@ button.chip-profile:hover strong,
 /* --- Responsivo ------------------------------------------------------------ */
 @media (max-width: 860px) {
   .dash-hero {
-    grid-template-columns: minmax(0, 1fr) 112px;
+    grid-template-columns: minmax(0, 1fr) 210px;
   }
 
   .dash-mascot {
@@ -6355,26 +6370,42 @@ button.chip-profile:hover strong,
   }
 
   .dash-hero .mission-ring {
-    width: 112px;
-    height: 112px;
+    width: 180px;
+    height: 180px;
+  }
+
+  .dash-hero .mission-ring::before {
+    inset: 13px;
+  }
+
+  .dash-hero .mission-ring span {
+    font-size: 2.4rem;
+  }
+
+  .dash-hero .mission-ring small {
+    font-size: 0.8rem;
   }
 }
 
 @media (max-width: 680px) {
   .dash-hero {
-    grid-template-columns: minmax(0, 1fr) 84px;
+    grid-template-columns: minmax(0, 1fr) 96px;
     gap: 14px;
     padding: 20px;
   }
 
   .dash-hero .mission-ring {
-    width: 84px;
-    height: 84px;
+    width: 96px;
+    height: 96px;
     align-self: start;
   }
 
+  .dash-hero .mission-ring::before {
+    inset: 8px;
+  }
+
   .dash-hero .mission-ring span {
-    font-size: 1.15rem;
+    font-size: 1.35rem;
   }
 
   .dash-hero .mission-ring small {
@@ -6591,4 +6622,348 @@ button.chip-profile:hover strong,
   .m2-packet { left: 40px; top: auto; animation-name: m2-pulse; }
   .m2-carrow { width: 100%; text-align: center; }
   .m2-terms { grid-template-columns: 1fr; }
+}
+
+/* Pedir un reto a la IA: cuánto valdrá (22 oct, puntos decrecientes al repetir). */
+.generator-worth { margin: 8px 0 0; font-size: 0.85rem; font-weight: 600; color: #5eae52; }
+.generator-worth.reduced { color: #f3950d; }
+.generator-worth.none { color: var(--muted); font-weight: 500; }
+
+/* =====================================================================
+   wispr :: cronómetro del reto y marcador de puntos (22 oct)
+   Versión compacta, sin emojis. Tarjeta oscura en ambos temas (como
+   .m3-lab). Verde = bono activo · naranja = últimos 2 minutos · gris = sin
+   bono. Penalizaciones con "−" en rojo y bonos con "+" en verde: el color
+   nunca es la única señal.
+   ===================================================================== */
+
+@property --window {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+.wclock {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  max-width: 760px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(243, 149, 13, 0.25);
+  color: #f5f5f5;
+  background:
+    radial-gradient(circle at 10% 30%, rgba(164, 221, 0, 0.1), transparent 40%),
+    linear-gradient(135deg, #081a3a, #0f2c67);
+  box-shadow: 0 10px 26px rgba(4, 18, 43, 0.3);
+}
+
+.wclock.solved {
+  border-color: rgba(94, 174, 82, 0.55);
+  box-shadow: 0 0 26px rgba(94, 174, 82, 0.15), 0 10px 26px rgba(4, 18, 43, 0.3);
+}
+
+/* --- anillo ------------------------------------------------------------ */
+.wclock-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.wclock-ring {
+  --ring: #a4dd00;
+  position: relative;
+  display: grid;
+  place-content: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring) var(--window), rgba(255, 255, 255, 0.1) 0);
+  box-shadow: 0 0 18px rgba(164, 221, 0, 0.18);
+  transition: --window 1s linear, box-shadow 0.4s ease;
+}
+
+.wclock-ring::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 35%, #0f2c67, #081a3a 75%);
+}
+
+.wclock-ring > * {
+  position: relative;
+  text-align: center;
+}
+
+.wclock-time {
+  font: 800 1.55rem/1 JetBrains Mono, monospace;
+  color: #f5f5f5;
+}
+
+.wclock-ring small {
+  margin-top: 4px;
+  color: #b5c0d4;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wclock-ring.warn {
+  --ring: #f3950d;
+  animation: wclock-pulse 1.6s ease-in-out infinite;
+}
+
+.wclock-ring.lost,
+.wclock-ring.off {
+  --ring: #5b6b88;
+  box-shadow: none;
+}
+
+.wclock-ring.done {
+  --ring: #5eae52;
+  --window: 100%;
+  box-shadow: 0 0 20px rgba(94, 174, 82, 0.3);
+}
+
+.wclock-ring.done .wclock-time {
+  color: #9fdc95;
+}
+
+@keyframes wclock-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(243, 149, 13, 0.2); }
+  50% { box-shadow: 0 0 24px rgba(243, 149, 13, 0.5); }
+}
+
+.wclock-speed {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(181, 192, 212, 0.25);
+  color: #b5c0d4;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.wclock-speed.on { color: #d8f59a; border-color: rgba(164, 221, 0, 0.45); background: rgba(164, 221, 0, 0.08); }
+.wclock-speed.warn { color: #ffc46b; border-color: rgba(243, 149, 13, 0.55); background: rgba(243, 149, 13, 0.1); }
+
+/* --- marcador ------------------------------------------------------------ */
+.wclock-board {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wclock-board-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wclock-board-head .eyebrow {
+  margin: 0;
+  color: #f3950d;
+}
+
+.wclock-clean,
+.wclock-practice {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.wclock-clean { color: #9fdc95; border: 1px solid rgba(94, 174, 82, 0.55); background: rgba(94, 174, 82, 0.12); }
+.wclock-practice { color: #b5c0d4; border: 1px solid rgba(181, 192, 212, 0.3); }
+
+.wclock-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wclock-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  background: rgba(4, 18, 43, 0.4);
+  font-size: 0.84rem;
+}
+
+.wclock-row-label { color: #f5f5f5; }
+
+.wclock-row-pct {
+  text-align: right;
+  font: 700 0.72rem/1 JetBrains Mono, monospace;
+  color: #b5c0d4;
+}
+
+.wclock-row-points {
+  text-align: right;
+  font: 800 0.9rem/1 JetBrains Mono, monospace;
+}
+
+.wclock-row.penalty { border-left-color: #cd1818; background: rgba(205, 24, 24, 0.08); }
+.wclock-row.penalty .wclock-row-points,
+.wclock-row.penalty .wclock-row-pct { color: #ff9c9c; }
+.wclock-row.bonus { border-left-color: #5eae52; background: rgba(94, 174, 82, 0.09); }
+.wclock-row.bonus .wclock-row-points,
+.wclock-row.bonus .wclock-row-pct { color: #9fdc95; }
+.wclock-row.idle .wclock-row-points { color: #6f7d97; }
+.wclock-row.base .wclock-row-points { color: #f5f5f5; }
+
+.wclock-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(243, 149, 13, 0.35);
+  color: #b5c0d4;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.wclock-total strong {
+  font: 800 1.35rem/1 JetBrains Mono, monospace;
+  color: #f3950d;
+}
+
+.wclock-total.won strong { color: #a4dd00; }
+
+.wclock-rules {
+  margin: 0;
+  color: #8f9bb3;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+/* --- versión compacta (terminal) ----------------------------------------- */
+.wclock-mini {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 4px 0 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(164, 221, 0, 0.4);
+  border-left-width: 4px;
+  background: #081a3a;
+  color: #b5c0d4;
+  font-size: 0.76rem;
+}
+
+.wclock-mini.warn { border-color: rgba(243, 149, 13, 0.6); }
+.wclock-mini.lost,
+.wclock-mini.off { border-color: rgba(181, 192, 212, 0.3); }
+
+.wclock-mini-time {
+  color: #f5f5f5;
+  font: 800 0.95rem/1 JetBrains Mono, monospace;
+}
+
+.wclock-mini strong {
+  margin-left: auto;
+  color: #f3950d;
+  font: 800 0.9rem/1 JetBrains Mono, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wclock-ring { transition: none; }
+  .wclock-ring.warn { animation: none; }
+}
+
+@media (max-width: 680px) {
+  .wclock {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .wclock-timer {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .wclock-ring {
+    width: 88px;
+    height: 88px;
+    flex: 0 0 88px;
+  }
+
+  .wclock-ring::before { inset: 6px; }
+  .wclock-time { font-size: 1.2rem; }
+  .wclock-speed { text-align: left; }
+
+  /* El total va a la izquierda: en el celular el botón fijo del tema ocupa la
+     esquina inferior derecha y podía tapar el número. */
+  .wclock-total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 420px) {
+  .wclock-row { grid-template-columns: minmax(0, 1fr) 52px; }
+  .wclock-row-pct { display: none; }
+}
+
+/* El cronómetro va dentro del encabezado del reto, a la derecha del texto.
+   Se mide el ancho de la página del reto (no de la ventana) porque la barra
+   lateral cambia el espacio disponible. Si no cabe, pasa debajo. */
+.detail-page {
+  container-type: inline-size;
+}
+
+.detail-hero {
+  display: grid;
+  gap: 18px;
+}
+
+.detail-hero-text {
+  min-width: 0;
+}
+
+.wclock-solo {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.detail-hero .wclock-ring {
+  width: 132px;
+  height: 132px;
+  flex: 0 0 132px;
+}
+
+.detail-hero .wclock-time {
+  font-size: 1.75rem;
+}
+
+@container (min-width: 620px) {
+  .detail-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .wclock-solo {
+    justify-content: flex-end;
+    padding-right: 12px;
+  }
 }

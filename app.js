@@ -3649,6 +3649,7 @@ function applyServerProfile(player) {
   // Pistas abiertas guardadas en el servidor (backend FastAPI); el prototipo
   // Node solo no las manda y se conservan las del navegador.
   if (player.hints && typeof player.hints === "object") app.hints = player.hints;
+  if (typeof player.cleanStreak === "number") app.cleanStreak = player.cleanStreak;
   if (legacyLessonProgress && legacyLessonProgress.handle === player.handle) {
     app.lessonProgress = { ...legacyLessonProgress.progress, ...(app.lessonProgress || {}) };
   }
@@ -3732,6 +3733,9 @@ async function hydratePlatform() {
     const data = await challengeResponse.json();
     if (!challengeResponse.ok || !data.ok) throw new Error(data.error || "No se pudo cargar el catálogo.");
     app.challenges = data.challenges || [];
+    // Reglas de bonos (backend FastAPI) y desfase del reloj para el cronómetro.
+    app.scoring = data.scoring || null;
+    if (typeof data.serverNow === "number") app.clockOffset = data.serverNow - Date.now();
     if (!app.challenges.some(challenge => challenge.id === app.selectedId)) app.selectedId = app.challenges[0]?.id || "";
     if (app.activeChallengeId && !app.challenges.some(challenge => challenge.id === app.activeChallengeId)) app.activeChallengeId = "";
     if (statusResponse) {
@@ -4365,14 +4369,27 @@ function hintButtonLabel(challenge) {
   return challenge.hintCost && !app.solved[challenge.id] ? `Mostrar (−${challenge.hintCost} pts)` : "Mostrar";
 }
 
+// "Reto resuelto: +138 pts · +18 velocidad · +6 racha".
+function solveSummary(data) {
+  const points = typeof data.points === "number" ? ` +${data.points} pts` : "";
+  const detail = data.breakdown;
+  if (!detail) return `Reto resuelto:${points}.`;
+  const extras = [];
+  if (detail.speed?.points > 0) extras.push(`+${detail.speed.points} velocidad`);
+  if (detail.streak?.points > 0) extras.push(`+${detail.streak.points} racha`);
+  if (detail.clean) extras.push("reto limpio");
+  return `Reto resuelto:${points}${extras.length ? " · " + extras.join(" · ") : ""}.`;
+}
+
 function applySubmissionResult(challenge, data, source, shouldRender = true) {
   app.attempts[challenge.id] = (app.attempts[challenge.id] || 0) + 1;
   app.submissions.unshift({ id: challenge.id, title: challenge.title, ok: data.ok, time: Date.now(), source });
   if (data.ok && !app.solved[challenge.id]) {
     // `data.points` ya trae el descuento por pistas (backend FastAPI).
-    app.solved[challenge.id] = { time: Date.now(), points: typeof data.points === "number" ? data.points : challenge.points };
+    app.solved[challenge.id] = { time: Date.now(), points: typeof data.points === "number" ? data.points : challenge.points, breakdown: data.breakdown || null };
+    if (typeof data.cleanStreak === "number") app.cleanStreak = data.cleanStreak;
     if (data.nextChallenge) upsertChallenge(data.nextChallenge);
-    toast(data.nextChallenge ? "Reto resuelto. El motor creó un nuevo laboratorio para tu cola." : "Reto resuelto. Tu progreso fue actualizado.", "success");
+    toast(`${solveSummary(data)}${data.nextChallenge ? " El motor creó un nuevo laboratorio para tu cola." : ""}`, "success");
   } else if (data.ok) {
     toast("Este reto ya está marcado como resuelto.", "info");
   } else {
@@ -4381,6 +4398,11 @@ function applySubmissionResult(challenge, data, source, shouldRender = true) {
   saveState();
   if (shouldRender) render();
 }
+
+// Borrador de la flag por reto: render() reconstruye toda la página y varias
+// respuestas del servidor (pista abierta, envío) llegan 1-3 s después; sin
+// esto, se perdía lo que el jugador estaba escribiendo.
+const flagDrafts = {};
 
 async function submitFlag(challenge, input) {
   const flag = input.value.trim();
@@ -4395,6 +4417,7 @@ async function submitFlag(challenge, input) {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "No se pudo validar la flag.");
     input.value = "";
+    delete flagDrafts[challenge.id];
     applySubmissionResult(challenge, data, "web");
   } catch (error) {
     toast(error.message || "No se pudo validar la flag.", "error");
@@ -5202,8 +5225,10 @@ function challengesView() {
 // Pedir un reto a la IA (13 oct). Se elige técnica, dificultad y escenario;
 // FastAPI genera la flag y el archivo, y la IA escribe la historia
 // (POST /api/challenges/generate). Estudiante: reto de práctica solo para él,
-// sin puntos. Profesor/admin: reto para todos los estudiantes, cada uno con su
-// propio archivo y su propia flag.
+// con puntos que bajan al repetir la misma técnica y nivel (22 oct: 100 %, 50 %,
+// 25 % y después 0; el backend manda cuánto vale cada uno en practicePoints).
+// Profesor/admin: reto para todos los estudiantes, cada uno con su propio
+// archivo y su propia flag.
 // ---------------------------------------------------------------------------
 const generatorState = { options: null, loading: false, failed: false, busy: false, technique: "xor_singlebyte", difficulty: "Medium", theme: "", custom: "" };
 
@@ -5245,7 +5270,8 @@ async function requestChallenge(event) {
       toast(`Reto publicado para todos los estudiantes: «${data.challenge.title}».`, "success");
       return render();
     }
-    toast(`Reto listo: «${data.challenge.title}».`, "success");
+    toast(`Reto listo: «${data.challenge.title}»${data.challenge.points ? ` · ${data.challenge.points} pts` : " · sin puntos"}.`, "success");
+    generatorState.options = null; // los puntos del próximo pedido cambiaron: se vuelven a pedir
     app.selectedId = data.challenge.id;
     saveState();
     return switchTab("reto");
@@ -5254,6 +5280,17 @@ async function requestChallenge(event) {
   }
   generatorState.busy = false;
   render();
+}
+
+// Cuánto valdría el reto elegido (regla de rendimiento decreciente, ver arriba).
+function practiceWorth(options) {
+  const points = options.practicePoints?.[generatorState.technique]?.[generatorState.difficulty];
+  if (points === undefined) return null;
+  const full = options.fullPoints?.[generatorState.difficulty] || points;
+  const text = points === 0
+    ? "Este tipo y nivel ya no suma puntos para ti: sirve para practicar. Prueba otro tipo o un nivel más alto."
+    : points < full ? `Valdrá ${points} pts (ya pediste este tipo y nivel; el primero valía ${full}).` : `Valdrá ${points} pts.`;
+  return h("p", { class: `generator-worth ${points === 0 ? "none" : points < full ? "reduced" : ""}` }, [span({ "aria-hidden": "true" }, points === 0 ? "○ " : "★ "), text]);
 }
 
 function challengeGeneratorPanel() {
@@ -5265,14 +5302,15 @@ function challengeGeneratorPanel() {
   const teacher = app.user.role === "profesor" || app.user.role === "admin";
   const set = key => event => {
     generatorState[key] = event.target.value;
-    if (key === "theme") render(); // muestra u oculta el campo "Otro…"
+    render(); // "Otro…" muestra un campo; técnica y nivel cambian los puntos que se muestran
   };
   const published = teacher ? app.challenges.filter(challenge => challenge.generated).slice(-5).reverse() : [];
   return div({ class: "panel generator-panel" }, [
     h("h3", {}, teacher ? "Crear un reto con IA para tus estudiantes" : "Pide un reto a la IA"),
     h("p", { class: "muted tight" }, teacher
       ? "Eliges técnica, dificultad y escenario; la IA escribe la historia. Lo verán todos los estudiantes, cada uno con su propio archivo y su propia flag."
-      : "Elige qué quieres practicar. La IA escribe la historia y el reto es solo tuyo: es de práctica, no suma puntos."),
+      : "Elige qué quieres practicar. La IA escribe la historia y el reto es solo tuyo. El primero de cada tipo y nivel vale los puntos completos; repetir el mismo vale cada vez menos."),
+    teacher ? null : practiceWorth(options),
     h("form", { class: "generator-form", onsubmit: requestChallenge }, [
       h("select", { name: "technique", "aria-label": "Técnica", onchange: set("technique") },
         options.techniques.map(item => h("option", { value: item.id, selected: item.id === generatorState.technique }, item.name))),
@@ -5314,16 +5352,159 @@ function challengeCard(challenge) {
   ]);
 }
 
+// ---------------------------------------------------------------------------
+// Cronómetro del reto y marcador de puntos en vivo (22 oct).
+// Las reglas las define el backend (app/services/bonus.py) y llegan en
+// GET /api/challenges → app.scoring. El cronómetro lo guarda el SERVIDOR
+// (POST /api/challenges/{id}/start la primera vez que se abre el reto), así no
+// se reinicia al recargar. Aquí solo se muestra y se estima:
+//   pistas −15 % c/u · intentos fallidos −5 % c/u (máx −25 %)
+//   menos de 10 min +15 % · racha limpia +5 % por reto limpio seguido (máx +25 %)
+// El tiempo se actualiza cada segundo tocando solo el texto de la tarjeta (no
+// render()), para no borrar lo que el jugador está escribiendo en la flag.
+// ---------------------------------------------------------------------------
+const clockStarting = new Set();
+
+function serverNow() {
+  return Date.now() + (app.clockOffset || 0);
+}
+
+function formatClock(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const pad = n => String(n).padStart(2, "0");
+  return h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+}
+
+async function startChallengeClock(challenge) {
+  if (!app.scoring || challenge.startedAt || app.solved[challenge.id] || clockStarting.has(challenge.id)) return;
+  clockStarting.add(challenge.id);
+  try {
+    const response = await apiFetch(`${API}/api/challenges/${encodeURIComponent(challenge.id)}/start`, { method: "POST" });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data.ok) {
+      challenge.startedAt = data.startedAt;
+      if (typeof data.serverNow === "number") app.clockOffset = data.serverNow - Date.now();
+      // Sin render(): tickClocks() actualiza la tarjeta en el próximo segundo.
+      // Un render aquí llegaba 1-3 s después de abrir el reto y podía borrar la
+      // flag que el jugador ya estaba escribiendo.
+      tickClocks();
+    }
+  } catch (_) {
+    // Sin cronómetro el reto se juega igual; solo no hay bono de velocidad.
+  }
+}
+
+// Estimación en vivo: la misma cuenta que hace el backend al resolver.
+function estimatePoints(challenge) {
+  const rules = app.scoring;
+  const base = challenge.points || 0;
+  const hints = (app.hints[challenge.id] || []).length;
+  const wrong = app.attempts[challenge.id] || 0;
+  const elapsed = challenge.startedAt ? serverNow() - challenge.startedAt : null;
+  const left = elapsed === null ? 0 : rules.speedSeconds * 1000 - elapsed;
+  const fast = elapsed !== null && left > 0;
+  const clean = hints === 0 && wrong === 0;
+  const streak = clean && base ? (app.cleanStreak || 0) : 0;
+  const line = (count, pct) => ({ count, pct, points: Math.round(base * pct / 100) });
+  const lines = {
+    hints: line(hints, -rules.hintPct * hints),
+    wrong: line(wrong, -Math.min(rules.wrongPct * wrong, rules.wrongMaxPct)),
+    speed: line(fast ? 1 : 0, fast ? rules.speedPct : 0),
+    streak: line(streak, Math.min(rules.streakPct * streak, rules.streakMaxPct))
+  };
+  const total = Math.max(0, base + Object.values(lines).reduce((sum, item) => sum + item.points, 0));
+  return { base, ...lines, clean, total, elapsed, left, fast };
+}
+
+function speedState(estimate) {
+  if (estimate.elapsed === null) return "off";
+  if (!estimate.fast) return "lost";
+  return estimate.left <= 2 * 60 * 1000 ? "warn" : "on";
+}
+
+function speedText(estimate) {
+  const rules = app.scoring;
+  const state = speedState(estimate);
+  if (state === "off") return "El cronómetro empieza al abrir el reto";
+  if (state === "lost") return "Sin bono de velocidad: tómate tu tiempo";
+  return `+${rules.speedPct}% si terminas en ${formatClock(estimate.left)}`;
+}
+
+// Solo el anillo con el tiempo, a la derecha del encabezado del reto. Se vacía
+// en los minutos del bono de velocidad y se pone naranja en los últimos 2.
+function challengeClock(challenge) {
+  if (!app.scoring) return null;
+  const solved = app.solved[challenge.id];
+  if (solved) return challengeResult(solved);
+  if (!challenge.startedAt) startChallengeClock(challenge);
+  const estimate = estimatePoints(challenge);
+  const ring = div({ class: `wclock-ring ${speedState(estimate)}`, "data-clock-ring": "", role: "timer", "aria-label": "Tiempo en el reto" }, [
+    h("strong", { class: "wclock-time", "data-clock-time": "" }, estimate.elapsed === null ? "--:--" : formatClock(estimate.elapsed)),
+    h("small", {}, "en el reto")
+  ]);
+  ring.style.setProperty("--window", `${speedWindowPct(estimate)}%`);
+  return div({ class: "wclock-solo", "data-clock": challenge.id }, [ring]);
+}
+
+function speedWindowPct(estimate) {
+  if (estimate.elapsed === null || !estimate.fast) return 0;
+  return Math.max(0, Math.min(100, (estimate.left / (app.scoring.speedSeconds * 1000)) * 100));
+}
+
+// Al resolver: el anillo queda verde y lleno, con el tiempo final.
+function challengeResult(solved) {
+  const seconds = solved.breakdown?.speed?.seconds;
+  return div({ class: "wclock-solo" }, [
+    div({ class: "wclock-ring done", "aria-label": "Reto resuelto" }, [h("strong", { class: "wclock-time" }, seconds != null ? formatClock(seconds * 1000) : "✓"), h("small", {}, "resuelto")])
+  ]);
+}
+
+// Versión compacta para la pestaña de la terminal.
+function challengeClockMini(challenge) {
+  if (!app.scoring || app.solved[challenge.id]) return null;
+  if (!challenge.startedAt) startChallengeClock(challenge);
+  const estimate = estimatePoints(challenge);
+  return div({ class: `wclock-mini ${speedState(estimate)}`, "data-clock": challenge.id, "data-clock-mini": "" }, [
+    span({ class: "wclock-mini-time", "data-clock-time": "" }, estimate.elapsed === null ? "--:--" : formatClock(estimate.elapsed)),
+    span({ "data-clock-speed": "" }, speedText(estimate)),
+    h("strong", { "data-clock-total": "" }, `${estimate.total} pts`)
+  ]);
+}
+
+// Cada segundo: solo se reescriben los textos del cronómetro visible.
+function tickClocks() {
+  document.querySelectorAll("[data-clock]").forEach(node => {
+    const challenge = app.challenges.find(item => item.id === node.getAttribute("data-clock"));
+    if (!challenge || !challenge.startedAt || app.solved[challenge.id]) return;
+    const estimate = estimatePoints(challenge);
+    const state = speedState(estimate);
+    const mini = node.hasAttribute("data-clock-mini");
+    const time = node.querySelector("[data-clock-time]");
+    if (time) time.textContent = formatClock(estimate.elapsed);
+    const speed = node.querySelector("[data-clock-speed]");
+    if (speed) { speed.textContent = speedText(estimate); speed.className = mini ? "" : `wclock-speed ${state}`; }
+    if (mini) node.className = `wclock-mini ${state}`;
+    const ring = node.querySelector("[data-clock-ring]");
+    if (ring) { ring.className = `wclock-ring ${state}`; ring.style.setProperty("--window", `${speedWindowPct(estimate)}%`); }
+    const total = node.querySelector("[data-clock-total]");
+    if (total) total.textContent = `${estimate.total} pts`;
+  });
+}
+setInterval(tickClocks, 1000);
+
 function challengeDetail(challenge) {
   const solved = Boolean(app.solved[challenge.id]);
   const unlocked = app.hints[challenge.id] || [];
   let input;
   return h("section", { class: "detail detail-page" }, [
-    div({ class: "detail-hero" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, "✓ Resuelto") : null])]),
+    div({ class: "detail-hero" }, [div({ class: "detail-hero-text" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, "✓ Resuelto") : null])]), challengeClock(challenge)]),
     div({ class: "panel" }, [h("h3", {}, "Objetivo"), h("p", {}, challenge.objective), challenge.tools.length ? div({ class: "tool-grid" }, [span({ class: "tool-label" }, "Herramientas"), ...challenge.tools.map(tool => span({ class: "tool" }, tool))]) : null]),
     div({ class: "panel" }, [h("h3", {}, "Archivos"), ...challenge.files.map(file => div({ class: "file-row" }, [div({}, [h("strong", {}, file.name), h("p", { class: "muted tight" }, file.desc)]), button({ class: "ghost-action", onclick: () => downloadFile(file, challenge) }, "Descargar")])), h("p", { class: "muted tight scope-note" }, "Evidencia sintética. Kali corre aislada, sin acceso a tu equipo ni a internet.")]),
     div({ class: "panel" }, [h("h3", {}, "Pistas"), ...challenge.hints.map((hint, index) => ({ hint, index, open: unlocked.includes(index) && Boolean(hint) })).map(({ hint, index, open }) => div({ class: "hint-row" }, [open ? h("p", {}, hint) : h("p", { class: "muted" }, `Pista ${index + 1} bloqueada`), !open ? button({ class: "ghost-action", onclick: () => unlockHint(challenge.id, index) }, hintButtonLabel(challenge)) : null]))]),
-    div({ class: "submit-panel" }, solved ? h("strong", { class: "owned-label" }, "Reto completado con esta cuenta") : [input = h("input", { placeholder: "WISPR{flag_aqui}", autocomplete: "off" }, []), button({ class: "primary-action", onclick: () => submitFlag(challenge, input) }, "Enviar flag"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(challenge) }, "Resolver en Kali")])
+    div({ class: "submit-panel" }, solved ? h("strong", { class: "owned-label" }, "Reto completado con esta cuenta") : [input = h("input", { placeholder: "WISPR{flag_aqui}", autocomplete: "off", "data-flag-input": challenge.id, value: flagDrafts[challenge.id] || "", oninput: event => { flagDrafts[challenge.id] = event.target.value; } }, []), button({ class: "primary-action", onclick: () => submitFlag(challenge, input) }, "Enviar flag"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(challenge) }, "Resolver en Kali")])
   ]);
 }
 
@@ -5343,7 +5524,7 @@ function terminalView() {
     app.terminal.lastError ? div({ class: "panel terminal-error" }, [h("p", { class: "eyebrow" }, "no se pudo montar el reto"), h("pre", {}, app.terminal.lastError), h("p", { class: "muted tight" }, "Copia este texto tal cual si necesitas ayuda. Pulsa Diagnosticar para comprobar Docker, imágenes y contenedor.")]) : null,
     app.terminal.diagnostic ? div({ class: "panel terminal-error" }, [h("p", { class: "eyebrow" }, "diagnóstico"), h("pre", {}, app.terminal.diagnostic), button({ class: "ghost-action compact", onclick: () => { app.terminal.diagnostic = ""; render(); } }, "Cerrar")]) : null,
     div({ class: "terminal-workspace" }, [
-      div({ class: "panel vm-status" }, [h("p", { class: "eyebrow" }, "reto activo"), h("h3", {}, current.title), h("p", { class: "muted" }, current.objective), h("p", { class: "terminal-path" }, "/workspace/challenge"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(current) }, "Montar este reto"), h("p", { class: "muted tight" }, "Atajos (escriben el comando en la terminal):"), div({ class: "terminal-shortcuts" }, [button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf show") }, "ctf show"), button({ class: "shortcut", onclick: () => sendTerminalCommand("cd $(ctf open)") }, "abrir carpeta"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf files") }, "ver archivos"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf help") }, "ayuda")])]),
+      div({ class: "panel vm-status" }, [h("p", { class: "eyebrow" }, "reto activo"), h("h3", {}, current.title), challengeClockMini(current), h("p", { class: "muted" }, current.objective), h("p", { class: "terminal-path" }, "/workspace/challenge"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(current) }, "Montar este reto"), h("p", { class: "muted tight" }, "Atajos (escriben el comando en la terminal):"), div({ class: "terminal-shortcuts" }, [button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf show") }, "ctf show"), button({ class: "shortcut", onclick: () => sendTerminalCommand("cd $(ctf open)") }, "abrir carpeta"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf files") }, "ver archivos"), button({ class: "shortcut", onclick: () => sendTerminalCommand("ctf help") }, "ayuda")])]),
       div({ class: "terminal-panel xterm-panel" }, [div({ class: "terminal-head" }, [span({}, "kali@wispr · /workspace"), span({ "data-terminal-status": "", class: `terminal-state ${app.terminal.connected ? "online" : "offline"}` }, app.terminal.connected ? "Kali aislada · online" : "Desconectada")]), div({ id: "kali-terminal", class: "xterm-host", tabindex: "0" }, [])])
     ])
   ]);
@@ -9028,12 +9209,25 @@ function shell() {
 
 function render() {
   const root = document.getElementById("root");
+  // Si el jugador estaba escribiendo la flag, se le devuelve el foco y el
+  // cursor después de reconstruir la página (el texto lo guarda flagDrafts).
+  const active = document.activeElement;
+  const typing = active && active.matches && active.matches("[data-flag-input]")
+    ? { id: active.getAttribute("data-flag-input"), start: active.selectionStart, end: active.selectionEnd }
+    : null;
   root.innerHTML = "";
   const onLanding = !app.user && publicScreen === "landing";
   // El fondo de video "consola" del resto de la app se apaga mientras se ve la
   // landing (que trae su propio fondo animado) y reaparece al entrar de verdad.
   document.body.classList.toggle("landing-active", onLanding);
   root.appendChild(app.user ? (app.mustChangePassword ? forcedPasswordView() : shell()) : (onLanding ? landingView() : loginView()));
+  if (typing) {
+    const input = [...document.querySelectorAll("[data-flag-input]")].find(node => node.getAttribute("data-flag-input") === typing.id);
+    if (input && !input.disabled) {
+      input.focus();
+      try { input.setSelectionRange(typing.start, typing.end); } catch (_) { /* campo sin selección */ }
+    }
+  }
 }
 
 // Pantalla de cambio obligatorio: aparece tras entrar con una contraseña
