@@ -41,7 +41,19 @@ const topicLessons = {
   "GTK": "gtk",
   "Nonce": "nonce",
   "MIC": "mic",
-  "PMKID": "pmkid"
+  "PMKID": "pmkid",
+  "Deauthentication": "m4-deauth",
+  "Evil Twin": "m4-evil-twin",
+  "Rogue AP": "m4-rogue-ap",
+  "Captive Portal": "m4-captive-portal",
+  "WPS / Pixie Dust": "m4-wps-pixie",
+  "MAC Spoofing": "m4-mac-spoofing",
+  "Capturas .pcap": "m6-pcap",
+  "Wireshark": "m6-wireshark",
+  "Identificación de frames": "m6-frames",
+  "Identificación de dispositivos": "m6-dispositivos",
+  "Detección de anomalías": "m6-anomalias",
+  "Análisis de incidentes": "m6-incidentes"
 };
 
 // Lecciones interactivas por tema. Las del Módulo 3 (Autenticación) se
@@ -3398,6 +3410,1662 @@ lessons[M2_MISSION_ID] = {
     ["Autenticación", "interpretar quién accede a una red y cómo se verifica"]
   ]
 };
+
+// ===========================================================================
+// MÓDULO 4 — ATAQUES A WI-FI
+// Seis temas (Deauthentication, Evil Twin, Rogue AP, Captive Portal,
+// WPS / Pixie Dust, MAC Spoofing) + la misión final "Operación: Perímetro
+// Inalámbrico". Reutiliza el motor de lecciones y moduleMissions (progreso,
+// XP, insignia y desbloqueo de la misión). Enfoque 100 % defensivo y de
+// análisis: se enseña a COMPRENDER, RECONOCER indicadores y PREVENIR cada
+// amenaza, nunca a ejecutarla. No hay comandos, scripts ni procedimientos de
+// explotación. Todas las redes, direcciones, nombres y escenarios son
+// ficticios. Recordatorio pedagógico transversal: un indicador aislado genera
+// sospecha razonable, no es prueba definitiva de un ataque.
+// ===========================================================================
+
+const M4_SEQUENCE = ["m4-deauth", "m4-evil-twin", "m4-rogue-ap", "m4-captive-portal", "m4-wps-pixie", "m4-mac-spoofing"];
+const M4_MISSION_ID = "m4-mision";
+moduleMissions[4] = { missionId: M4_MISSION_ID, sequence: M4_SEQUENCE };
+
+const M4_OK = "✓ Correcto";
+const M4_RETRY = "✗ Inténtalo de nuevo";
+const M4_COMMON = { labTheme: true, feedbackTitles: [M4_OK, M4_RETRY], quizOkTitle: M4_OK, quizWrongTitle: M4_RETRY };
+
+Object.assign(lessons, {
+  // -------------------------------------------------------------------------
+  // 4.1 Deauthentication
+  // -------------------------------------------------------------------------
+  "m4-deauth": {
+    ...M4_COMMON,
+    id: "m4-deauth",
+    moduleId: 4,
+    title: "Deauthentication",
+    subtitle: "Deauthentication: cuando una conexión se corta sin permiso",
+    quizTitle: "Desafío: Deauthentication",
+    bridge: "Una desconexión forzada puede empujar a un equipo a reconectarse… a veces a una red que no es la verdadera. Eso es un Evil Twin.",
+    ctf: "En una captura, una ráfaga de tramas de desautenticación (subtipo 0x0C) es el indicio que delata este tipo de evento.",
+    learn: {
+      steps: [
+        {
+          concept: "Tramas de gestión en 802.11",
+          explanation: "El Wi-Fi no solo transporta tus datos: también envía tramas de gestión que coordinan la conexión. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "mgmt", label: "⚙️ Tramas de gestión", sublabel: "Coordinan el enlace", detail: "Son tramas de control del propio Wi-Fi (no llevan datos del usuario): asociación, baliza/beacon, autenticación y también desconexión. Organizan quién se une al punto de acceso y quién se va." },
+              { id: "deauth", label: "👋 Deauthentication", sublabel: "«Quedas desconectado»", detail: "Una trama de desautenticación es un aviso de fin de sesión entre un cliente y el punto de acceso. En una red sana es legítima y ocasional: por ejemplo, al apagar el equipo o alejarte." },
+              { id: "legacy", label: "🕰️ Un diseño antiguo", sublabel: "Sin protección por defecto", detail: "En el 802.11 clásico, estas tramas de gestión viajaban sin firmar ni cifrar. Por eso un equipo podía dar por buena una desconexión sin poder comprobar quién la originó." },
+              { id: "effect", label: "📴 Efecto visible", sublabel: "Se pierde la conexión", detail: "El resultado de recibir una desautenticación es que el dispositivo se desconecta y suele intentar reconectarse enseguida." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué función cumple una trama de desautenticación en una red normal?",
+            options: ["Transportar los datos del usuario", "Avisar que una sesión entre cliente y AP terminó"],
+            correct: 1,
+            feedback: ["Revisa: las tramas de gestión no llevan datos del usuario; coordinan el enlace.", "Correcto: es un aviso legítimo de fin de sesión… cuando lo origina quien corresponde."]
+          }
+        },
+        {
+          concept: "Una desconexión normal vs. un patrón anómalo",
+          explanation: "El problema no es una desconexión: es un patrón que no encaja con el uso normal. Compara los dos casos.",
+          visual: {
+            type: "bt-compare",
+            prompt: "Toca cada caso.",
+            options: [
+              { id: "normal", icon: "✅", label: "Desconexión esperable", tag: "Ruido normal", tone: "ok", rows: [
+                { k: "Frecuencia", v: "Aislada u ocasional." },
+                { k: "Contexto", v: "Coincide con apagar el equipo, alejarse o un reinicio del router." },
+                { k: "Alcance", v: "Afecta a uno o pocos dispositivos puntuales." },
+                { k: "Lectura", v: "Comportamiento habitual de cualquier red." }
+              ] },
+              { id: "anomaly", icon: "🚩", label: "Patrón que conviene investigar", tag: "Indicador", tone: "warn", rows: [
+                { k: "Frecuencia", v: "Ráfagas repetidas en poco tiempo." },
+                { k: "Contexto", v: "Sin causa aparente; varios equipos caen a la vez una y otra vez." },
+                { k: "Alcance", v: "Desconexiones persistentes que impiden trabajar." },
+                { k: "Lectura", v: "Indicador de un posible evento de denegación de servicio; aún hay que confirmarlo." }
+              ] }
+            ],
+            summary: "Una desconexión suelta es ruido normal. Lo que levanta sospecha es el patrón: muchas desautenticaciones repetidas y sin causa. Es un indicio para investigar, no una prueba por sí solo."
+          },
+          check: {
+            prompt: "Un analista ve UNA desconexión aislada a media mañana. ¿Qué es más prudente concluir?",
+            options: ["Es un ataque confirmado", "Es un evento normal; no basta para afirmar que hay un ataque"],
+            correct: 1,
+            feedback: ["Revisa: un evento aislado no prueba un ataque. Lo sospechoso es el patrón repetido.", "Correcto: se distingue el hecho (una desconexión) de la sospecha (un patrón anómalo)."]
+          }
+        },
+        {
+          concept: "PMF: la defensa del estándar",
+          explanation: "La respuesta moderna no es «detectar más rápido», sino proteger las propias tramas de gestión. Toca cada pieza.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "pmf", label: "🛡️ PMF", sublabel: "Protected Management Frames", detail: "Mecanismo del estándar 802.11w: protege ciertas tramas de gestión para que no puedan falsificarse ni alterarse en el tramo inalámbrico." },
+              { id: "how", label: "🔏 Qué aporta", sublabel: "Integridad y autenticidad", detail: "Permite que el receptor compruebe que una trama de gestión protegida proviene realmente de la contraparte legítima y no fue modificada." },
+              { id: "wpa3", label: "🔰 WPA3 lo exige", sublabel: "Opcional en WPA2", detail: "En WPA3 el PMF es obligatorio; en WPA2 es opcional. Por eso activarlo (cuando los equipos lo soportan) es una buena práctica defensiva." },
+              { id: "limit", label: "⚠️ Qué NO resuelve", sublabel: "No es una muralla total", detail: "PMF reduce mucho la falsificación de desautenticaciones, pero no cubre todo tipo de interferencia inalámbrica. Sigue siendo una capa más, no una garantía absoluta." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué protege PMF (802.11w)?",
+            options: ["La velocidad de la red", "La integridad y autenticidad de ciertas tramas de gestión"],
+            correct: 1,
+            feedback: ["Revisa: PMF no tiene que ver con la velocidad.", "Correcto: evita que esas tramas se falsifiquen o alteren en el aire."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "Mesa de monitoreo (simulada)",
+      instructions: "Clasifica cada observación del registro. Recuerda la regla del analista: un hecho normal no es sospechoso, un patrón anómalo merece investigarse y una buena práctica defensiva reduce el riesgo.",
+      panelTitle: "Registro de eventos Wi-Fi (ficticio)",
+      categories: [
+        { id: "normal", label: "Evento normal" },
+        { id: "investigar", label: "Indicador a investigar" },
+        { id: "defensa", label: "Medida defensiva" }
+      ],
+      items: [
+        { id: "ev1", icon: "📴", name: "Una laptop se desconecta al cerrarse la tapa", clues: ["Evento aislado", "Causa clara"], answer: "normal", explain: "Desconexión con causa evidente: comportamiento esperable.", hint: "¿Hay una explicación obvia para esta única desconexión?" },
+        { id: "ev2", icon: "🚩", name: "40 desautenticaciones por minuto, varios equipos caen a la vez, sin causa aparente", clues: ["Ráfaga repetida", "Afecta a varios"], answer: "investigar", explain: "Patrón anómalo de denegación de servicio: hay que investigarlo, aunque todavía no sea prueba definitiva.", hint: "Fíjate en la frecuencia y en cuántos equipos afecta." },
+        { id: "ev3", icon: "🛡️", name: "Activar PMF (802.11w) en los puntos de acceso compatibles", clues: ["802.11w", "Protege tramas de gestión"], answer: "defensa", explain: "PMF dificulta la falsificación de desautenticaciones: es una medida preventiva.", hint: "¿Esto ataca, observa o protege?" },
+        { id: "ev4", icon: "🔰", name: "Migrar a WPA3, donde PMF es obligatorio", clues: ["WPA3", "PMF obligatorio"], answer: "defensa", explain: "WPA3 exige PMF, reforzando la protección de las tramas de gestión.", hint: "WPA3 incorpora una protección que en WPA2 era opcional." },
+        { id: "ev5", icon: "🔁", name: "Un teléfono se reconecta tras un reinicio programado del router", clues: ["Mantenimiento conocido", "Evento aislado"], answer: "normal", explain: "La reconexión coincide con un mantenimiento planificado: evento normal.", hint: "¿La causa estaba anunciada?" }
+      ],
+      success: "Distinguir una desconexión normal de un patrón anómalo es el corazón del análisis. Ante la sospecha, se investiga; para prevenir, se protegen las tramas de gestión con PMF/WPA3."
+    },
+    quiz: [
+      { id: "q1", concept: "Tramas de gestión", prompt: "¿A qué categoría de tramas 802.11 pertenece una desautenticación?", options: ["Tramas de datos", "Tramas de gestión", "Tramas de un servidor DNS", "Tramas de Bluetooth"], correct: 1, feedback: ["Correcto: es una trama de gestión que coordina el enlace.", "Es una trama de gestión: no transporta datos del usuario, coordina la conexión."] },
+      { id: "q2", concept: "Debilidad histórica", prompt: "¿Por qué en el Wi-Fi clásico estas tramas podían falsificarse?", options: ["Porque viajaban cifradas", "Porque, sin protección, el receptor no podía comprobar quién las originó", "Porque usaban HTTPS", "Porque solo existían en 5 GHz"], correct: 1, feedback: ["Correcto: sin firma ni autenticación, no había forma de verificar el origen.", "La causa es la falta de protección: no se podía verificar el origen de la trama."] },
+      { id: "q3", concept: "Indicador vs. prueba", prompt: "Un registro muestra ráfagas repetidas de desautenticaciones sin causa. ¿Qué afirmación es más correcta?", options: ["Es una prueba concluyente de un ataque", "Es un indicador que justifica investigar, no una prueba definitiva", "Es siempre un error del router", "No tiene ninguna importancia"], correct: 1, feedback: ["Correcto: separa el indicio de la conclusión.", "Es un indicador para investigar; una conclusión necesita más evidencia."] },
+      { id: "q4", concept: "Impacto", prompt: "¿Cuál es el efecto típico de un evento de desautenticación masiva?", options: ["Roba directamente las contraseñas", "Interrumpe la conectividad: los equipos se desconectan y les cuesta mantenerse conectados", "Aumenta la velocidad de la red", "Cambia el nombre del Wi-Fi"], correct: 1, feedback: ["Correcto: es principalmente una denegación de servicio (pérdida de conexión).", "Su efecto directo es cortar la conexión; no revela por sí mismo las contraseñas."] },
+      { id: "q5", concept: "Prevención con PMF", prompt: "¿Qué medida del estándar ayuda a proteger las tramas de gestión frente a la falsificación?", options: ["Ocultar el SSID", "Protected Management Frames (PMF, 802.11w), obligatorio en WPA3", "Bajar la potencia de la antena", "Usar WEP"], correct: 1, feedback: ["Correcto: PMF protege la integridad y autenticidad de esas tramas.", "La protección estándar es PMF (802.11w); ocultar el SSID o usar WEP no ayuda aquí."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 4.2 Evil Twin
+  // -------------------------------------------------------------------------
+  "m4-evil-twin": {
+    ...M4_COMMON,
+    id: "m4-evil-twin",
+    moduleId: 4,
+    title: "Evil Twin",
+    subtitle: "Evil Twin: una red que finge ser la de siempre",
+    quizTitle: "Desafío: Evil Twin",
+    bridge: "Un Evil Twin imita una red conocida. Pero a veces el punto de acceso no autorizado aparece sin imitar a nadie: eso es un Rogue AP.",
+    ctf: "Reconocer que un mismo nombre de red puede corresponder a distintos puntos de acceso te enseña a no confiar solo en el SSID.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es un Evil Twin?",
+          explanation: "Es una red inalámbrica falsa que se hace pasar por una legítima. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "idea", label: "👯 La idea", sublabel: "Un «gemelo malvado»", detail: "Un punto de acceso ilegítimo que copia el nombre de red (SSID) de uno legítimo para que los usuarios y sus dispositivos lo confundan con el verdadero." },
+              { id: "ssid", label: "🔤 Copia el SSID", sublabel: "Mismo nombre visible", detail: "El SSID es solo una etiqueta de texto; no es un dato secreto ni único. Que dos redes muestren «Cafe_Central» no garantiza que sean el mismo equipo." },
+              { id: "goal", label: "🎯 El objetivo", sublabel: "Que te conectes a él", detail: "Busca que el dispositivo se asocie al equipo falso en lugar del real, para quedar en posición de intermediario del tráfico de la víctima." },
+              { id: "auto", label: "📲 Reconexión automática", sublabel: "El punto débil humano", detail: "Muchos dispositivos se reconectan solos a redes «conocidas» por su nombre. Un gemelo con el mismo SSID puede aprovechar esa comodidad." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué copia principalmente un Evil Twin para parecer legítimo?",
+            options: ["El nombre de red (SSID) de una red real", "El número de serie del router"],
+            correct: 0,
+            feedback: ["Correcto: imita el SSID, que es solo una etiqueta pública.", "Revisa: lo que copia es el nombre visible de la red (SSID)."]
+          }
+        },
+        {
+          concept: "Legítima vs. suplantada",
+          explanation: "A simple vista pueden verse idénticas. Pulsa «Resaltar diferencias» para ver qué las separa realmente.",
+          visual: {
+            type: "compare-pair",
+            left: { title: "📡 Red legítima", rows: [
+              { label: "Nombre (SSID)", value: "Cafe_Central" },
+              { label: "Identificador del equipo (BSSID)", value: "El del router real del local" },
+              { label: "Seguridad", value: "La configurada por el local (p. ej. WPA2/WPA3)" },
+              { label: "Certificado (si es Enterprise)", value: "Válido y reconocido por el dispositivo" }
+            ] },
+            right: { title: "🎭 Red suplantada (Evil Twin)", rows: [
+              { label: "Nombre (SSID)", value: "Cafe_Central (idéntico a propósito)" },
+              { label: "Identificador del equipo (BSSID)", value: "Distinto: es otro equipo" },
+              { label: "Seguridad", value: "A veces abierta o distinta, para facilitar la conexión" },
+              { label: "Certificado (si es Enterprise)", value: "Ausente, inválido o desconocido" }
+            ] }
+          },
+          check: {
+            prompt: "Dos redes muestran el mismo SSID pero distinto identificador de equipo (BSSID) y una pide datos que la otra nunca pidió. ¿Qué es correcto afirmar?",
+            options: ["Son con seguridad el mismo router", "Son equipos distintos; es un motivo razonable para sospechar y verificar"],
+            correct: 1,
+            feedback: ["Revisa: el SSID se repite fácil; el BSSID distinto indica otro equipo.", "Correcto: es una señal de sospecha que justifica verificar antes de conectarse."]
+          }
+        },
+        {
+          concept: "Señales de alerta y prevención",
+          explanation: "No siempre se puede confirmar un Evil Twin, pero sí reducir el riesgo. Toca cada medida.",
+          visual: {
+            type: "list-select",
+            prompt: "Toca cada señal o medida.",
+            items: [
+              { id: "s1", label: "🔓 Una red «conocida» aparece de pronto como abierta o pide credenciales que antes no pedía", note: "Señal de alerta: un cambio inesperado en la seguridad o en lo que se solicita merece desconfianza." },
+              { id: "s2", label: "🔁 El dispositivo se conecta solo a una red pública por su nombre", note: "Prevención: desactiva la reconexión automática a redes públicas y «olvida» las que no vuelvas a usar." },
+              { id: "s3", label: "🏢 En redes de organización, validar el certificado del servidor (WPA2/WPA3-Enterprise)", note: "Prevención: un cliente bien configurado solo confía en el certificado correcto, así un gemelo sin él no logra engañarlo." },
+              { id: "s4", label: "🔐 Usar WPA3 y una capa adicional como una VPN de confianza en redes públicas", note: "Prevención: aunque te conectes a algo dudoso, el cifrado de extremo a extremo limita lo que un intermediario podría leer." },
+              { id: "s5", label: "✅ Confirmar el nombre exacto de la red con el personal del lugar", note: "Prevención sencilla: preguntar cuál es la red oficial evita conectarse a una imitación de nombre parecido." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué medida ayuda a que un dispositivo de una organización no acepte un Evil Twin?",
+            options: ["Validar el certificado del servidor en redes Enterprise", "Elegir siempre la señal más fuerte"],
+            correct: 0,
+            feedback: ["Correcto: si el cliente exige el certificado correcto, el gemelo no puede presentarlo.", "Revisa: la señal más fuerte no prueba legitimidad; un equipo cercano puede tener más señal."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "Lista de redes visibles (simulada)",
+      instructions: "Estás en una cafetería cuyo Wi-Fi oficial es «Cafe_Central» con WPA2. Clasifica cada red detectada. Recuerda: una señal de sospecha no prueba un ataque, pero sí indica que conviene verificar antes de conectarse.",
+      panelTitle: "Escaneo de redes cercanas (ficticio)",
+      categories: [
+        { id: "legit", label: "Probablemente legítima" },
+        { id: "sospecha", label: "Sospechosa: verificar" },
+        { id: "otra", label: "Otra red, sin relación" }
+      ],
+      items: [
+        { id: "n1", icon: "☕", name: "Cafe_Central · WPA2 · equipo del local", clues: ["Nombre oficial", "Seguridad esperada"], answer: "legit", explain: "Coincide con el nombre y la seguridad que confirmó el local.", hint: "¿Coincide con lo que anuncia el establecimiento?" },
+        { id: "n2", icon: "🎭", name: "Cafe_Central · ABIERTA · otro identificador de equipo", clues: ["Mismo nombre", "Sin seguridad", "BSSID distinto"], answer: "sospecha", explain: "Mismo SSID pero abierta y en otro equipo: señal razonable para verificar, aún sin ser prueba definitiva.", hint: "Mismo nombre, pero ¿la seguridad y el equipo coinciden con el oficial?" },
+        { id: "n3", icon: "🏠", name: "Casa_Lopez · WPA3 · señal débil", clues: ["Red doméstica vecina", "Nombre distinto"], answer: "otra", explain: "Es la red de un vecino: no tiene relación con la cafetería.", hint: "¿Este nombre tiene algo que ver con el local?" },
+        { id: "n4", icon: "🆓", name: "Cafe_Central_FREE · ABIERTA · pide correo y contraseña personal", clues: ["Nombre parecido", "Pide credenciales sensibles"], answer: "sospecha", explain: "Nombre imitado y solicitud de datos sensibles: motivo claro para desconfiar y verificar.", hint: "Fíjate en el nombre ligeramente cambiado y en qué te pide." },
+        { id: "n5", icon: "🖨️", name: "HP-Print-2F · red de una impresora", clues: ["Dispositivo conocido", "Otro propósito"], answer: "otra", explain: "Es una red de servicio de una impresora, sin relación con el Wi-Fi del local.", hint: "¿Este nombre busca imitar al de la cafetería?" }
+      ],
+      success: "El SSID no prueba identidad. Ante un mismo nombre con seguridad distinta, otro equipo o solicitudes inusuales, lo prudente es verificar la red oficial antes de conectarse."
+    },
+    quiz: [
+      { id: "q1", concept: "Definición", prompt: "¿Qué es un Evil Twin?", options: ["Un virus para teléfonos", "Un punto de acceso falso que imita el SSID de una red legítima", "Un tipo de antena de largo alcance", "Un protocolo de cifrado"], correct: 1, feedback: ["Correcto: una red falsa que se hace pasar por otra.", "Es un AP ilegítimo que copia el nombre de una red real para confundir."] },
+      { id: "q2", concept: "Por qué funciona", prompt: "¿Por qué un SSID igual no garantiza que sea la red auténtica?", options: ["Porque el SSID es secreto", "Porque el SSID es solo una etiqueta pública que cualquiera puede copiar", "Porque el SSID cambia cada hora", "Porque el SSID incluye la contraseña"], correct: 1, feedback: ["Correcto: al ser una etiqueta pública, es fácil de imitar.", "El SSID no es secreto ni único: es un nombre que puede repetirse o copiarse."] },
+      { id: "q3", concept: "Riesgo", prompt: "¿Cuál es el riesgo principal al conectarse a un Evil Twin?", options: ["Que la batería dure menos", "Que el equipo falso quede como intermediario del tráfico de la víctima", "Que la red vaya más rápido", "Que se borre el historial del navegador"], correct: 1, feedback: ["Correcto: queda en posición de intermediario del tráfico.", "El riesgo clave es la posición de intermediario, no el rendimiento."] },
+      { id: "q4", concept: "Detección", prompt: "¿Cuál es una señal razonable de sospecha?", options: ["Que la red tenga buena señal", "Mismo SSID pero distinto equipo (BSSID) y una seguridad o solicitud de datos que cambió sin explicación", "Que el nombre esté en español", "Que haya muchas redes visibles"], correct: 1, feedback: ["Correcto: ese conjunto de señales justifica verificar.", "La señal fuerte o muchas redes no indican nada; el cambio inesperado sí."] },
+      { id: "q5", concept: "Prevención", prompt: "¿Qué medida reduce el riesgo en redes públicas?", options: ["Conectarse siempre a la red abierta más cercana", "Desactivar la reconexión automática y usar cifrado de extremo a extremo (como una VPN de confianza)", "Compartir la contraseña con todos", "Usar WEP"], correct: 1, feedback: ["Correcto: menos reconexión automática y más cifrado propio.", "Conectarse a cualquier red abierta o usar WEP aumenta el riesgo, no lo reduce."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 4.3 Rogue Access Point
+  // -------------------------------------------------------------------------
+  "m4-rogue-ap": {
+    ...M4_COMMON,
+    id: "m4-rogue-ap",
+    moduleId: 4,
+    title: "Rogue AP",
+    subtitle: "Rogue AP: un punto de acceso que nadie autorizó",
+    quizTitle: "Desafío: Rogue AP",
+    bridge: "Una vez conectado a una red controlada por otro, el siguiente engaño suele ser una página que pide tus datos: el captive portal malicioso.",
+    ctf: "Entender la diferencia entre «autorizado» y «no autorizado» te prepara para pensar como el equipo que defiende una red, no solo como quien la analiza.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es un Rogue AP?",
+          explanation: "Es un punto de acceso conectado a una red sin autorización. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "def", label: "📡 Definición", sublabel: "AP no autorizado", detail: "Un punto de acceso que opera en el alcance o dentro de la infraestructura de una organización sin que el equipo de red lo haya aprobado ni lo administre." },
+              { id: "origin", label: "🧩 De dónde sale", sublabel: "No siempre es malicioso", detail: "Puede ser deliberado (alguien instala un AP para saltarse controles) o accidental: un empleado que enchufa un router personal «para tener mejor señal» crea, sin querer, una puerta no vigilada." },
+              { id: "risk", label: "🚪 Por qué importa", sublabel: "Una puerta sin control", detail: "Amplía el perímetro de la red por un punto que nadie supervisa: puede no cumplir las políticas de seguridad y abrir acceso a la red interna." },
+              { id: "shadow", label: "👤 TI en la sombra", sublabel: "Shadow IT", detail: "Es un ejemplo de «shadow IT»: tecnología conectada fuera del conocimiento del área responsable, difícil de proteger porque, simplemente, no se sabe que existe." }
+            ]
+          },
+          check: {
+            prompt: "¿Un Rogue AP es siempre instalado con malas intenciones?",
+            options: ["Sí, siempre es un ataque deliberado", "No: puede ser accidental, como un router personal conectado «para mejorar la señal»"],
+            correct: 1,
+            feedback: ["Revisa: muchos Rogue AP son accidentales y aun así peligrosos.", "Correcto: intencionado o no, el riesgo es el mismo: un acceso no controlado."]
+          }
+        },
+        {
+          concept: "Rogue AP vs. Evil Twin",
+          explanation: "Se confunden, pero no son lo mismo. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "📡 Rogue AP", rows: [
+              { label: "Qué es", value: "Un AP no autorizado en/junto a la red" },
+              { label: "¿Imita a otra red?", value: "No necesariamente: puede tener su propio nombre" },
+              { label: "Relación con la red", value: "Suele estar conectado a la infraestructura interna" },
+              { label: "Preocupa sobre todo a", value: "La organización (su perímetro)" }
+            ] },
+            right: { title: "🎭 Evil Twin", rows: [
+              { label: "Qué es", value: "Un AP falso que imita a uno legítimo" },
+              { label: "¿Imita a otra red?", value: "Sí: copia el SSID de una red real" },
+              { label: "Relación con la red", value: "Puede ser totalmente externo" },
+              { label: "Preocupa sobre todo a", value: "El usuario que se conecta por error" }
+            ] }
+          },
+          check: {
+            prompt: "Un empleado conecta su propio router al cableado de la oficina con un nombre nuevo, «WiFi_Juan». ¿Qué es?",
+            options: ["Un Evil Twin, porque es una red inalámbrica", "Un Rogue AP: no imita a nadie, pero es un AP no autorizado en la red"],
+            correct: 1,
+            feedback: ["Revisa: no imita el nombre de otra red, así que no es un gemelo.", "Correcto: es un AP no autorizado conectado a la infraestructura: un Rogue AP."]
+          }
+        },
+        {
+          concept: "Identificación y control",
+          explanation: "La defensa combina visibilidad, control de acceso y políticas. Toca cada medida.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "inv", label: "📋 Inventario", sublabel: "Saber qué debería existir", detail: "Mantener una lista de los puntos de acceso autorizados (y sus identificadores) permite notar cuándo aparece uno que no está en la lista." },
+              { id: "wips", label: "🛰️ Monitoreo (WIDS/WIPS)", sublabel: "Vigilar el espectro", detail: "Sistemas de detección/prevención de intrusos inalámbricos observan las redes presentes y alertan sobre APs desconocidos. La alerta es un punto de partida para verificar, no una condena automática." },
+              { id: "nac", label: "🔑 Control de acceso a la red", sublabel: "802.1X / NAC", detail: "Exigir autenticación para que un dispositivo pueda usar una toma de red dificulta que un AP no autorizado se conecte a la infraestructura interna." },
+              { id: "policy", label: "📜 Políticas y concienciación", sublabel: "Factor humano", detail: "Reglas claras (no conectar equipos de red propios) y formación reducen los Rogue AP accidentales, que son muy comunes." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué ayuda a que un AP no autorizado no consiga conectarse a la red interna por una toma de pared?",
+            options: ["Control de acceso a la red (802.1X/NAC)", "Subir el volumen de las alertas"],
+            correct: 0,
+            feedback: ["Correcto: exigir autenticación en el puerto frena la conexión no autorizada.", "Revisa: lo relevante es autenticar el acceso, no el volumen de las alertas."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "packet-sort",
+      prompt: "Revisión de inventario de red (simulada)",
+      instructions: "Eres parte del equipo de red. Clasifica cada punto de acceso detectado según el inventario oficial. Una alerta no es una acusación: lo que no está autorizado debe verificarse y controlarse.",
+      itemLabel: "📡 Punto de acceso",
+      countLabel: "Puntos revisados",
+      binPrefix: "",
+      okTitle: M4_OK,
+      wrongTitle: M4_RETRY,
+      bins: [
+        { id: "ok", label: "Autorizado", caption: "Está en el inventario", icon: "✅" },
+        { id: "rogue", label: "No autorizado: investigar", caption: "Fuera del inventario", icon: "🚩" }
+      ],
+      items: [
+        { id: "a1", icon: "🏢", text: "AP-Piso2-03, en la lista oficial, administrado por el equipo de red.", bin: "ok", explain: "Figura en el inventario y está gestionado: autorizado.", hint: "¿Aparece en el inventario oficial?" },
+        { id: "a2", icon: "🔌", text: "Un router doméstico enchufado a una toma de la sala de reuniones, sin registro.", bin: "rogue", explain: "AP no autorizado conectado a la infraestructura: Rogue AP que hay que investigar.", hint: "¿Lo instaló y administra el equipo de red?" },
+        { id: "a3", icon: "📡", text: "AP-Recepcion-01, con firmware al día y en el inventario.", bin: "ok", explain: "Autorizado y mantenido: correcto.", hint: "Está registrado y actualizado." },
+        { id: "a4", icon: "📱", text: "Un punto de acceso móvil (hotspot) con un nombre desconocido dentro de la oficina, no registrado.", bin: "rogue", explain: "Dispositivo no autorizado dentro del perímetro: verificar su origen.", hint: "¿Lo aprobó alguien del área responsable?" },
+        { id: "a5", icon: "🛠️", text: "AP-Lab-02, instalado hoy por el equipo de red y agregado al inventario.", bin: "ok", explain: "Nuevo, pero autorizado y documentado: correcto.", hint: "Es nuevo, pero ¿quién lo instaló y está registrado?" },
+        { id: "a6", icon: "❓", text: "Un AP con el mismo nombre que la red corporativa pero equipo y ubicación desconocidos.", bin: "rogue", explain: "No está en el inventario y además imita el nombre: doble motivo para investigar.", hint: "Imitar el nombre y no estar registrado son dos señales juntas." }
+      ],
+      hints: { ok: "Debe estar en el inventario y gestionado por el equipo de red.", rogue: "Si no está registrado ni aprobado, se investiga antes de confiar." },
+      success: "Un Rogue AP es cualquier AP no autorizado, malicioso o no. La defensa se apoya en inventario, monitoreo (WIDS/WIPS), control de acceso (802.1X/NAC) y políticas claras."
+    },
+    quiz: [
+      { id: "q1", concept: "Definición", prompt: "¿Qué define a un Rogue AP?", options: ["Un AP que imita el nombre de otra red", "Un punto de acceso no autorizado en la red o su alcance", "Un AP con WPA3", "Un servidor de correo"], correct: 1, feedback: ["Correcto: lo define la falta de autorización.", "Lo que lo define es que no está autorizado; imitar un nombre es propio del Evil Twin."] },
+      { id: "q2", concept: "Rogue AP vs Evil Twin", prompt: "¿Cuál es la diferencia principal entre un Rogue AP y un Evil Twin?", options: ["No hay diferencia", "El Evil Twin imita a una red legítima; el Rogue AP es cualquier AP no autorizado, imite o no", "El Rogue AP siempre usa WPA3", "El Evil Twin es un cable"], correct: 1, feedback: ["Correcto: el Evil Twin es un caso particular centrado en la imitación.", "La clave: el Evil Twin imita; el Rogue AP puede no imitar a nadie."] },
+      { id: "q3", concept: "Origen accidental", prompt: "¿Por qué un router personal conectado «para mejorar la señal» es un problema?", options: ["Porque gasta electricidad", "Porque crea un acceso a la red interna que nadie supervisa ni protege", "Porque reduce la velocidad de internet", "Porque cambia el color de las luces"], correct: 1, feedback: ["Correcto: es un acceso no controlado, aunque la intención fuera buena.", "El problema es el acceso no supervisado al perímetro, no el consumo."] },
+      { id: "q4", concept: "Riesgo organizacional", prompt: "¿Cuál es el riesgo principal de un Rogue AP para una organización?", options: ["Que amplíe el perímetro por un punto sin control de seguridad", "Que mejore la cobertura", "Que ahorre dinero", "Que acelere la red"], correct: 0, feedback: ["Correcto: extiende la red por un punto no vigilado.", "El riesgo es la pérdida de control del perímetro, no una mejora."] },
+      { id: "q5", concept: "Control", prompt: "¿Qué conjunto de medidas ayuda a controlar los Rogue AP?", options: ["Ocultar el SSID y usar WEP", "Inventario de APs, monitoreo (WIDS/WIPS), control de acceso (802.1X/NAC) y políticas", "Apagar el Wi-Fi para siempre", "Compartir la contraseña del administrador"], correct: 1, feedback: ["Correcto: visibilidad, control de acceso y políticas.", "Ocultar el SSID o usar WEP no controla un AP no autorizado."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 4.4 Captive Portal malicioso
+  // -------------------------------------------------------------------------
+  "m4-captive-portal": {
+    ...M4_COMMON,
+    id: "m4-captive-portal",
+    moduleId: 4,
+    title: "Captive Portal",
+    subtitle: "Captive Portal: la página de bienvenida… y su imitación",
+    quizTitle: "Desafío: Captive Portal",
+    bridge: "Hasta ahora las amenazas jugaban con redes y páginas. La siguiente juega con la comodidad de configurar el Wi-Fi: WPS.",
+    ctf: "Saber qué pide (y qué nunca debería pedir) una página de acceso te entrena para reconocer cuándo una solicitud de datos no tiene sentido.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es un captive portal legítimo?",
+          explanation: "Es la página que aparece al conectarte a muchas redes públicas antes de darte internet. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "what", label: "🌐 Qué es", sublabel: "Página de bienvenida", detail: "Una página que la red muestra para aceptar condiciones de uso, iniciar sesión como huésped o introducir un código antes de permitir la navegación." },
+              { id: "where", label: "🏨 Dónde se usa", sublabel: "Hoteles, aeropuertos, campus", detail: "Es habitual y, en sí mismo, legítimo: sirve para gestionar el acceso de invitados en redes públicas o semipúblicas." },
+              { id: "normal", label: "✅ Qué suele pedir", sublabel: "Lo mínimo", detail: "Aceptar términos, un nombre o correo para el registro de invitado, o un código entregado por el establecimiento. Lo razonable es pedir poco." },
+              { id: "legit", label: "🔒 Cómo se ve uno confiable", sublabel: "Coherente y seguro", detail: "Usa HTTPS con un certificado válido, coincide con el nombre del lugar y no obliga a instalar programas ni a entregar contraseñas de otras cuentas." }
+            ]
+          },
+          check: {
+            prompt: "¿Un captive portal es, en sí mismo, algo malicioso?",
+            options: ["Sí, siempre es un engaño", "No: es un mecanismo legítimo de acceso que también puede ser imitado"],
+            correct: 1,
+            feedback: ["Revisa: el portal en sí es normal; el problema es cuando se falsifica.", "Correcto: la tecnología es legítima; el riesgo está en las imitaciones."]
+          }
+        },
+        {
+          concept: "Portal legítimo vs. portal falso",
+          explanation: "Una página falsa copia el aspecto de una real para engañar. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "✅ Portal legítimo", rows: [
+              { label: "Qué pide", value: "Aceptar términos o un dato mínimo de invitado" },
+              { label: "Conexión", value: "HTTPS con certificado válido del establecimiento" },
+              { label: "Contraseñas", value: "No pide la contraseña de tu correo, banco o redes" },
+              { label: "Descargas", value: "No te obliga a instalar programas para «navegar»" }
+            ] },
+            right: { title: "🎣 Portal falso (malicioso)", rows: [
+              { label: "Qué pide", value: "Datos sensibles: contraseñas de otras cuentas, tarjetas, documentos" },
+              { label: "Conexión", value: "Sin HTTPS, con aviso de certificado o un dominio extraño" },
+              { label: "Contraseñas", value: "Intenta que escribas credenciales que no deberían ir ahí" },
+              { label: "Descargas", value: "Pide instalar un «certificado» o una app para continuar" }
+            ] }
+          },
+          check: {
+            prompt: "Un portal de Wi-Fi de un café te pide la contraseña de tu correo electrónico para «verificar tu identidad». ¿Qué haces?",
+            options: ["La escribo: lo necesita para darme internet", "No la escribo: un acceso a Wi-Fi no necesita la contraseña de tu correo"],
+            correct: 1,
+            feedback: ["Revisa: ninguna red pública necesita la contraseña de tu correo para darte internet.", "Correcto: esa solicitud no tiene sentido y es una señal de alerta clara."]
+          }
+        },
+        {
+          concept: "Señales de alerta y verificación",
+          explanation: "La mejor defensa es desconfiar de lo que no encaja. Toca cada punto.",
+          visual: {
+            type: "list-select",
+            prompt: "Toca cada señal o buena práctica.",
+            items: [
+              { id: "c1", label: "🔑 Pide contraseñas de cuentas ajenas al Wi-Fi (correo, banco, redes sociales)", note: "Señal de alerta fuerte: el acceso a una red nunca necesita esas credenciales." },
+              { id: "c2", label: "⚠️ El navegador avisa de un certificado inválido o la dirección no usa HTTPS", note: "Señal de alerta: desconfía antes de introducir cualquier dato." },
+              { id: "c3", label: "⬇️ Obliga a instalar un programa o «certificado» para poder navegar", note: "Señal de alerta: instalar algo para «entrar a internet» es un patrón típico de engaño." },
+              { id: "c4", label: "🏷️ El nombre o dominio no coincide con el del lugar donde estás", note: "Verificación: confirma con el personal cuál es la red y la página oficiales." },
+              { id: "c5", label: "🧾 Entregar solo lo mínimo y nunca reutilizar contraseñas importantes", note: "Buena práctica: así, aunque un portal sea falso, el daño posible es menor." }
+            ]
+          },
+          check: {
+            prompt: "¿Cuál NO es una petición razonable de un portal de invitados?",
+            options: ["Aceptar los términos de uso", "La contraseña de tu banca en línea"],
+            correct: 1,
+            feedback: ["Correcto como señal: aceptar términos es normal; pedir la clave del banco, no.", "Revisa: aceptar términos es habitual; la clave del banco jamás debe pedirla."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "¿Qué me está pidiendo esta página? (simulado)",
+      instructions: "Te conectas a una red pública y aparece un portal. Clasifica cada solicitud. Recuerda: pedir lo mínimo es normal; pedir datos sensibles o instalaciones es una señal de alerta.",
+      panelTitle: "Solicitudes del portal (ficticias)",
+      categories: [
+        { id: "normal", label: "Petición razonable" },
+        { id: "alerta", label: "Señal de alerta" }
+      ],
+      items: [
+        { id: "p1", icon: "📄", name: "«Acepta los términos de uso para continuar»", clues: ["Dato mínimo", "Sin credenciales"], answer: "normal", explain: "Aceptar condiciones es una petición habitual y razonable.", hint: "¿Te pide algún dato sensible?" },
+        { id: "p2", icon: "📧", name: "«Introduce la contraseña de tu correo para verificarte»", clues: ["Credencial ajena", "No tiene sentido"], answer: "alerta", explain: "El acceso a Wi-Fi no necesita la contraseña de tu correo: alerta clara.", hint: "¿Para dar internet hace falta la clave de tu correo?" },
+        { id: "p3", icon: "🏷️", name: "«Ingresa el código que te dio la recepción»", clues: ["Código del lugar", "Acceso de invitado"], answer: "normal", explain: "Un código entregado por el establecimiento es un método legítimo de acceso.", hint: "¿El propio local te dio ese dato?" },
+        { id: "p4", icon: "⬇️", name: "«Instala este certificado/app para poder navegar»", clues: ["Obliga a instalar", "Patrón de engaño"], answer: "alerta", explain: "Exigir una instalación para «tener internet» es un patrón típico de portal malicioso.", hint: "¿Navegar debería obligarte a instalar algo?" },
+        { id: "p5", icon: "💳", name: "«Confirma tu número de tarjeta para activar el Wi-Fi gratuito»", clues: ["Dato financiero", "Contradicción: gratis pero pide tarjeta"], answer: "alerta", explain: "Un Wi-Fi «gratuito» que pide la tarjeta se contradice: señal de alerta.", hint: "¿Un servicio gratuito necesita tu tarjeta?" }
+      ],
+      success: "Un portal legítimo pide lo mínimo y usa HTTPS; uno falso busca credenciales sensibles, datos financieros o instalaciones. Verifica el nombre oficial y nunca reutilices contraseñas importantes."
+    },
+    quiz: [
+      { id: "q1", concept: "Definición", prompt: "¿Qué es un captive portal legítimo?", options: ["Un virus", "La página de acceso que muestran algunas redes antes de dar internet", "Un tipo de antena", "Una contraseña de administrador"], correct: 1, feedback: ["Correcto: una página de bienvenida/acceso legítima.", "Es la página de acceso de muchas redes públicas; en sí misma es legítima."] },
+      { id: "q2", concept: "Uso legítimo", prompt: "¿Qué pide normalmente un portal de invitados legítimo?", options: ["La contraseña de tu banco", "Aceptar términos, un dato mínimo o un código del establecimiento", "Que instales un antivirus de pago", "Tu número de documento y tu tarjeta"], correct: 1, feedback: ["Correcto: lo razonable es pedir poco.", "Un portal legítimo pide lo mínimo, no credenciales sensibles."] },
+      { id: "q3", concept: "Engaño", prompt: "¿Cómo engaña un captive portal malicioso?", options: ["Copia el aspecto de uno legítimo para que entregues datos sensibles", "Mejora tu señal Wi-Fi", "Acelera las descargas", "Cambia el idioma del teléfono"], correct: 0, feedback: ["Correcto: imita una página real para capturar información.", "Su objetivo es el engaño para obtener datos, no mejorar el servicio."] },
+      { id: "q4", concept: "Señal de alerta", prompt: "¿Cuál es una señal de alerta clara en un portal de Wi-Fi?", options: ["Que pida aceptar los términos", "Que pida la contraseña de tu correo o te obligue a instalar un programa", "Que muestre el logo del lugar", "Que esté en varios idiomas"], correct: 1, feedback: ["Correcto: credenciales ajenas o instalaciones forzadas son banderas rojas.", "Aceptar términos o ver un logo es normal; pedir claves o instalar no."] },
+      { id: "q5", concept: "Verificación", prompt: "¿Qué buena práctica reduce el riesgo ante un portal dudoso?", options: ["Reutilizar siempre la misma contraseña", "Verificar el nombre/página oficial con el personal y no entregar datos sensibles", "Instalar lo que pida", "Escribir la clave del banco por si acaso"], correct: 1, feedback: ["Correcto: verificar y entregar lo mínimo limita el daño.", "Reutilizar claves o instalar lo que pida aumenta el riesgo."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 4.5 WPS y Pixie Dust
+  // -------------------------------------------------------------------------
+  "m4-wps-pixie": {
+    ...M4_COMMON,
+    id: "m4-wps-pixie",
+    moduleId: 4,
+    title: "WPS / Pixie Dust",
+    subtitle: "WPS y Pixie Dust: la comodidad que puede costar cara",
+    quizTitle: "Desafío: WPS y Pixie Dust",
+    bridge: "Ya viste amenazas sobre la red y sobre su configuración. La última juega con la identidad de los dispositivos: el MAC Spoofing.",
+    ctf: "Comprender por qué una función cómoda puede debilitar una red te ayuda a evaluar configuraciones, no solo protocolos.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es WPS?",
+          explanation: "Wi-Fi Protected Setup nació para conectar dispositivos sin escribir la contraseña larga. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "goal", label: "🎯 Para qué nació", sublabel: "Facilitar la conexión", detail: "Permite unir un dispositivo a la red sin teclear la contraseña WPA completa, pensando en la comodidad del usuario doméstico." },
+              { id: "button", label: "🔘 Botón (push-button)", sublabel: "Pulsar para conectar", detail: "Se pulsa un botón en el router y, durante unos segundos, el dispositivo cercano puede unirse. Es el método más simple." },
+              { id: "pin", label: "🔢 PIN", sublabel: "Un número de 8 dígitos", detail: "Un código numérico de 8 dígitos que el dispositivo presenta al router para unirse. Aquí es donde aparecen los problemas de diseño." },
+              { id: "scope", label: "🏠 Dónde se ve", sublabel: "Routers domésticos", detail: "Es común en equipos de hogar. En entornos gestionados suele desactivarse por los riesgos que veremos." }
+            ]
+          },
+          check: {
+            prompt: "¿Cuál era el propósito de WPS?",
+            options: ["Cifrar mejor que WPA3", "Facilitar unir dispositivos a la red sin escribir la contraseña completa"],
+            correct: 1,
+            feedback: ["Revisa: WPS no es un cifrado más fuerte; es un método de emparejamiento.", "Correcto: su objetivo era la comodidad, no reforzar el cifrado."]
+          }
+        },
+        {
+          concept: "La debilidad del método PIN",
+          explanation: "El problema no es la contraseña Wi-Fi, sino cómo algunas implementaciones manejan el PIN. Toca cada idea (es conceptual, sin pasos de ataque).",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "split", label: "✂️ El PIN se valida en partes", sublabel: "Debilidad de diseño", detail: "En varias implementaciones, el PIN de 8 dígitos no se comprueba entero sino por mitades, y un dígito es solo de verificación. Eso reduce muchísimo la cantidad de combinaciones que habría que considerar." },
+              { id: "feasible", label: "⏱️ Menos combinaciones", sublabel: "Se vuelve factible probarlas", detail: "Al validarse por partes, el espacio de posibilidades se encoge tanto que probar el PIN deja de ser impracticable, debilitando la protección que debería dar." },
+              { id: "bypass", label: "🚪 Puentea la contraseña fuerte", sublabel: "El riesgo clave", detail: "Si el PIN cae, se obtiene acceso aunque la contraseña WPA sea larga y robusta: WPS se convierte en una puerta lateral que anula el esfuerzo de una buena clave." },
+              { id: "notall", label: "🧩 No todos los equipos igual", sublabel: "Depende de la implementación", detail: "No todos los routers son vulnerables del mismo modo; algunos añaden límites de intentos o bloqueos. Aun así, la recomendación general es prudente." }
+            ]
+          },
+          check: {
+            prompt: "Si una red tiene una contraseña WPA larga pero WPS por PIN activado y vulnerable, ¿qué ocurre?",
+            options: ["La contraseña larga la protege igual", "WPS puede convertirse en una puerta lateral que puentea esa buena contraseña"],
+            correct: 1,
+            feedback: ["Revisa: el problema está en WPS, no en la contraseña.", "Correcto: por eso una clave fuerte no basta si WPS queda como atajo débil."]
+          }
+        },
+        {
+          concept: "Pixie Dust y la prevención",
+          explanation: "«Pixie Dust» es el nombre de una técnica que explota esa debilidad en ciertas implementaciones. Lo importante aquí es cómo defenderse. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "pixie", label: "✨ Qué es «Pixie Dust»", sublabel: "Explota PIN débiles", detail: "El nombre de un enfoque que aprovecha que algunas implementaciones de WPS generan valores internos predecibles o débiles al calcular el PIN. Conceptualmente, es la consecuencia práctica de la debilidad anterior." },
+              { id: "off", label: "🔕 Desactivar WPS", sublabel: "Medida principal", detail: "Si no se usa, conviene apagarlo en el router. Es la defensa más directa: lo que no está activo no se puede aprovechar." },
+              { id: "fw", label: "🔄 Firmware al día", sublabel: "Cierra fallos conocidos", detail: "Mantener el router actualizado corrige implementaciones vulnerables y añade protecciones como límites de intentos." },
+              { id: "strong", label: "🔐 Buena base de seguridad", sublabel: "WPA2/WPA3 + clave robusta", detail: "Desactivar WPS no sustituye lo demás: sigue siendo clave usar un protocolo vigente y una contraseña larga y única." }
+            ]
+          },
+          check: {
+            prompt: "¿Cuál es la medida defensiva principal frente a los riesgos de WPS?",
+            options: ["Elegir un PIN «más bonito»", "Desactivar WPS cuando no se use y mantener el firmware actualizado"],
+            correct: 1,
+            feedback: ["Revisa: el PIN no se «mejora» eligiéndolo; el problema es de diseño.", "Correcto: desactivarlo y actualizar el equipo es la defensa clave."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "m2-decisions",
+      prompt: "Asegura el router de casa",
+      instructions: "Ayudas a una familia a configurar su router nuevo. Toma cada decisión y observa sus consecuencias. No se trata de atacar nada: se trata de reducir riesgos.",
+      scenario: {
+        title: "Escenario: hogar con un router nuevo (ficticio)",
+        text: "El router trae WPS activado de fábrica, firmware de hace dos años y la contraseña de administración por defecto. La familia solo conecta teléfonos, una TV y una laptop, todos modernos.",
+        devices: ["📡 Router (WPS activo)", "📱 Teléfonos", "📺 TV", "💻 Laptop"]
+      },
+      decisions: [
+        {
+          id: "wps", title: "1 · La función WPS", context: "Los dispositivos de la familia admiten escribir la contraseña normal sin problema.",
+          options: [
+            { id: "keep", label: "Dejar WPS activado «por si acaso es más cómodo»", ok: false, effects: [["Seguridad", "bad"], ["Comodidad", "ok"]], text: "Deja abierta una posible puerta lateral que puede puentear una buena contraseña. Si no se necesita, es un riesgo innecesario." },
+            { id: "off", label: "Desactivar WPS, ya que conectan escribiendo la contraseña", ok: true, effects: [["Seguridad", "ok"], ["Comodidad", "warn"]], text: "Lo que no está activo no se puede aprovechar. Un pequeño gesto de comodidad a cambio de cerrar un riesgo conocido." },
+            { id: "pin", label: "Dejar solo el PIN de WPS, que es «más seguro que el botón»", ok: false, effects: [["Seguridad", "bad"], ["Comodidad", "ok"]], text: "El método PIN es precisamente el que tiene la debilidad de diseño: no es la opción más segura." }
+          ]
+        },
+        {
+          id: "fw", title: "2 · El firmware de hace dos años", context: "El fabricante publicó actualizaciones desde entonces.",
+          options: [
+            { id: "update", label: "Actualizar el firmware del router", ok: true, effects: [["Seguridad", "ok"], ["Comodidad", "ok"]], text: "Cierra fallos conocidos y suele añadir protecciones como límites de intentos. Mantenimiento básico y esencial." },
+            { id: "skip", label: "No tocarlo: «si funciona, no se actualiza»", ok: false, effects: [["Seguridad", "bad"], ["Comodidad", "ok"]], text: "Un equipo sin parches conserva debilidades ya corregidas por el fabricante." }
+          ]
+        },
+        {
+          id: "admin", title: "3 · La contraseña de administración", context: "Sigue siendo la de fábrica, impresa en una etiqueta.",
+          options: [
+            { id: "change", label: "Cambiarla por una contraseña robusta y única", ok: true, effects: [["Seguridad", "ok"], ["Comodidad", "ok"]], text: "La clave de administración controla todo el router: debe ser propia y fuerte." },
+            { id: "default", label: "Dejar la de fábrica: «nadie la conoce»", ok: false, effects: [["Seguridad", "bad"], ["Comodidad", "ok"]], text: "Las contraseñas por defecto suelen ser conocidas o deducibles por modelo." }
+          ]
+        },
+        {
+          id: "wifi", title: "4 · La seguridad del Wi-Fi", context: "Todos los equipos son modernos y admiten WPA3.",
+          options: [
+            { id: "wpa3", label: "WPA2/WPA3 con AES y una contraseña larga y única", ok: true, effects: [["Seguridad", "ok"], ["Comodidad", "ok"]], text: "Desactivar WPS no sustituye lo básico: un protocolo vigente y una buena clave son la base." },
+            { id: "wep", label: "WEP, «para que ningún aparato tenga problemas»", ok: false, effects: [["Seguridad", "bad"], ["Comodidad", "ok"]], text: "WEP es obsoleto; retrocede años en seguridad y no resuelve nada." }
+          ]
+        }
+      ],
+      success: "Frente a WPS: desactivarlo si no se usa (sobre todo el método PIN), actualizar el firmware, cambiar la contraseña de administración y apoyarse en WPA2/WPA3 con una clave robusta."
+    },
+    quiz: [
+      { id: "q1", concept: "Qué es WPS", prompt: "¿Para qué se creó WPS?", options: ["Para cifrar más que WPA3", "Para facilitar unir dispositivos sin escribir la contraseña Wi-Fi completa", "Para ocultar el SSID", "Para asignar direcciones IP"], correct: 1, feedback: ["Correcto: su objetivo era la comodidad de conexión.", "WPS es un método de emparejamiento cómodo, no un cifrado superior."] },
+      { id: "q2", concept: "Debilidad del PIN", prompt: "¿Dónde está la debilidad conocida de WPS?", options: ["En la longitud de la contraseña Wi-Fi", "En cómo algunas implementaciones validan el PIN por partes, reduciendo las combinaciones", "En el nombre de la red", "En el canal de 5 GHz"], correct: 1, feedback: ["Correcto: la validación por partes encoge el espacio de posibilidades.", "El problema es de diseño del PIN, no de la contraseña ni del canal."] },
+      { id: "q3", concept: "Impacto", prompt: "Si WPS por PIN es vulnerable, ¿qué pasa con una contraseña WPA larga y fuerte?", options: ["Sigue protegiendo igual", "WPS puede puentearla, actuando como una puerta lateral", "La contraseña se vuelve más fuerte", "No tiene relación"], correct: 1, feedback: ["Correcto: por eso una buena clave no basta si WPS queda débil.", "WPS vulnerable puede anular el beneficio de una contraseña fuerte."] },
+      { id: "q4", concept: "Pixie Dust", prompt: "¿Qué describe el término «Pixie Dust»?", options: ["Un tipo de antena", "Un enfoque que aprovecha valores débiles o predecibles en implementaciones vulnerables de WPS", "Una mejora de WPA3", "Un formato de captura .pcap"], correct: 1, feedback: ["Correcto: explota la debilidad del PIN en ciertas implementaciones.", "Es la consecuencia práctica de la debilidad de WPS, no una antena ni una mejora."] },
+      { id: "q5", concept: "Prevención", prompt: "¿Cuál es la defensa principal frente a WPS?", options: ["Elegir un PIN distinto", "Desactivar WPS cuando no se use y mantener el firmware al día", "Volver a WEP", "Ocultar el SSID"], correct: 1, feedback: ["Correcto: desactivarlo y actualizar es lo más efectivo.", "Cambiar el PIN o usar WEP no corrige el problema de fondo."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 4.6 MAC Spoofing
+  // -------------------------------------------------------------------------
+  "m4-mac-spoofing": {
+    ...M4_COMMON,
+    id: "m4-mac-spoofing",
+    moduleId: 4,
+    title: "MAC Spoofing",
+    subtitle: "MAC Spoofing: cuando una dirección no prueba identidad",
+    quizTitle: "Desafío: MAC Spoofing",
+    bridge: "Con estas seis amenazas claras, estás listo para la misión final del módulo: pensar como el equipo que defiende un perímetro inalámbrico.",
+    ctf: "Entender que una MAC no es una identidad fiable te evita sacar conclusiones apresuradas al analizar quién es quién en una captura.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es una dirección MAC?",
+          explanation: "Recordemos el Módulo 1: es el identificador de la tarjeta de red de un dispositivo. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "what", label: "🏷️ Qué es", sublabel: "Identificador de la tarjeta de red", detail: "Una etiqueta que identifica la interfaz de red de un dispositivo en la red local. Acompaña a las tramas para decir «de quién a quién» en el tramo local." },
+              { id: "format", label: "🔢 Cómo se ve", sublabel: "Seis pares, como AA:BB:CC:11:22:33", detail: "Se escribe como seis pares de dígitos. Parte de ella suele identificar al fabricante del equipo." },
+              { id: "soft", label: "✍️ Se puede cambiar", sublabel: "No está grabada en piedra", detail: "Aunque cada tarjeta trae una de fábrica, la mayoría de los sistemas permiten cambiarla por software. Esa flexibilidad es la base tanto del spoofing como de la aleatorización." },
+              { id: "local", label: "📍 Alcance local", sublabel: "No viaja por internet", detail: "La MAC identifica dentro del tramo de red local; no es un identificador global que llegue hasta un servidor remoto en internet." }
+            ]
+          },
+          check: {
+            prompt: "¿La dirección MAC de fábrica es imposible de cambiar?",
+            options: ["Sí, está fija para siempre", "No: la mayoría de los sistemas permiten cambiarla por software"],
+            correct: 1,
+            feedback: ["Revisa: trae una de fábrica, pero puede cambiarse por software.", "Correcto: por eso una MAC no sirve, por sí sola, como prueba de identidad."]
+          }
+        },
+        {
+          concept: "Spoofing vs. aleatorización legítima",
+          explanation: "Cambiar la MAC no siempre es un ataque: a veces es una función de privacidad. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "🎭 MAC Spoofing", rows: [
+              { label: "Intención", value: "Hacerse pasar por otro dispositivo concreto" },
+              { label: "Objetivo", value: "Suplantar identidad o evadir un control basado en MAC" },
+              { label: "Quién lo hace", value: "Alguien que busca eludir una restricción" },
+              { label: "Legitimidad", value: "Engañoso: imita una dirección ajena" }
+            ] },
+            right: { title: "🔀 Aleatorización legítima", rows: [
+              { label: "Intención", value: "Proteger la privacidad del usuario" },
+              { label: "Objetivo", value: "Evitar el rastreo entre redes por una MAC fija" },
+              { label: "Quién lo hace", value: "El sistema operativo del teléfono/laptop, de forma automática" },
+              { label: "Legitimidad", value: "Función normal y recomendada de los dispositivos modernos" }
+            ] }
+          },
+          check: {
+            prompt: "Un teléfono moderno muestra una MAC distinta en cada red a la que se conecta. ¿Qué es lo más probable?",
+            options: ["Siempre es un ataque de spoofing", "Suele ser la aleatorización de MAC del sistema, una función de privacidad"],
+            correct: 1,
+            feedback: ["Revisa: cambiar la MAC también es una función normal de privacidad.", "Correcto: no toda MAC cambiante es un ataque; muchos equipos lo hacen por diseño."]
+          }
+        },
+        {
+          concept: "Por qué la MAC no es identidad (y cómo mitigar)",
+          explanation: "La lección central: no confíes en la MAC como prueba. Toca cada idea.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "noproof", label: "❌ No prueba quién es", sublabel: "Se puede copiar", detail: "Como puede cambiarse e imitarse, ver una MAC conocida no garantiza que sea ese dispositivo. Es un dato, no una credencial." },
+              { id: "filter", label: "🚧 El filtrado por MAC es débil", sublabel: "No es un control serio", detail: "Permitir solo ciertas MAC da una falsa sensación de seguridad: una dirección permitida puede imitarse. Sirve de comodidad, no de barrera real." },
+              { id: "real", label: "🔑 Autenticación de verdad", sublabel: "802.1X / credenciales", detail: "La identidad se verifica con mecanismos criptográficos (por ejemplo WPA2/WPA3-Enterprise con 802.1X), no con una etiqueta que se puede falsificar." },
+              { id: "watch", label: "🔎 Indicadores, con prudencia", sublabel: "Investigar, no condenar", detail: "Dos equipos con la misma MAC a la vez, o una MAC «de fábrica» que aparece donde no debería, son motivos para investigar; por sí solos no prueban un ataque." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué ofrece una autenticación más fiable que el filtrado por MAC?",
+            options: ["Mecanismos criptográficos como 802.1X (WPA2/WPA3-Enterprise)", "Permitir solo las MAC de una lista"],
+            correct: 0,
+            feedback: ["Correcto: la identidad se prueba con criptografía, no con una etiqueta.", "Revisa: la lista de MAC es justo lo débil; una dirección permitida puede imitarse."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "¿Qué dice (y qué no) una dirección MAC? (simulado)",
+      instructions: "Revisa cada observación de un registro de red. Distingue lo que es normal, lo que solo justifica investigar y lo que es una buena práctica. Una MAC, por sí sola, nunca prueba identidad.",
+      panelTitle: "Observaciones de red (ficticias)",
+      categories: [
+        { id: "normal", label: "Comportamiento normal" },
+        { id: "investigar", label: "Indicador a investigar" },
+        { id: "defensa", label: "Medida defensiva" }
+      ],
+      items: [
+        { id: "m1", icon: "🔀", name: "Un teléfono usa una MAC distinta en cada red Wi-Fi", clues: ["Función del sistema", "Privacidad"], answer: "normal", explain: "Es la aleatorización de MAC por privacidad: comportamiento normal de los equipos modernos.", hint: "¿Esto lo hace el propio sistema operativo por diseño?" },
+        { id: "m2", icon: "👯", name: "Dos dispositivos responden con la MISMA MAC al mismo tiempo", clues: ["Conflicto", "Posible suplantación"], answer: "investigar", explain: "Una MAC duplicada en uso simultáneo es un indicador que merece investigación (aún no una prueba).", hint: "¿Puede una misma dirección estar activa en dos equipos a la vez sin más?" },
+        { id: "m3", icon: "🔑", name: "Exigir 802.1X (WPA2/WPA3-Enterprise) para entrar a la red", clues: ["Autenticación criptográfica", "Identidad real"], answer: "defensa", explain: "Verifica la identidad con credenciales, no con una etiqueta falsificable.", hint: "¿Esto prueba identidad de forma seria o solo mira una etiqueta?" },
+        { id: "m4", icon: "🚧", name: "Confiar solo en una lista de MAC permitidas como seguridad", clues: ["Falsa sensación", "Imitable"], answer: "investigar", explain: "El filtrado por MAC es débil y no debe ser la única barrera: conviene revisarlo y reforzarlo.", hint: "¿Una dirección permitida puede imitarse?" },
+        { id: "m5", icon: "🔎", name: "Registrar y revisar cambios de MAC asociados a eventos extraños", clues: ["Monitoreo", "Correlación"], answer: "defensa", explain: "Observar con contexto ayuda a detectar anomalías sin sacar conclusiones apresuradas.", hint: "Observar con prudencia, ¿ataca o protege?" }
+      ],
+      success: "Una MAC es un dato útil, no una prueba de identidad. La aleatorización es normal; las duplicadas o los controles basados solo en MAC merecen atención; la autenticación seria usa 802.1X."
+    },
+    quiz: [
+      { id: "q1", concept: "Qué es una MAC", prompt: "¿Qué identifica una dirección MAC?", options: ["La ubicación geográfica exacta", "La interfaz de red de un dispositivo en la red local", "La contraseña del Wi-Fi", "El canal de la red"], correct: 1, feedback: ["Correcto: identifica la tarjeta de red en el tramo local.", "Identifica la interfaz de red local, no la ubicación ni la contraseña."] },
+      { id: "q2", concept: "Spoofing", prompt: "¿Qué es el MAC Spoofing?", options: ["Cifrar las tramas", "Cambiar la MAC para hacerse pasar por otro dispositivo o evadir un control", "Aumentar la señal", "Un tipo de captive portal"], correct: 1, feedback: ["Correcto: es suplantar o evadir usando una MAC ajena.", "Es suplantación de la dirección; no tiene que ver con cifrar o con la señal."] },
+      { id: "q3", concept: "Spoofing vs aleatorización", prompt: "Un teléfono cambia su MAC automáticamente en redes distintas. ¿Qué es lo más probable?", options: ["Un ataque seguro", "La aleatorización de MAC del sistema, una función de privacidad legítima", "Un error irreparable", "Un virus"], correct: 1, feedback: ["Correcto: es una función de privacidad, no un ataque.", "Cambiar la MAC también es una función normal de privacidad del dispositivo."] },
+      { id: "q4", concept: "No es identidad", prompt: "¿Por qué una MAC no demuestra por sí sola la identidad de un dispositivo?", options: ["Porque es secreta", "Porque puede cambiarse e imitarse por software", "Porque cambia cada segundo", "Porque la asigna internet"], correct: 1, feedback: ["Correcto: al ser modificable, no sirve como credencial.", "La razón es que puede cambiarse e imitarse; por eso no es una prueba."] },
+      { id: "q5", concept: "Mitigación", prompt: "¿Qué ofrece una autenticación más fiable que el filtrado por MAC?", options: ["Ocultar el SSID", "Mecanismos criptográficos como 802.1X (WPA2/WPA3-Enterprise)", "Usar WEP", "Permitir todas las MAC"], correct: 1, feedback: ["Correcto: la criptografía prueba identidad; una lista de MAC no.", "El filtrado por MAC es débil; lo fiable es 802.1X, no ocultar el SSID ni WEP."] }
+    ]
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Misión final del Módulo 4
+// ---------------------------------------------------------------------------
+lessons[M4_MISSION_ID] = {
+  ...M4_COMMON,
+  id: M4_MISSION_ID,
+  moduleId: 4,
+  mission: true,
+  missionType: "steps-mission",
+  title: "Operación: Perímetro Inalámbrico",
+  subtitle: "Misión final del Módulo 4",
+  doneTitle: "MISIÓN COMPLETADA",
+  claim: "Actuaste como el equipo que defiende una red: distinguiste hechos de sospechas, reconociste amenazas inalámbricas y propusiste defensas fundamentadas, sin atacar nada.",
+  badge: { icon: "🛰️", name: "Centinela del Aire" },
+  brief: {
+    file: "Expediente · Módulo 4",
+    heading: "🛰️ Operación: Perímetro Inalámbrico",
+    text: "El equipo de WISPR recibe el registro de una tarde en el Wi-Fi de un campus ficticio. Hay eventos normales, indicadores que conviene investigar y decisiones de defensa por tomar. Analiza la evidencia con prudencia: un indicio no es una prueba, y propón medidas preventivas."
+  },
+  scan: {
+    title: "Resumen de observaciones del campus (simulado)",
+    columns: [
+      { key: "ev", label: "Observación" },
+      { key: "ctx", label: "Contexto" },
+      { key: "tema", label: "Tema relacionado" }
+    ],
+    rows: [
+      { ev: "Ráfagas de desautenticación", ctx: "Repetidas, varios equipos caen a la vez", tema: "Deauthentication" },
+      { ev: "SSID «Campus_WiFi» duplicado", ctx: "Otro equipo, abierto, pide datos", tema: "Evil Twin" },
+      { ev: "Router personal en una sala", ctx: "Conectado al cableado, sin registro", tema: "Rogue AP" },
+      { ev: "Portal pide contraseña de correo", ctx: "Para «dar internet»", tema: "Captive Portal" },
+      { ev: "WPS por PIN activo en un AP viejo", ctx: "Firmware sin actualizar", tema: "WPS / Pixie Dust" },
+      { ev: "MAC distinta por red en un móvil", ctx: "Automática, un solo equipo", tema: "MAC Spoofing" }
+    ]
+  },
+  phases: [
+    { id: "s1", label: "Clasificar" },
+    { id: "s2", label: "Identificar" },
+    { id: "s3", label: "Prudencia" },
+    { id: "s4", label: "Defender" },
+    { id: "s5", label: "Informe" },
+    { id: "done", label: "Cierre" }
+  ],
+  steps: [
+    {
+      id: "s1", kind: "per-item", lesson: "Hecho normal vs. indicador",
+      prompt: "Etapa 1 · Clasifica cada observación: ¿es un comportamiento normal o un indicador que conviene investigar?",
+      options: [{ id: "normal", label: "Comportamiento normal" }, { id: "investigar", label: "Indicador a investigar" }],
+      items: [
+        { id: "i1", label: "Ráfagas repetidas de desautenticación, varios equipos a la vez", answer: "investigar", explain: "Patrón anómalo de posible denegación de servicio: se investiga.", hint: "¿Una desconexión aislada o un patrón repetido?" },
+        { id: "i2", label: "Un móvil usa una MAC distinta en cada red, un solo equipo", answer: "normal", explain: "Es la aleatorización de MAC por privacidad: normal.", hint: "¿Lo hace el sistema por privacidad?" },
+        { id: "i3", label: "SSID del campus duplicado, abierto y pidiendo datos", answer: "investigar", explain: "Señales de un posible Evil Twin: verificar antes de confiar.", hint: "Mismo nombre, pero ¿seguridad y equipo coinciden?" },
+        { id: "i4", label: "Un teléfono se desconecta al quedarse sin batería", answer: "normal", explain: "Desconexión con causa clara: normal.", hint: "¿Hay una causa evidente?" }
+      ]
+    },
+    {
+      id: "s2", kind: "per-item", lesson: "Reconocer la amenaza",
+      prompt: "Etapa 2 · Relaciona cada observación con la amenaza que mejor la describe.",
+      options: [{ id: "deauth", label: "Deauthentication" }, { id: "eviltwin", label: "Evil Twin" }, { id: "rogue", label: "Rogue AP" }, { id: "portal", label: "Captive Portal falso" }],
+      items: [
+        { id: "t1", label: "Muchas tramas de desconexión forzando caídas", answer: "deauth", explain: "Es el patrón característico de un evento de desautenticación.", hint: "¿Qué tipo de trama de gestión fuerza la caída?" },
+        { id: "t2", label: "Una red copia el nombre del Wi-Fi del campus", answer: "eviltwin", explain: "Imitar el SSID legítimo es la esencia del Evil Twin.", hint: "¿Está imitando a otra red?" },
+        { id: "t3", label: "Un router no autorizado enchufado al cableado interno", answer: "rogue", explain: "AP no autorizado en la infraestructura: Rogue AP.", hint: "¿Imita a alguien o simplemente no está autorizado?" },
+        { id: "t4", label: "Una página de Wi-Fi pide la contraseña del correo", answer: "portal", explain: "Solicitud de credenciales sensibles: captive portal malicioso.", hint: "¿Qué te está pidiendo la página de acceso?" }
+      ]
+    },
+    {
+      id: "s3", kind: "single", lesson: "Indicador vs. prueba",
+      prompt: "Etapa 3 · El registro muestra una MAC duplicada activa en dos equipos a la vez. ¿Cuál es la conclusión más prudente?",
+      options: [
+        { label: "Es prueba definitiva de un ataque de MAC Spoofing; sancionar de inmediato", correct: false, explain: "Un indicador no es una prueba: podría haber otras causas y falta contexto." },
+        { label: "Es un indicador relevante que justifica investigar con más datos antes de concluir", correct: true, explain: "Correcto: se separa el indicio de la conclusión y se busca evidencia adicional." },
+        { label: "No tiene ninguna importancia; se ignora", correct: false, explain: "Tampoco: una MAC duplicada simultánea sí merece atención." },
+        { label: "Significa que la red es más rápida", correct: false, explain: "No tiene relación con el rendimiento." }
+      ]
+    },
+    {
+      id: "s4", kind: "multi", lesson: "Medidas de defensa",
+      prompt: "Etapa 4 · Marca SOLO las medidas que refuerzan la defensa del campus y pulsa «Comprobar».",
+      items: [
+        { id: "d1", label: "Activar PMF / migrar a WPA3 para proteger las tramas de gestión", target: true, explain: "Reduce la falsificación de desautenticaciones." },
+        { id: "d2", label: "Validar certificados de servidor en la red Enterprise (802.1X)", target: true, explain: "Evita que un Evil Twin engañe a los clientes y prueba identidad mejor que una MAC." },
+        { id: "d3", label: "Confiar solo en una lista de MAC permitidas como barrera principal", target: false, explain: "El filtrado por MAC es débil: una dirección permitida puede imitarse." },
+        { id: "d4", label: "Mantener inventario de APs y monitoreo (WIDS/WIPS)", target: true, explain: "Ayuda a detectar Rogue APs y redes sospechosas." },
+        { id: "d5", label: "Desactivar WPS por PIN y actualizar el firmware de los equipos", target: true, explain: "Cierra la puerta lateral de WPS y corrige fallos conocidos." },
+        { id: "d6", label: "Volver a WEP para asegurar la compatibilidad", target: false, explain: "WEP es obsoleto: nunca es una medida de defensa." }
+      ]
+    },
+    {
+      id: "s5", kind: "single", lesson: "Informe final",
+      prompt: "Etapa 5 · Redacta la recomendación final para el campus. ¿Cuál es la más completa y prudente?",
+      options: [
+        { label: "Proteger las tramas de gestión (PMF/WPA3), verificar la red oficial frente a imitaciones, controlar APs no autorizados (inventario, WIDS/WIPS, 802.1X), desactivar WPS vulnerable y tratar los indicadores como motivos de investigación, no como pruebas", correct: true, explain: "Combina defensa técnica, verificación, control de perímetro y el criterio analítico de no confundir indicio con prueba." },
+        { label: "Ignorar los indicadores: si no hay pruebas, no hay nada que hacer", correct: false, explain: "Un indicador sí justifica investigar y, cuando aplica, aplicar prevención." },
+        { label: "Confiar en el SSID y en el filtrado por MAC como únicas defensas", correct: false, explain: "Ambos son débiles: el SSID se imita y la MAC se falsifica." },
+        { label: "Sancionar a todos los usuarios con MAC cambiante", correct: false, explain: "La MAC cambiante suele ser privacidad legítima: sería un error." }
+      ]
+    }
+  ],
+  ctfLinks: [
+    ["Deauthentication", "reconocer ráfagas de desautenticación como indicador, no prueba"],
+    ["Evil Twin", "no confiar en el SSID y verificar la red oficial"],
+    ["Rogue AP", "pensar en el perímetro: inventario y control de acceso"],
+    ["Captive Portal", "detectar solicitudes de datos que no tienen sentido"],
+    ["WPS / Pixie Dust", "evaluar configuraciones cómodas pero riesgosas"],
+    ["MAC Spoofing", "entender que una dirección no es una identidad fiable"]
+  ]
+};
+
+
+// ===========================================================================
+// MÓDULO 6 — ANÁLISIS
+// Seis temas (Capturas .pcap, Wireshark, Identificación de frames,
+// Identificación de dispositivos, Detección de anomalías, Análisis de
+// incidentes) + la misión final integradora "Expediente: La Tarde del
+// Laboratorio". Reutiliza el motor de lecciones y moduleMissions (progreso,
+// XP, insignia y desbloqueo de la misión). Enfoque de análisis defensivo y
+// documentación de evidencias sobre datos de práctica ya disponibles: no hay
+// interceptación de tráfico ajeno ni descifrado de comunicaciones privadas.
+// Ejes transversales: el cifrado oculta el contenido (una captura no lo
+// revela), un indicio aislado no confirma un ataque, y se distingue siempre
+// evidencia, hipótesis y conclusión. Todos los datos son ficticios.
+// ===========================================================================
+
+const M6_SEQUENCE = ["m6-pcap", "m6-wireshark", "m6-frames", "m6-dispositivos", "m6-anomalias", "m6-incidentes"];
+const M6_MISSION_ID = "m6-mision";
+moduleMissions[6] = { missionId: M6_MISSION_ID, sequence: M6_SEQUENCE };
+
+const M6_OK = "✓ Correcto";
+const M6_RETRY = "✗ Inténtalo de nuevo";
+const M6_COMMON = { labTheme: true, feedbackTitles: [M6_OK, M6_RETRY], quizOkTitle: M6_OK, quizWrongTitle: M6_RETRY };
+
+Object.assign(lessons, {
+  // -------------------------------------------------------------------------
+  // 6.1 Capturas .pcap y .pcapng
+  // -------------------------------------------------------------------------
+  "m6-pcap": {
+    ...M6_COMMON,
+    id: "m6-pcap",
+    moduleId: 6,
+    title: "Capturas .pcap",
+    subtitle: "Capturas .pcap y .pcapng: la evidencia del tráfico",
+    quizTitle: "Desafío: Capturas",
+    bridge: "Ya sabes qué es una captura. Ahora conocerás la herramienta con la que se abre y se lee: Wireshark.",
+    ctf: "En los retos trabajas con archivos de captura ya preparados: entender qué contienen (y qué no) es el primer paso del análisis.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es una captura de tráfico?",
+          explanation: "Objetivo: entender qué guarda un archivo de captura. Es una grabación de las tramas que pasaron por un punto de la red. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "what", label: "💾 Qué es", sublabel: "Una grabación de tramas", detail: "Un archivo que almacena copias de las tramas observadas en un punto de la red durante un intervalo, con su marca de tiempo. Es la «caja negra» del análisis." },
+              { id: "has", label: "📦 Qué contiene", sublabel: "Metadatos y contenido visible", detail: "Marcas de tiempo, direcciones, protocolos y la parte de cada trama que no esté cifrada. Si el tráfico va cifrado, la captura guarda los datos cifrados: no revela su contenido." },
+              { id: "use", label: "🔎 Para qué sirve", sublabel: "Analizar después", detail: "Permite revisar con calma lo que ocurrió: reconstruir una secuencia, contar eventos o buscar patrones, sin tener que estar presente en el momento." },
+              { id: "practice", label: "🧪 En WISPR", sublabel: "Archivos de práctica", detail: "Trabajas con capturas ficticias ya preparadas y autorizadas. El análisis consiste en examinar datos disponibles, nunca en interceptar comunicaciones ajenas." }
+            ]
+          },
+          check: {
+            prompt: "Una captura contiene tráfico cifrado. ¿Qué puede ver el analista de ese tráfico?",
+            options: ["El contenido en claro, porque Wireshark lo descifra solo", "Los metadatos visibles (tiempos, direcciones), pero no el contenido que el cifrado oculta"],
+            correct: 1,
+            feedback: ["Revisa: una captura no descifra lo que va cifrado; guarda los datos tal cual.", "Correcto: se ven los metadatos visibles, pero el contenido cifrado permanece oculto."]
+          }
+        },
+        {
+          concept: ".pcap vs .pcapng",
+          explanation: "Son dos formatos para guardar capturas. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "📄 .pcap (clásico)", rows: [
+              { label: "Antigüedad", value: "Formato tradicional, muy compatible" },
+              { label: "Interfaces", value: "Pensado para una sola interfaz de captura" },
+              { label: "Metadatos", value: "Básicos (poco espacio para información extra)" },
+              { label: "Comentarios", value: "No admite anotaciones dentro del archivo" }
+            ] },
+            right: { title: "📑 .pcapng (nuevo)", rows: [
+              { label: "Antigüedad", value: "Formato moderno (next generation)" },
+              { label: "Interfaces", value: "Admite varias interfaces en un mismo archivo" },
+              { label: "Metadatos", value: "Más ricos (detalles del equipo, resolución de tiempo)" },
+              { label: "Comentarios", value: "Permite anotar paquetes, útil para documentar" }
+            ] }
+          },
+          check: {
+            prompt: "¿Qué ventaja aporta .pcapng frente al .pcap clásico para documentar un análisis?",
+            options: ["Permite agregar comentarios y metadatos dentro del propio archivo", "Hace que el tráfico cifrado se vuelva legible"],
+            correct: 0,
+            feedback: ["Correcto: .pcapng admite anotaciones y más metadatos.", "Revisa: el formato no cambia nada sobre el cifrado; solo cómo se guarda y documenta."]
+          }
+        },
+        {
+          concept: "Integridad y procedencia de la evidencia",
+          explanation: "Objetivo: tratar una captura como evidencia. Lo que no se puede confiar, no sirve. Toca cada idea.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "origin", label: "📍 Procedencia", sublabel: "¿De dónde salió?", detail: "Saber dónde, cuándo y con qué permiso se obtuvo la captura. Una evidencia sin origen claro pierde valor para cualquier conclusión." },
+              { id: "hash", label: "🔒 Integridad", sublabel: "Que no se haya alterado", detail: "Un valor hash (una huella del archivo) permite comprobar más tarde que la captura es exactamente la misma que se obtuvo, sin modificaciones." },
+              { id: "chain", label: "📝 Trazabilidad", sublabel: "Cadena de custodia", detail: "Registrar quién manejó la evidencia y cuándo. En un análisis serio, se trabaja sobre copias y se preserva el original intacto." },
+              { id: "limit", label: "✂️ Captura incompleta", sublabel: "Límite importante", detail: "Si faltan paquetes, la captura empezó tarde o solo vio parte del tráfico, las conclusiones son parciales. Ausencia de evidencia no es evidencia de ausencia." }
+            ]
+          },
+          check: {
+            prompt: "Una captura solo registró los últimos 2 minutos de un evento que duró 20. ¿Qué es correcto afirmar?",
+            options: ["Vemos todo lo que pasó", "Vemos una parte; las conclusiones son parciales por ser una captura incompleta"],
+            correct: 1,
+            feedback: ["Revisa: faltan 18 minutos; no se puede afirmar que se vio todo.", "Correcto: una captura incompleta limita lo que se puede concluir."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "Manejo de evidencias (simulado)",
+      instructions: "Clasifica cada acción al trabajar con una captura. Distingue una buena práctica de evidencia, un error que la compromete y una limitación que hay que anotar (no es un error, pero afecta a las conclusiones).",
+      panelTitle: "Acciones sobre la captura (ficticias)",
+      categories: [
+        { id: "buena", label: "Buena práctica" },
+        { id: "error", label: "Error que compromete" },
+        { id: "limite", label: "Limitación a anotar" }
+      ],
+      items: [
+        { id: "e1", icon: "🔒", name: "Calcular el hash del archivo al recibirlo y guardarlo", clues: ["Verificar integridad"], answer: "buena", explain: "Permite comprobar después que la evidencia no fue alterada.", hint: "¿Esto protege o daña la confianza en la evidencia?" },
+        { id: "e2", icon: "✏️", name: "Editar la captura original para «limpiar» paquetes molestos", clues: ["Modifica el original"], answer: "error", explain: "Altera la evidencia: se trabaja sobre copias y se preserva el original.", hint: "¿Se debe tocar el archivo original?" },
+        { id: "e3", icon: "✂️", name: "La captura empezó 10 minutos después del evento reportado", clues: ["Falta el inicio"], answer: "limite", explain: "No es un error de manejo, pero limita lo que se puede concluir: hay que anotarlo.", hint: "¿Es un error humano o una limitación de los datos?" },
+        { id: "e4", icon: "📝", name: "Registrar de dónde, cuándo y con qué permiso se obtuvo la captura", clues: ["Procedencia", "Cadena de custodia"], answer: "buena", explain: "Documentar la procedencia da valor y trazabilidad a la evidencia.", hint: "¿Documentar el origen ayuda o estorba?" },
+        { id: "e5", icon: "🗑️", name: "No guardar copia y analizar directamente sobre el único archivo", clues: ["Sin respaldo"], answer: "error", explain: "Arriesga perder o alterar la evidencia única: siempre se trabaja sobre copias.", hint: "¿Qué pasa si ese único archivo se corrompe?" }
+      ],
+      success: "Una captura es evidencia: se preserva el original, se verifica su integridad con un hash, se documenta su procedencia y se anotan sus limitaciones (como una captura incompleta)."
+    },
+    quiz: [
+      { id: "q1", concept: "Qué es una captura", prompt: "¿Qué es un archivo de captura de tráfico?", options: ["Un antivirus", "Una grabación de las tramas observadas en un punto de la red, con sus marcas de tiempo", "Una contraseña cifrada", "Un tipo de antena"], correct: 1, feedback: ["Correcto: guarda las tramas observadas para analizarlas luego.", "Es un registro de tramas con sus tiempos; no es un antivirus ni una antena."] },
+      { id: "q2", concept: ".pcap vs .pcapng", prompt: "¿Cuál es una diferencia real entre .pcapng y .pcap?", options: [".pcapng descifra el tráfico cifrado", ".pcapng admite varias interfaces, más metadatos y comentarios dentro del archivo", ".pcap es más moderno", "No hay ninguna diferencia"], correct: 1, feedback: ["Correcto: .pcapng es más rico en metadatos y permite anotar.", ".pcapng no descifra nada; solo guarda más información y permite comentarios."] },
+      { id: "q3", concept: "Contenido cifrado", prompt: "Si el tráfico capturado está cifrado, ¿qué puede ver el analista?", options: ["Todo en claro", "Los metadatos visibles (tiempos, direcciones, protocolos), pero no el contenido cifrado", "Nada en absoluto", "Las contraseñas de los usuarios"], correct: 1, feedback: ["Correcto: el cifrado oculta el contenido, no los metadatos externos.", "Una captura no descifra: se ven metadatos, no el contenido protegido."] },
+      { id: "q4", concept: "Integridad", prompt: "¿Para qué sirve calcular el hash de una captura?", options: ["Para comprimirla", "Para comprobar más tarde que no fue alterada", "Para descifrarla", "Para acelerar la red"], correct: 1, feedback: ["Correcto: el hash es una huella que verifica la integridad.", "El hash verifica integridad; no comprime ni descifra."] },
+      { id: "q5", concept: "Captura incompleta", prompt: "Una captura parcial muestra solo parte de un evento. ¿Qué conclusión es prudente?", options: ["Se vio todo lo necesario", "Las conclusiones son parciales; falta información y hay que anotarlo", "No sirve para nada", "El evento no existió"], correct: 1, feedback: ["Correcto: se concluye con cautela y se documenta la limitación.", "Una captura parcial limita, pero no invalida; se anota la limitación."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 6.2 Wireshark
+  // -------------------------------------------------------------------------
+  "m6-wireshark": {
+    ...M6_COMMON,
+    id: "m6-wireshark",
+    moduleId: 6,
+    title: "Wireshark",
+    subtitle: "Wireshark: leer una captura sin adivinar",
+    quizTitle: "Desafío: Wireshark",
+    bridge: "Con la herramienta clara, el siguiente paso es reconocer qué tipos de tramas verás dentro de una captura inalámbrica.",
+    ctf: "Saber dónde mira Wireshark y qué significa cada columna te permite analizar una captura con método, no por intuición.",
+    learn: {
+      steps: [
+        {
+          concept: "¿Qué es Wireshark?",
+          explanation: "Objetivo: ubicar la herramienta. Es un analizador de protocolos que abre capturas y las muestra de forma legible. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "what", label: "🦈 Qué es", sublabel: "Analizador de protocolos", detail: "Un programa que abre archivos de captura e interpreta las tramas protocolo por protocolo, mostrándolas de forma comprensible para el análisis." },
+              { id: "for", label: "🎯 Para qué se usa", sublabel: "Entender el tráfico", detail: "Para examinar qué protocolos aparecen, reconstruir secuencias, contar eventos y documentar hallazgos. En WISPR se usa sobre capturas de práctica." },
+              { id: "notmagic", label: "🚫 Qué NO hace", sublabel: "No descifra ni inventa", detail: "No descifra tráfico protegido solo por abrirlo, ni muestra lo que no se capturó. Interpreta lo que hay en el archivo, nada más." },
+              { id: "defense", label: "🛡️ Uso responsable", sublabel: "Datos autorizados", detail: "La herramienta es neutral: aquí se emplea para análisis defensivo sobre datos propios o autorizados, no para observar comunicaciones ajenas." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué hace Wireshark al abrir una captura con tráfico cifrado?",
+            options: ["Lo descifra automáticamente", "Muestra las tramas tal como están; el contenido cifrado sigue siendo ilegible"],
+            correct: 1,
+            feedback: ["Revisa: abrir una captura no descifra el tráfico protegido.", "Correcto: interpreta lo que hay, pero no revela el contenido cifrado."]
+          }
+        },
+        {
+          concept: "Las tres vistas y las columnas",
+          explanation: "La ventana se organiza en tres zonas. Toca cada parte de la estructura.",
+          visual: {
+            type: "frame-fields",
+            frameLabel: "Ventana de Wireshark",
+            note: "Toca cada zona o columna.",
+            fields: [
+              { id: "list", label: "Lista de paquetes", width: 3, detail: "Arriba: una fila por trama. Sus columnas típicas son Nº, Tiempo, Origen, Destino, Protocolo e Info (un resumen)." },
+              { id: "details", label: "Panel de detalles", width: 3, detail: "En medio: desglosa la trama seleccionada por capas y campos, de lo general a lo específico. Aquí se lee la estructura real de la trama." },
+              { id: "bytes", label: "Vista de bytes", width: 2, detail: "Abajo: los bytes en crudo (hexadecimal) de la trama. Útil para ver el dato exacto, aunque menos legible." },
+              { id: "time", label: "Columna Tiempo", width: 1, detail: "Cuándo ocurrió cada trama: clave para reconstruir una secuencia o línea temporal." },
+              { id: "proto", label: "Columna Protocolo", width: 1, detail: "Qué protocolo interpretó Wireshark para esa trama (p. ej. 802.11, EAPOL)." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué columna es clave para reconstruir el orden de los eventos?",
+            options: ["La de Tiempo", "La de Protocolo"],
+            correct: 0,
+            feedback: ["Correcto: el tiempo permite ordenar y medir intervalos.", "Revisa: el protocolo dice qué es cada trama, pero el orden lo da el tiempo."]
+          }
+        },
+        {
+          concept: "Filtros de captura vs. de visualización",
+          explanation: "Son dos cosas distintas que suelen confundirse. Pulsa «Resaltar diferencias» (es conceptual, no se escriben comandos).",
+          visual: {
+            type: "compare-pair",
+            left: { title: "🎛️ Filtro de captura", rows: [
+              { label: "Cuándo actúa", value: "Antes/durante: decide qué se guarda" },
+              { label: "Efecto", value: "Lo descartado no queda en el archivo" },
+              { label: "Riesgo", value: "Si es muy estricto, se pierde evidencia para siempre" },
+              { label: "Idea", value: "Reduce lo que se graba" }
+            ] },
+            right: { title: "🔍 Filtro de visualización", rows: [
+              { label: "Cuándo actúa", value: "Después: sobre una captura ya guardada" },
+              { label: "Efecto", value: "Solo oculta temporalmente; nada se borra" },
+              { label: "Riesgo", value: "Bajo: se puede quitar y volver a ver todo" },
+              { label: "Idea", value: "Enfoca lo que ya tienes" }
+            ] }
+          },
+          check: {
+            prompt: "Aplicas un filtro de visualización y dejan de verse muchos paquetes. ¿Se borraron de la captura?",
+            options: ["Sí, desaparecieron del archivo", "No: solo se ocultan; al quitar el filtro vuelven a verse"],
+            correct: 1,
+            feedback: ["Revisa: el filtro de visualización no borra nada del archivo.", "Correcto: enfoca la vista; la evidencia completa sigue ahí."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "¿Dónde lo miro y qué puedo concluir? (simulado)",
+      instructions: "Clasifica cada afirmación sobre Wireshark. Separa lo que es correcto, lo que es un mito sobre la herramienta y lo que es una limitación real del análisis.",
+      panelTitle: "Afirmaciones sobre el análisis (ficticias)",
+      categories: [
+        { id: "correcto", label: "Uso correcto" },
+        { id: "mito", label: "Mito o error" },
+        { id: "limite", label: "Limitación real" }
+      ],
+      items: [
+        { id: "w1", icon: "🕒", name: "Uso la columna Tiempo para medir el intervalo entre eventos", clues: ["Ordenar la secuencia"], answer: "correcto", explain: "El tiempo permite reconstruir y medir la secuencia: uso correcto.", hint: "¿Para qué sirve la marca de tiempo?" },
+        { id: "w2", icon: "🔓", name: "Wireshark me mostrará las contraseñas de un chat cifrado con solo abrir la captura", clues: ["Contra el cifrado"], answer: "mito", explain: "Abrir una captura no descifra tráfico protegido: es un mito.", hint: "¿Una captura vence al cifrado por sí sola?" },
+        { id: "w3", icon: "📑", name: "Reviso el panel de detalles para ver los campos de la trama por capas", clues: ["Estructura de la trama"], answer: "correcto", explain: "El panel de detalles desglosa la trama: uso correcto.", hint: "¿Dónde se lee la estructura de una trama?" },
+        { id: "w4", icon: "✂️", name: "Faltan paquetes del inicio, así que no veo cómo empezó la conexión", clues: ["Captura incompleta"], answer: "limite", explain: "Es una limitación real de los datos, no un mito ni un error de uso.", hint: "¿Es culpa de la herramienta o de que faltan datos?" },
+        { id: "w5", icon: "🔮", name: "Si un dispositivo no apareció en la captura, Wireshark lo deduce igual", clues: ["Inventar datos"], answer: "mito", explain: "Wireshark solo muestra lo capturado; no deduce lo que no se registró.", hint: "¿Puede mostrar algo que nunca se capturó?" }
+      ],
+      success: "Wireshark interpreta lo que hay en la captura: ordena por tiempo, desglosa tramas y enfoca con filtros de visualización. No descifra tráfico protegido ni inventa lo que no se capturó."
+    },
+    quiz: [
+      { id: "q1", concept: "Qué es", prompt: "¿Qué es Wireshark?", options: ["Un cortafuegos", "Un analizador de protocolos que abre y muestra capturas de tráfico", "Un router", "Un servicio de correo"], correct: 1, feedback: ["Correcto: analiza e interpreta capturas.", "Es un analizador de protocolos, no un cortafuegos ni un router."] },
+      { id: "q2", concept: "Las tres vistas", prompt: "¿Qué muestra el panel de detalles?", options: ["Solo la hora del sistema", "La trama seleccionada desglosada por capas y campos", "La temperatura del equipo", "Las contraseñas descifradas"], correct: 1, feedback: ["Correcto: desglosa la trama por capas.", "El panel de detalles muestra la estructura de la trama, no descifra nada."] },
+      { id: "q3", concept: "Columnas", prompt: "¿Cuál es el papel de la columna «Protocolo» en la lista de paquetes?", options: ["Indica qué protocolo interpretó Wireshark para esa trama", "Muestra la contraseña", "Mide la señal", "Cambia el canal"], correct: 0, feedback: ["Correcto: identifica el protocolo de cada trama.", "La columna Protocolo dice qué es cada trama, no muestra claves ni señal."] },
+      { id: "q4", concept: "Tipos de filtro", prompt: "¿Qué diferencia a un filtro de captura de uno de visualización?", options: ["Son idénticos", "El de captura decide qué se guarda; el de visualización solo oculta temporalmente lo ya guardado", "El de visualización borra la captura", "El de captura descifra el tráfico"], correct: 1, feedback: ["Correcto: uno actúa al grabar; el otro, al revisar.", "El de captura filtra lo que se graba; el de visualización no borra nada."] },
+      { id: "q5", concept: "Límites", prompt: "¿Cuál es una limitación real del análisis con Wireshark?", options: ["No puede abrir archivos", "No descifra el tráfico protegido ni muestra lo que no se capturó", "No tiene columnas", "No existe"], correct: 1, feedback: ["Correcto: interpreta lo capturado, con los límites del cifrado y de lo que falta.", "Sí abre archivos y tiene columnas; su límite es el cifrado y lo no capturado."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 6.3 Identificación de frames IEEE 802.11
+  // -------------------------------------------------------------------------
+  "m6-frames": {
+    ...M6_COMMON,
+    id: "m6-frames",
+    moduleId: 6,
+    title: "Identificación de frames",
+    subtitle: "Frames 802.11: administración, control y datos",
+    quizTitle: "Desafío: Frames",
+    bridge: "Reconocidos los frames, el siguiente paso es leer quién los envía: las direcciones y los identificadores de los dispositivos.",
+    ctf: "Identificar el tipo de frame es lo que te permite decir qué estaba ocurriendo en la red en cada momento de la captura.",
+    learn: {
+      steps: [
+        {
+          concept: "Tres categorías de frames",
+          explanation: "Objetivo: clasificar. Todo frame 802.11 cae en una de tres familias. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "mgmt", label: "⚙️ Administración", sublabel: "Establecen y gestionan el enlace", detail: "Anuncian redes y gestionan la relación entre cliente y AP: beacon, probe, autenticación, asociación, desautenticación. Son los más informativos para el análisis de red." },
+              { id: "ctrl", label: "🚦 Control", sublabel: "Coordinan el medio", detail: "Ayudan a ordenar el acceso al aire y a confirmar recepción (por ejemplo, confirmaciones). Suelen ser breves y muy numerosos." },
+              { id: "data", label: "📦 Datos", sublabel: "Transportan la información", detail: "Llevan el tráfico útil del usuario. Si la red está cifrada, su contenido va protegido: en la captura se ve que hay datos, pero no lo que dicen." },
+              { id: "why", label: "🎯 Por qué importa", sublabel: "Saber qué pasaba", detail: "Clasificar el frame es el primer paso para decir qué ocurría: ¿se anunciaba una red, alguien se conectaba, o se forzaban desconexiones?" }
+            ]
+          },
+          check: {
+            prompt: "Un frame cifrado de datos aparece en la captura. ¿Qué se puede afirmar de su contenido?",
+            options: ["Que se puede leer el mensaje que transporta", "Que hay datos, pero su contenido va cifrado y no se lee"],
+            correct: 1,
+            feedback: ["Revisa: el contenido de un frame de datos cifrado no es legible.", "Correcto: se ve la existencia del tráfico, no su contenido."]
+          }
+        },
+        {
+          concept: "Frames de administración clave",
+          explanation: "Estos son los que más cuentan una historia. Toca cada uno.",
+          visual: {
+            type: "bt-compare",
+            prompt: "Toca cada frame.",
+            options: [
+              { id: "beacon", icon: "📡", label: "Beacon", tag: "AP anuncia", tone: "info", rows: [
+                { k: "Quién lo envía", v: "El punto de acceso, de forma periódica." },
+                { k: "Para qué", v: "Anunciar la red: SSID, capacidades, canal." },
+                { k: "Se puede leer", v: "El nombre de la red y sus parámetros básicos." },
+                { k: "Límite", v: "Un nombre de red puede ser imitado por otro equipo." }
+              ] },
+              { id: "probe", icon: "❓", label: "Probe Request / Response", tag: "Buscar redes", tone: "info", rows: [
+                { k: "Quién lo envía", v: "Request: un cliente que busca redes. Response: el AP que contesta." },
+                { k: "Para qué", v: "Descubrir redes disponibles." },
+                { k: "Se puede leer", v: "Qué redes busca un cliente y qué AP responde." },
+                { k: "Límite", v: "La MAC del cliente puede estar aleatorizada por privacidad." }
+              ] },
+              { id: "authassoc", icon: "🤝", label: "Authentication / Association", tag: "Unirse", tone: "ok", rows: [
+                { k: "Quién lo envía", v: "Cliente y AP, en un intercambio ordenado." },
+                { k: "Para qué", v: "El proceso de unirse a la red (previo al cifrado de datos)." },
+                { k: "Se puede leer", v: "Que un cliente intentó/logró unirse al AP." },
+                { k: "Límite", v: "Autenticarse aquí no prueba la identidad real de la persona." }
+              ] },
+              { id: "deauth", icon: "👋", label: "Deauthentication / Disassociation", tag: "Terminar", tone: "warn", rows: [
+                { k: "Quién lo envía", v: "Cliente o AP para cerrar la relación." },
+                { k: "Para qué", v: "Terminar una sesión o una asociación." },
+                { k: "Se puede leer", v: "Que hubo una desconexión y entre qué direcciones." },
+                { k: "Límite", v: "Una desconexión aislada es normal; lo sospechoso es un patrón repetido." }
+              ] }
+            ],
+            summary: "Beacon anuncia, Probe descubre, Authentication/Association unen y Deauthentication/Disassociation terminan. Cada frame dice qué pasó, pero no prueba por sí solo quién lo hizo ni con qué intención."
+          },
+          check: {
+            prompt: "¿Qué frame usa un punto de acceso para anunciar periódicamente su red?",
+            options: ["Beacon", "Deauthentication"],
+            correct: 0,
+            feedback: ["Correcto: el beacon anuncia la red (SSID, canal, capacidades).", "Revisa: la desautenticación cierra sesiones; el que anuncia es el beacon."]
+          }
+        },
+        {
+          concept: "Qué se extrae y qué no",
+          explanation: "Cada frame aporta pistas, pero toda pista tiene un límite. Toca cada punto.",
+          visual: {
+            type: "list-select",
+            prompt: "Toca cada afirmación.",
+            items: [
+              { id: "f1", label: "✅ De un beacon se puede leer el SSID y el canal de una red", note: "Correcto: son datos que el AP anuncia en claro." },
+              { id: "f2", label: "✅ De una secuencia de autenticación/asociación se ve que un cliente intentó unirse a un AP", note: "Correcto: se observa el proceso, entre qué direcciones ocurrió." },
+              { id: "f3", label: "⚠️ Ver el SSID en un beacon NO prueba que esa red sea la legítima", note: "Límite: un nombre de red puede ser imitado (recuerda el Evil Twin del Módulo 4)." },
+              { id: "f4", label: "⚠️ Ver desautenticaciones NO prueba por sí solo un ataque", note: "Límite: una es normal; solo un patrón repetido y sin causa justifica investigar." },
+              { id: "f5", label: "⚠️ Que un cliente «busque» una red en un probe NO revela su contenido ni su identidad real", note: "Límite: la MAC puede estar aleatorizada y el contenido de datos va cifrado." }
+            ]
+          },
+          check: {
+            prompt: "Ves el SSID «Lab_Oficial» en un beacon. ¿Puedes afirmar que es la red legítima del laboratorio?",
+            options: ["Sí, el nombre lo confirma", "No: el nombre puede imitarse; es un dato, no una prueba de legitimidad"],
+            correct: 1,
+            feedback: ["Revisa: el SSID es una etiqueta pública que puede copiarse.", "Correcto: el beacon da el nombre, pero no garantiza la autenticidad de la red."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "packet-sort",
+      prompt: "Clasifica los frames de la captura (simulado)",
+      instructions: "Arrastra cada frame observado a su categoría. Recuerda: administración gestiona el enlace, control coordina el medio y datos transporta el tráfico (cifrado, si la red lo está).",
+      itemLabel: "📨 Frame",
+      countLabel: "Frames clasificados",
+      binPrefix: "",
+      okTitle: M6_OK,
+      wrongTitle: M6_RETRY,
+      bins: [
+        { id: "mgmt", label: "Administración", caption: "Gestiona el enlace", icon: "⚙️" },
+        { id: "ctrl", label: "Control", caption: "Coordina el medio", icon: "🚦" },
+        { id: "data", label: "Datos", caption: "Transporta tráfico", icon: "📦" }
+      ],
+      items: [
+        { id: "x1", icon: "📡", text: "Beacon anunciando «Campus_WiFi» en el canal 6.", bin: "mgmt", explain: "El beacon es un frame de administración: anuncia la red.", hint: "¿Anuncia, coordina o transporta?" },
+        { id: "x2", icon: "👋", text: "Deauthentication entre un cliente y el AP.", bin: "mgmt", explain: "La desautenticación gestiona el fin del enlace: administración.", hint: "Cerrar una sesión, ¿qué familia es?" },
+        { id: "x3", icon: "✅", text: "Acknowledgement (confirmación de recepción).", bin: "ctrl", explain: "Las confirmaciones coordinan el medio: son frames de control.", hint: "Confirmar recepción coordina el acceso al aire." },
+        { id: "x4", icon: "📦", text: "Trama de datos cifrada entre cliente y AP.", bin: "data", explain: "Transporta tráfico del usuario (cifrado): frame de datos.", hint: "¿Qué familia lleva el tráfico útil?" },
+        { id: "x5", icon: "❓", text: "Probe Request de un cliente buscando redes.", bin: "mgmt", explain: "El probe descubre redes: es de administración.", hint: "Buscar/descubrir redes gestiona el enlace." },
+        { id: "x6", icon: "🤝", text: "Association Request de un cliente hacia el AP.", bin: "mgmt", explain: "Unirse a la red es parte de la administración.", hint: "El proceso de unirse, ¿qué familia es?" }
+      ],
+      hints: { mgmt: "Anuncian, descubren, unen o terminan el enlace.", ctrl: "Breves: confirman recepción o coordinan el acceso.", data: "Llevan el tráfico útil del usuario." },
+      success: "Clasificar frames (administración, control, datos) permite reconstruir qué ocurría. Cada frame es un dato observable; por sí solo no prueba intención ni identidad."
+    },
+    quiz: [
+      { id: "q1", concept: "Categorías", prompt: "¿Cuáles son las tres categorías de frames 802.11?", options: ["Rápidos, lentos y medios", "Administración, control y datos", "Beacon, cable y radio", "Entrada, salida y error"], correct: 1, feedback: ["Correcto: administración, control y datos.", "Las tres familias son administración, control y datos."] },
+      { id: "q2", concept: "Beacon", prompt: "¿Qué función cumple un beacon?", options: ["Cerrar la conexión", "Que el AP anuncie periódicamente la red (SSID, canal, capacidades)", "Confirmar recepción", "Transportar datos cifrados"], correct: 1, feedback: ["Correcto: el beacon anuncia la red.", "El beacon anuncia; cerrar la conexión es tarea de la desautenticación."] },
+      { id: "q3", concept: "Unirse", prompt: "¿Qué frames forman parte del proceso de unirse a una red?", options: ["Authentication y Association", "Solo los beacons", "Solo frames de datos", "Las confirmaciones de control"], correct: 0, feedback: ["Correcto: autenticación y asociación preceden al tráfico de datos.", "Unirse implica Authentication y Association, no solo beacons."] },
+      { id: "q4", concept: "Desautenticación", prompt: "Ves una Deauthentication en la captura. ¿Qué es correcto?", options: ["Es prueba de un ataque", "Indica una desconexión; una aislada es normal y solo un patrón repetido justifica investigar", "Significa más velocidad", "Es un frame de datos"], correct: 1, feedback: ["Correcto: hecho observable, no prueba por sí sola.", "Una desautenticación indica desconexión; el patrón es lo que importa."] },
+      { id: "q5", concept: "Límites del SSID", prompt: "Un beacon muestra el SSID «Oficina». ¿Qué se puede afirmar?", options: ["Que es con seguridad la red legítima", "Que se anuncia ese nombre; el nombre puede imitarse, así que no prueba legitimidad", "Que la red no tiene contraseña", "Que el AP fue atacado"], correct: 1, feedback: ["Correcto: el SSID es un dato, no una garantía de autenticidad.", "El nombre puede copiarse; verlo no confirma legitimidad ni ataque."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 6.4 Identificación de dispositivos
+  // -------------------------------------------------------------------------
+  "m6-dispositivos": {
+    ...M6_COMMON,
+    id: "m6-dispositivos",
+    moduleId: 6,
+    title: "Identificación de dispositivos",
+    subtitle: "Direcciones e identificadores: qué dicen y qué no",
+    quizTitle: "Desafío: Dispositivos",
+    bridge: "Sabes leer frames y direcciones. Ahora aprenderás a distinguir lo normal de lo anómalo en el tráfico.",
+    ctf: "Interpretar MAC, BSSID y OUI con prudencia evita el error clásico de confundir una dirección con la identidad de una persona.",
+    learn: {
+      steps: [
+        {
+          concept: "MAC, SSID y BSSID",
+          explanation: "Objetivo: repasar los identificadores observables. Toca cada tarjeta (los viste en el Módulo 1).",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "mac", label: "🏷️ Dirección MAC", sublabel: "Origen y destino", detail: "Identifica la interfaz de red de cada extremo en el tramo local. En un frame se ven las direcciones de origen y destino: de quién a quién, dentro de la red local." },
+              { id: "ssid", label: "🔤 SSID", sublabel: "Nombre de la red", detail: "La etiqueta de texto de una red (p. ej. «Campus_WiFi»). Es pública y puede repetirse o imitarse: no es un identificador único." },
+              { id: "bssid", label: "📛 BSSID", sublabel: "Identidad del AP", detail: "La dirección que identifica al punto de acceso concreto de una red. Dos redes con el mismo SSID pero distinto BSSID son equipos distintos." },
+              { id: "pair", label: "🔗 Juntarlos", sublabel: "Más contexto", detail: "Relacionar SSID + BSSID + direcciones de los frames ayuda a entender qué equipo anunciaba qué red y quién hablaba con quién." }
+            ]
+          },
+          check: {
+            prompt: "Dos redes muestran el mismo SSID pero distinto BSSID. ¿Qué indica?",
+            options: ["Que son el mismo punto de acceso", "Que son puntos de acceso distintos, aunque usen el mismo nombre"],
+            correct: 1,
+            feedback: ["Revisa: el BSSID identifica al equipo; si difiere, son equipos distintos.", "Correcto: mismo nombre, distinto equipo. El SSID no garantiza identidad."]
+          }
+        },
+        {
+          concept: "El OUI: fabricante aproximado",
+          explanation: "La primera mitad de una MAC suele revelar el fabricante. Toca cada idea.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "what", label: "🏭 Qué es el OUI", sublabel: "Organizationally Unique Identifier", detail: "La parte inicial de una dirección MAC asignada a un fabricante. Permite estimar quién hizo la tarjeta de red (p. ej. un fabricante de equipos de red o de teléfonos)." },
+              { id: "approx", label: "≈ Aproximado", sublabel: "Pista, no certeza", detail: "Da una idea del fabricante, no del modelo exacto ni del dueño. Es una pista de contexto, útil pero limitada." },
+              { id: "random", label: "🔀 OJO con la aleatorización", sublabel: "Puede no ser real", detail: "Cuando un dispositivo usa una MAC aleatorizada por privacidad, el OUI puede ser uno «local» que no corresponde a ningún fabricante real. Entonces el dato de fabricante no sirve." },
+              { id: "spoof", label: "🎭 Y con la suplantación", sublabel: "Se puede falsificar", detail: "Una MAC (y por tanto su OUI) puede falsificarse. Ver un fabricante «conocido» no garantiza que el equipo sea de ese fabricante." }
+            ]
+          },
+          check: {
+            prompt: "El OUI de una MAC apunta a cierto fabricante. ¿Qué es lo más prudente?",
+            options: ["Afirmar con certeza el fabricante y el modelo exacto", "Tomarlo como una pista aproximada, teniendo en cuenta que puede estar aleatorizada o falsificada"],
+            correct: 1,
+            feedback: ["Revisa: el OUI no da el modelo exacto y puede no ser real.", "Correcto: es contexto aproximado, no una certeza."]
+          }
+        },
+        {
+          concept: "AP vs. cliente, y por qué una MAC no es una persona",
+          explanation: "Con los datos disponibles a veces se distingue el rol, pero nunca la identidad real. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "📡 Punto de acceso (AP)", rows: [
+              { label: "Suele enviar", value: "Beacons periódicos; responde probes" },
+              { label: "Su dirección", value: "Aparece como BSSID de la red" },
+              { label: "Papel", value: "Ofrece la red y coordina a los clientes" },
+              { label: "Pista en la captura", value: "Patrón de anuncios regulares" }
+            ] },
+            right: { title: "💻 Cliente", rows: [
+              { label: "Suele enviar", value: "Probe requests; se asocia a un AP" },
+              { label: "Su dirección", value: "MAC de origen en sus frames (puede estar aleatorizada)" },
+              { label: "Papel", value: "Se conecta a la red que ofrece el AP" },
+              { label: "Pista en la captura", value: "Busca redes y se une a una" }
+            ] }
+          },
+          check: {
+            prompt: "Una MAC concreta aparece mucho en la captura. ¿Puedo afirmar qué persona estaba detrás?",
+            options: ["Sí, la MAC identifica a la persona", "No: una MAC puede aleatorizarse o falsificarse; identifica una interfaz, no a una persona"],
+            correct: 1,
+            feedback: ["Revisa: la MAC no es una credencial de identidad personal.", "Correcto: se asocia a una interfaz, no se puede atribuir a una persona por sí sola."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "¿Qué puedo concluir de este dato? (simulado)",
+      instructions: "Clasifica cada observación sobre identificadores. Separa lo que es una conclusión válida, una suposición excesiva (va más allá de lo que el dato permite) y una buena práctica de análisis.",
+      panelTitle: "Observaciones de identificadores (ficticias)",
+      categories: [
+        { id: "valida", label: "Conclusión válida" },
+        { id: "excesiva", label: "Suposición excesiva" },
+        { id: "buena", label: "Buena práctica" }
+      ],
+      items: [
+        { id: "d1", icon: "📛", name: "Mismo SSID y distinto BSSID → son dos equipos distintos", clues: ["BSSID difiere"], answer: "valida", explain: "El BSSID identifica el equipo: si difiere, son APs distintos. Conclusión válida.", hint: "¿Qué identifica al equipo concreto?" },
+        { id: "d2", icon: "🙍", name: "Esta MAC es de la marca X, así que el dueño es el estudiante Juan", clues: ["Salta a la persona"], answer: "excesiva", explain: "El OUI sugiere fabricante, no dueño; además puede estar aleatorizada o falsificada.", hint: "¿El fabricante dice quién es la persona?" },
+        { id: "d3", icon: "🔀", name: "Esta MAC tiene un OUI «local»: probablemente esté aleatorizada", clues: ["Marca de aleatorización"], answer: "valida", explain: "Un OUI local es una señal típica de MAC aleatorizada: lectura correcta.", hint: "¿Qué sugiere un OUI que no es de fabricante real?" },
+        { id: "d4", icon: "🔗", name: "Relacionar SSID, BSSID y direcciones para entender quién hablaba con quién", clues: ["Correlación"], answer: "buena", explain: "Cruzar identificadores da contexto: buena práctica de análisis.", hint: "¿Juntar datos ayuda a interpretar?" },
+        { id: "d5", icon: "🎭", name: "La MAC es de marca conocida, así que seguro no está falsificada", clues: ["Confianza ciega"], answer: "excesiva", explain: "Un OUI conocido no garantiza autenticidad: una MAC puede falsificarse.", hint: "¿Un fabricante conocido impide la suplantación?" }
+      ],
+      success: "SSID, BSSID y OUI dan contexto observable, pero con límites: el nombre se imita, el OUI es aproximado y una MAC puede aleatorizarse o falsificarse. Una dirección nunca identifica a una persona por sí sola."
+    },
+    quiz: [
+      { id: "q1", concept: "BSSID", prompt: "¿Qué identifica el BSSID?", options: ["El nombre visible de la red", "El punto de acceso concreto de una red", "La contraseña", "El canal"], correct: 1, feedback: ["Correcto: identifica al AP (el equipo).", "El BSSID identifica al equipo AP; el nombre visible es el SSID."] },
+      { id: "q2", concept: "OUI", prompt: "¿Qué permite estimar el OUI de una dirección MAC?", options: ["El dueño del dispositivo", "El fabricante aproximado de la tarjeta de red", "La ubicación exacta", "La contraseña del Wi-Fi"], correct: 1, feedback: ["Correcto: sugiere el fabricante, de forma aproximada.", "El OUI apunta al fabricante aproximado, no al dueño ni a la ubicación."] },
+      { id: "q3", concept: "Límites del OUI", prompt: "¿Por qué el OUI puede no reflejar el fabricante real?", options: ["Porque siempre es exacto", "Porque la MAC puede estar aleatorizada o falsificada", "Porque solo existe en 5 GHz", "Porque lo asigna el usuario"], correct: 1, feedback: ["Correcto: la aleatorización y la suplantación lo alteran.", "Una MAC aleatorizada o falsificada hace que el OUI no sea fiable."] },
+      { id: "q4", concept: "AP vs cliente", prompt: "¿Qué comportamiento sugiere que una dirección es la de un AP?", options: ["Enviar probe requests buscando redes", "Emitir beacons periódicos y aparecer como BSSID", "No enviar nada", "Cambiar de SSID cada segundo"], correct: 1, feedback: ["Correcto: los beacons regulares son típicos del AP.", "Buscar redes es propio del cliente; anunciar con beacons, del AP."] },
+      { id: "q5", concept: "MAC e identidad", prompt: "¿Por qué no se debe afirmar la identidad de una persona a partir de una MAC?", options: ["Porque la MAC es secreta", "Porque identifica una interfaz y puede aleatorizarse o falsificarse", "Porque la MAC incluye el nombre del dueño", "Porque la MAC es única y permanente"], correct: 1, feedback: ["Correcto: una interfaz no es una persona, y la MAC es modificable.", "La MAC no contiene el nombre del dueño ni es prueba de identidad personal."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 6.5 Detección de anomalías
+  // -------------------------------------------------------------------------
+  "m6-anomalias": {
+    ...M6_COMMON,
+    id: "m6-anomalias",
+    moduleId: 6,
+    title: "Detección de anomalías",
+    subtitle: "Anomalías: distinguir lo inusual de lo confirmado",
+    quizTitle: "Desafío: Anomalías",
+    bridge: "Sabes reconocer indicios. El último paso es juntarlos con método: el análisis de incidentes.",
+    ctf: "Detectar una anomalía no es «ganar» el reto: es abrir una hipótesis que luego hay que sostener con más evidencia.",
+    learn: {
+      steps: [
+        {
+          concept: "Anomalía y línea base",
+          explanation: "Objetivo: definir qué es «raro». Una anomalía es algo que se desvía de lo normal… pero primero hay que saber qué es lo normal. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "anom", label: "📈 Qué es una anomalía", sublabel: "Desviación de lo esperado", detail: "Un patrón en el tráfico que no encaja con el comportamiento habitual de esa red: más eventos de lo normal, a horas raras, de orígenes inesperados o con una forma inusual." },
+              { id: "base", label: "📊 Línea base", sublabel: "El «normal» de referencia", detail: "Un registro de cómo se comporta la red en condiciones normales (volumen, horarios, dispositivos habituales). Sin ella, no se puede saber qué es realmente anómalo." },
+              { id: "context", label: "🧭 Contexto", sublabel: "Lo raro depende del lugar", detail: "Lo que es anómalo en una red puede ser normal en otra. Mucho tráfico a medianoche puede ser raro en una oficina y normal en un centro de datos." },
+              { id: "start", label: "🚦 Punto de partida", sublabel: "No es una conclusión", detail: "Una anomalía abre una investigación: es el inicio, no el final. Lo que sigue es confirmar, descartar o explicar." }
+            ]
+          },
+          check: {
+            prompt: "¿Por qué es importante tener una línea base antes de hablar de anomalías?",
+            options: ["Porque sin saber qué es lo normal, no se puede saber qué se desvía de ello", "Porque la línea base descifra el tráfico"],
+            correct: 0,
+            feedback: ["Correcto: lo anómalo se define respecto a un normal conocido.", "Revisa: la línea base no descifra nada; es la referencia de lo habitual."]
+          }
+        },
+        {
+          concept: "Inusual, falso positivo e incidente",
+          explanation: "Tres niveles que no hay que confundir. Toca cada tarjeta.",
+          visual: {
+            type: "bt-compare",
+            prompt: "Toca cada categoría.",
+            options: [
+              { id: "unusual", icon: "👀", label: "Actividad inusual", tag: "Llama la atención", tone: "info", rows: [
+                { k: "Qué es", v: "Algo que se sale de la línea base." },
+                { k: "Significa", v: "Que vale la pena mirarlo con más detalle." },
+                { k: "Conclusión", v: "Ninguna todavía: solo justifica revisar." }
+              ] },
+              { id: "fp", icon: "🟡", label: "Falso positivo", tag: "Alarma sin causa", tone: "warn", rows: [
+                { k: "Qué es", v: "Una alerta que, al revisarla, tenía una explicación legítima." },
+                { k: "Significa", v: "Que lo inusual era, en realidad, benigno." },
+                { k: "Conclusión", v: "Se descarta y se documenta por qué." }
+              ] },
+              { id: "incident", icon: "🔴", label: "Incidente confirmado", tag: "Sostenido por evidencia", tone: "bad", rows: [
+                { k: "Qué es", v: "Un evento de seguridad respaldado por evidencia suficiente." },
+                { k: "Significa", v: "Que hay que responder y documentar en detalle." },
+                { k: "Conclusión", v: "Se afirma solo tras correlacionar y verificar." }
+              ] }
+            ],
+            summary: "El camino va de lo inusual (mirar) a un falso positivo (descartar con explicación) o a un incidente confirmado (sostenido por evidencia). Saltarse pasos lleva a conclusiones erróneas."
+          },
+          check: {
+            prompt: "Una alerta resultó tener una causa legítima tras revisarla. ¿Cómo se clasifica?",
+            options: ["Incidente confirmado", "Falso positivo"],
+            correct: 1,
+            feedback: ["Revisa: si tenía explicación legítima, no es un incidente.", "Correcto: es un falso positivo; se descarta y se documenta el motivo."]
+          }
+        },
+        {
+          concept: "Correlación antes de concluir",
+          explanation: "Un indicio solo es una pieza. Toca cada ejemplo de patrón que justifica revisar.",
+          visual: {
+            type: "list-select",
+            prompt: "Toca cada patrón.",
+            items: [
+              { id: "a1", label: "🔁 Eventos repetidos de desautenticación sin causa aparente", note: "Justifica revisar; por sí solo no confirma un ataque (recuerda el Módulo 4)." },
+              { id: "a2", label: "📡 Un punto de acceso desconocido que no está en el inventario", note: "Posible Rogue AP: se verifica su origen antes de concluir." },
+              { id: "a3", label: "📉 Un cambio brusco en el volumen o el horario del tráfico", note: "Se compara con la línea base: puede tener causas normales o no." },
+              { id: "a4", label: "🧩 Correlacionar con otras fuentes (registros, inventario, horarios)", note: "Buena práctica: una conclusión se sostiene cruzando varias fuentes, no con un solo indicio." },
+              { id: "a5", label: "⏸️ Esperar más evidencia antes de afirmar «es un ataque»", note: "Prudencia: evita falsos positivos y acusaciones infundadas." }
+            ]
+          },
+          check: {
+            prompt: "Tienes un solo indicio llamativo. ¿Qué es lo más correcto antes de concluir que hay un ataque?",
+            options: ["Afirmarlo de inmediato para no perder tiempo", "Correlacionarlo con otras fuentes y buscar más evidencia"],
+            correct: 1,
+            feedback: ["Revisa: un indicio aislado no confirma un ataque.", "Correcto: la correlación con otras fuentes sostiene (o descarta) la hipótesis."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "scan-classify",
+      prompt: "Mesa de triaje (simulada)",
+      instructions: "Clasifica cada caso. Distingue lo que es normal (encaja con la línea base), un falso positivo (se explicó al revisar) y una anomalía que justifica investigar. Ninguna de estas etiquetas afirma por sí sola que haya un ataque.",
+      panelTitle: "Casos en revisión (ficticios)",
+      categories: [
+        { id: "normal", label: "Normal (línea base)" },
+        { id: "fp", label: "Falso positivo" },
+        { id: "anom", label: "Anomalía a investigar" }
+      ],
+      items: [
+        { id: "an1", icon: "📊", name: "Pico de tráfico cada día a las 8:00, cuando llega el personal", clues: ["Coincide con el horario", "Se repite siempre"], answer: "normal", explain: "Encaja con la línea base: actividad esperable.", hint: "¿Esto ocurre siempre a la misma hora conocida?" },
+        { id: "an2", icon: "🟡", name: "Alerta por «muchos probes»… eran los equipos nuevos configurándose, según TI", clues: ["Tenía explicación", "Confirmada con otra fuente"], answer: "fp", explain: "Se revisó y tenía causa legítima: falso positivo documentado.", hint: "¿Se encontró una explicación legítima?" },
+        { id: "an3", icon: "🔁", name: "Ráfagas repetidas de desautenticación de madrugada, sin mantenimiento previsto", clues: ["Sin causa conocida", "Patrón repetido"], answer: "anom", explain: "No encaja con la línea base ni tiene causa: anomalía que hay que investigar (todavía no es prueba de ataque).", hint: "¿Hay causa conocida? ¿Se repite sin explicación?" },
+        { id: "an4", icon: "📡", name: "Un AP desconocido, con nombre parecido al oficial, no registrado", clues: ["Fuera del inventario"], answer: "anom", explain: "Posible Rogue AP/Evil Twin: anomalía a verificar.", hint: "¿Está en el inventario de APs autorizados?" },
+        { id: "an5", icon: "🔄", name: "Un teléfono con MAC distinta en cada red, un solo equipo", clues: ["Aleatorización", "Función normal"], answer: "normal", explain: "Aleatorización de MAC por privacidad: comportamiento normal.", hint: "¿Es una función de privacidad habitual?" }
+      ],
+      success: "La detección de anomalías compara con una línea base y separa lo inusual, los falsos positivos y los incidentes. Un indicio abre una hipótesis; la conclusión necesita correlación y evidencia."
+    },
+    quiz: [
+      { id: "q1", concept: "Anomalía", prompt: "¿Qué es una anomalía en el tráfico?", options: ["Un error de Wireshark", "Un patrón que se desvía del comportamiento normal de la red", "Un tipo de cable", "Una contraseña débil"], correct: 1, feedback: ["Correcto: una desviación de lo esperado.", "Es una desviación del comportamiento normal, no un fallo de la herramienta."] },
+      { id: "q2", concept: "Línea base", prompt: "¿Para qué sirve una línea base?", options: ["Para descifrar el tráfico", "Para saber qué es lo normal y así reconocer lo que se desvía", "Para acelerar la red", "Para ocultar el SSID"], correct: 1, feedback: ["Correcto: define el «normal» de referencia.", "La línea base es la referencia de lo habitual; no descifra ni acelera."] },
+      { id: "q3", concept: "Falso positivo", prompt: "¿Qué es un falso positivo?", options: ["Un ataque confirmado", "Una alerta que, al revisarla, tenía una explicación legítima", "Un frame de datos", "Un tipo de antena"], correct: 1, feedback: ["Correcto: alarma sin causa real, que se descarta y documenta.", "Un falso positivo es una alerta benigna al revisarla, no un ataque."] },
+      { id: "q4", concept: "Correlación", prompt: "Antes de concluir que hay un ataque, ¿qué conviene hacer con un indicio?", options: ["Afirmarlo de inmediato", "Correlacionarlo con otras fuentes y reunir más evidencia", "Borrarlo", "Ignorarlo siempre"], correct: 1, feedback: ["Correcto: la conclusión se sostiene con varias fuentes.", "Un indicio solo justifica investigar; la conclusión exige correlación."] },
+      { id: "q5", concept: "Prudencia", prompt: "¿Cuál afirmación es correcta?", options: ["Un indicador aislado confirma un ataque", "Un indicador aislado abre una hipótesis, pero no confirma un ataque por sí solo", "Toda anomalía es un incidente", "Un falso positivo es un ataque leve"], correct: 1, feedback: ["Correcto: indicio ≠ conclusión.", "Un indicio no confirma nada por sí solo; hay que investigarlo."] }
+    ]
+  },
+
+  // -------------------------------------------------------------------------
+  // 6.6 Análisis de incidentes
+  // -------------------------------------------------------------------------
+  "m6-incidentes": {
+    ...M6_COMMON,
+    id: "m6-incidentes",
+    moduleId: 6,
+    title: "Análisis de incidentes",
+    subtitle: "Del dato suelto al informe: método y evidencia",
+    quizTitle: "Desafío: Análisis de incidentes",
+    bridge: "Con el método completo, estás listo para la misión integradora: un caso real de análisis, de principio a fin.",
+    ctf: "El análisis de incidentes es lo que convierte frames y direcciones sueltos en una historia defendible: evidencia, hipótesis y conclusión.",
+    learn: {
+      steps: [
+        {
+          concept: "Alcance y método ordenado",
+          explanation: "Objetivo: investigar con orden. Antes de mirar paquetes, se define qué se investiga. Toca cada tarjeta.",
+          visual: {
+            type: "node-cluster",
+            note: "Toca cada tarjeta.",
+            nodes: [
+              { id: "scope", label: "🎯 Alcance", sublabel: "Qué, cuándo, dónde", detail: "Delimitar la pregunta: qué se reportó, en qué ventana de tiempo y sobre qué parte de la red. Un alcance claro evita perderse en datos irrelevantes." },
+              { id: "order", label: "🗂️ Método ordenado", sublabel: "De lo general a lo específico", detail: "Primero una visión general (qué protocolos, qué volumen), luego el foco en lo relevante. Documentar cada paso para poder rehacerlo." },
+              { id: "copy", label: "📁 Trabajar sobre copias", sublabel: "Preservar el original", detail: "Se analiza una copia y se conserva la evidencia original intacta, con su integridad verificada (como viste en el tema de capturas)." },
+              { id: "repro", label: "🔁 Reproducible", sublabel: "Que otro pueda seguirlo", detail: "Un buen análisis puede ser repetido por otra persona con los mismos datos y pasos, llegando a las mismas observaciones." }
+            ]
+          },
+          check: {
+            prompt: "¿Qué conviene hacer antes de empezar a revisar paquetes?",
+            options: ["Definir el alcance: qué se investiga, cuándo y sobre qué parte de la red", "Modificar la captura original para que sea más corta"],
+            correct: 0,
+            feedback: ["Correcto: un alcance claro guía la investigación.", "Revisa: nunca se modifica el original; y primero se define el alcance."]
+          }
+        },
+        {
+          concept: "La línea temporal",
+          explanation: "Objetivo: ordenar los hechos en el tiempo. Relacionar frames, dispositivos y anomalías en una secuencia. Toca cada hito de este ejemplo ficticio.",
+          visual: {
+            type: "timeline",
+            items: [
+              { id: "t1", era: "19:58", title: "Beacon normal", detail: "El AP legítimo (BSSID conocido) anuncia «Lab_WiFi» con normalidad. Evidencia: actividad de base esperada." },
+              { id: "t2", era: "20:03", title: "AP desconocido", detail: "Aparece un beacon con el mismo SSID «Lab_WiFi» pero otro BSSID, no registrado. Evidencia observable; hipótesis: posible AP no autorizado." },
+              { id: "t3", era: "20:05", title: "Ráfaga de desautenticaciones", detail: "Muchas desautenticaciones hacia clientes del AP legítimo, repetidas y sin mantenimiento previsto. Indicio de posible denegación de servicio." },
+              { id: "t4", era: "20:06", title: "Reconexiones", detail: "Varios clientes se reasocian. Con los datos disponibles no se puede afirmar a qué AP ni con qué intención: límite del análisis." },
+              { id: "t5", era: "20:10", title: "Vuelve la calma", detail: "El AP desconocido deja de emitir. Queda documentar la secuencia, no concluir más de lo que la evidencia permite." }
+            ]
+          },
+          check: {
+            prompt: "La línea temporal muestra un AP desconocido y luego desautenticaciones. ¿Qué es correcto afirmar?",
+            options: ["Está probado que el AP desconocido causó las desconexiones", "Hay una secuencia observable; su relación es una hipótesis que requiere más evidencia"],
+            correct: 1,
+            feedback: ["Revisa: coincidir en el tiempo no prueba causa.", "Correcto: se documenta la secuencia y se plantea como hipótesis, no como hecho probado."]
+          }
+        },
+        {
+          concept: "Evidencia, hipótesis y conclusión",
+          explanation: "La clave de un informe serio es no mezclar estos tres niveles. Pulsa «Resaltar diferencias».",
+          visual: {
+            type: "compare-pair",
+            left: { title: "🧱 Evidencia", rows: [
+              { label: "Qué es", value: "Lo que se observa directamente en la captura" },
+              { label: "Ejemplo", value: "«A las 20:03 hay un beacon con SSID X y BSSID Y no registrado»" },
+              { label: "En el informe", value: "Se cita con su respaldo (paquete, tiempo)" }
+            ] },
+            right: { title: "💡 Hipótesis / Conclusión", rows: [
+              { label: "Qué es", value: "Hipótesis: explicación posible, aún por confirmar. Conclusión: lo que la evidencia permite sostener" },
+              { label: "Ejemplo", value: "Hipótesis: «podría ser un AP no autorizado». Conclusión: solo si la evidencia la sostiene" },
+              { label: "En el informe", value: "Se marcan como tales y se anotan las limitaciones" }
+            ] }
+          },
+          check: {
+            prompt: "«A las 20:05 se observan 60 desautenticaciones hacia clientes del AP legítimo.» ¿Qué es esta frase?",
+            options: ["Una conclusión sobre el atacante", "Evidencia: un hecho observable en la captura"],
+            correct: 1,
+            feedback: ["Revisa: no nombra culpable ni intención; describe lo observado.", "Correcto: es evidencia. La explicación de por qué ocurrió sería una hipótesis."]
+          }
+        }
+      ]
+    },
+    practice: {
+      type: "m2-decisions",
+      prompt: "Conduce la investigación",
+      instructions: "Te asignan un caso de análisis sobre una captura de práctica. Toma cada decisión del proceso y observa sus consecuencias. El objetivo es un informe honesto y defendible, no «ganar».",
+      scenario: {
+        title: "Escenario: incidente reportado en el laboratorio (ficticio)",
+        text: "Se reporta que, ayer por la tarde, varios equipos del laboratorio «perdían el Wi-Fi» repetidamente. Te entregan una captura de práctica de esa franja horaria para analizarla.",
+        devices: ["📁 Captura de práctica", "📡 AP legítimo (BSSID conocido)", "💻 Equipos del laboratorio", "❓ Un AP desconocido"]
+      },
+      decisions: [
+        {
+          id: "scope", title: "1 · El alcance", context: "Antes de abrir la captura.",
+          options: [
+            { id: "define", label: "Definir qué investigar: las desconexiones, en la franja reportada", ok: true, effects: [["Método", "ok"], ["Rigor", "ok"]], text: "Un alcance claro guía la revisión y evita perderse en datos irrelevantes." },
+            { id: "all", label: "Mirar toda la captura al azar, sin una pregunta", ok: false, effects: [["Método", "bad"], ["Rigor", "warn"]], text: "Sin foco, es fácil perderse y pasar por alto lo importante." }
+          ]
+        },
+        {
+          id: "integrity", title: "2 · La evidencia", context: "Tienes un único archivo de captura.",
+          options: [
+            { id: "copy", label: "Trabajar sobre una copia y verificar el hash del original", ok: true, effects: [["Integridad", "ok"], ["Trazabilidad", "ok"]], text: "Se preserva el original y se puede demostrar que no se alteró." },
+            { id: "edit", label: "Borrar de la captura los paquetes que «no sirven»", ok: false, effects: [["Integridad", "bad"], ["Trazabilidad", "bad"]], text: "Alterar la evidencia la invalida y rompe la cadena de custodia." }
+          ]
+        },
+        {
+          id: "timeline", title: "3 · Los hallazgos", context: "Ves un AP desconocido y, poco después, muchas desautenticaciones.",
+          options: [
+            { id: "line", label: "Construir una línea temporal y marcar qué es evidencia y qué hipótesis", ok: true, effects: [["Claridad", "ok"], ["Rigor", "ok"]], text: "Ordena los hechos y separa lo observado de lo interpretado." },
+            { id: "jump", label: "Concluir que el AP desconocido causó todo porque ocurrió antes", ok: false, effects: [["Rigor", "bad"], ["Claridad", "warn"]], text: "Que algo ocurra antes no prueba que sea la causa: es una hipótesis, no un hecho." }
+          ]
+        },
+        {
+          id: "report", title: "4 · El informe", context: "Toca documentar y recomendar.",
+          options: [
+            { id: "honest", label: "Documentar evidencia, hipótesis, limitaciones y recomendaciones defensivas", ok: true, effects: [["Utilidad", "ok"], ["Honestidad", "ok"]], text: "Un informe útil distingue niveles, reconoce lo que no se sabe y propone defensas (p. ej. PMF/WPA3, inventario de APs)." },
+            { id: "drama", label: "Afirmar un ataque confirmado y señalar a un culpable sin más evidencia", ok: false, effects: [["Utilidad", "bad"], ["Honestidad", "bad"]], text: "Exagerar o acusar sin evidencia suficiente daña la credibilidad y puede ser injusto." }
+          ]
+        }
+      ],
+      success: "Un análisis de incidentes define el alcance, preserva la evidencia, ordena los hechos en una línea temporal, separa evidencia de hipótesis y documenta hallazgos, limitaciones y recomendaciones."
+    },
+    quiz: [
+      { id: "q1", concept: "Alcance", prompt: "¿Qué es lo primero al iniciar un análisis de incidentes?", options: ["Modificar la captura", "Definir el alcance: qué, cuándo y sobre qué parte de la red", "Acusar a alguien", "Borrar paquetes"], correct: 1, feedback: ["Correcto: delimitar la pregunta guía todo el trabajo.", "Primero se define el alcance; nunca se modifica ni se borra la evidencia."] },
+      { id: "q2", concept: "Línea temporal", prompt: "¿Para qué sirve una línea temporal?", options: ["Para descifrar el tráfico", "Para ordenar los hechos en el tiempo y relacionar frames, dispositivos y anomalías", "Para acelerar la red", "Para ocultar la evidencia"], correct: 1, feedback: ["Correcto: ordena la secuencia de lo observado.", "La línea temporal ordena los hechos; no descifra ni oculta nada."] },
+      { id: "q3", concept: "Causa vs coincidencia", prompt: "Un evento ocurre justo antes que otro en la captura. ¿Qué se puede afirmar?", options: ["Que el primero causó el segundo", "Que hay una secuencia; la relación causal es una hipótesis que exige más evidencia", "Que no tienen relación", "Que la captura está dañada"], correct: 1, feedback: ["Correcto: coincidir en el tiempo no prueba causalidad.", "La secuencia es evidencia; la causa es una hipótesis por confirmar."] },
+      { id: "q4", concept: "Niveles", prompt: "«A las 20:03 aparece un beacon con BSSID no registrado» es…", options: ["Una conclusión", "Evidencia: un hecho observable", "Una acusación", "Un falso positivo seguro"], correct: 1, feedback: ["Correcto: describe lo observado, sin interpretar.", "Es evidencia; interpretarla (p. ej. «es un ataque») sería otro nivel."] },
+      { id: "q5", concept: "Informe", prompt: "¿Qué debe incluir un buen informe de análisis?", options: ["Solo la conclusión más dramática", "Evidencia, hipótesis, limitaciones y recomendaciones defensivas, preservando la integridad de la evidencia", "Los datos personales del sospechoso", "Nada, basta con una captura"], correct: 1, feedback: ["Correcto: distingue niveles, reconoce límites y propone defensas.", "Un informe serio documenta evidencia, hipótesis, límites y recomendaciones."] }
+    ]
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Misión final e integradora del Módulo 6 (y cierre de la ruta de Teoría)
+// ---------------------------------------------------------------------------
+lessons[M6_MISSION_ID] = {
+  ...M6_COMMON,
+  id: M6_MISSION_ID,
+  moduleId: 6,
+  mission: true,
+  missionType: "steps-mission",
+  title: "Expediente: La Tarde del Laboratorio",
+  subtitle: "Misión integradora del Módulo 6",
+  doneTitle: "MISIÓN COMPLETADA",
+  claim: "Analizaste una captura de práctica de principio a fin: reconociste frames, interpretaste identificadores, detectaste indicios, construiste una línea temporal y separaste evidencia, hipótesis y conclusión, con recomendaciones defensivas.",
+  badge: { icon: "🔬", name: "Analista de Evidencias" },
+  brief: {
+    file: "Expediente · Módulo 6",
+    heading: "🔬 Expediente: La Tarde del Laboratorio",
+    text: "Caso ficticio y autorizado. Te entregan un resumen de una captura de práctica tomada en el laboratorio «CEDES-Lab» entre las 20:00 y las 20:12. Se reportó que varios equipos «perdían el Wi-Fi». Analiza el resumen, distingue evidencia de hipótesis y emite un informe defensivo. No hay que abrir ninguna captura binaria: trabajas con los datos preparados de abajo."
+  },
+  scan: {
+    title: "Resumen de la captura de práctica (ficticio)",
+    columns: [
+      { key: "t", label: "Tiempo" },
+      { key: "src", label: "Origen (MAC/BSSID)", code: true },
+      { key: "dst", label: "Destino", code: true },
+      { key: "frame", label: "Frame" },
+      { key: "info", label: "Info" }
+    ],
+    rows: [
+      { t: "20:00", src: "AA:11:22:00:00:01", dst: "broadcast", frame: "Beacon", info: "SSID «CEDES-Lab», canal 6 (AP legítimo conocido)" },
+      { t: "20:01", src: "8C:AB:CD:00:0E:01", dst: "AA:11:22:00:00:01", frame: "Association", info: "Un portátil (cliente) se une a «CEDES-Lab»" },
+      { t: "20:04", src: "FF:99:88:77:66:55", dst: "broadcast", frame: "Beacon", info: "SSID «CEDES-Lab», canal 6, BSSID NO registrado, red abierta" },
+      { t: "20:05", src: "FF:99:88:77:66:55", dst: "clientes del AP legítimo", frame: "Deauthentication", info: "Ráfaga: 58 desautenticaciones en 30 s, sin mantenimiento previsto" },
+      { t: "20:06", src: "varios clientes", dst: "—", frame: "Probe/Association", info: "Reconexiones; con los datos no se ve a qué AP se unió cada uno" },
+      { t: "20:11", src: "FF:99:88:77:66:55", dst: "—", frame: "(cesa)", info: "El beacon del BSSID no registrado deja de aparecer" }
+    ]
+  },
+  phases: [
+    { id: "s1", label: "Frames" },
+    { id: "s2", label: "Dispositivos" },
+    { id: "s3", label: "Indicios" },
+    { id: "s4", label: "Niveles" },
+    { id: "s5", label: "Informe" },
+    { id: "done", label: "Cierre" }
+  ],
+  steps: [
+    {
+      id: "s1", kind: "per-item", lesson: "Identificación de frames",
+      prompt: "Etapa 1 · Clasifica cada frame del resumen por su familia 802.11.",
+      options: [{ id: "mgmt", label: "Administración" }, { id: "ctrl", label: "Control" }, { id: "data", label: "Datos" }],
+      items: [
+        { id: "r1", label: "Beacon de «CEDES-Lab»", detail: "20:00", answer: "mgmt", explain: "El beacon anuncia la red: administración.", hint: "Anunciar una red, ¿qué familia es?" },
+        { id: "r2", label: "Association de un portátil", detail: "20:01", answer: "mgmt", explain: "Unirse a la red es parte de la administración.", hint: "El proceso de unirse al AP." },
+        { id: "r3", label: "Deauthentication en ráfaga", detail: "20:05", answer: "mgmt", explain: "La desautenticación gestiona el fin del enlace: administración.", hint: "Terminar sesiones también gestiona el enlace." }
+      ]
+    },
+    {
+      id: "s2", kind: "per-item", lesson: "Identificación de dispositivos",
+      prompt: "Etapa 2 · Interpreta los identificadores observables (con prudencia).",
+      options: [{ id: "si", label: "Se puede afirmar" }, { id: "no", label: "No se puede afirmar" }],
+      items: [
+        { id: "p1", label: "AA:11:22:00:00:01 y FF:99:88:77:66:55 son equipos distintos", answer: "si", explain: "Distinto BSSID = distinto equipo: afirmación válida.", hint: "¿Los BSSID coinciden?" },
+        { id: "p2", label: "El BSSID FF:99:… es, con seguridad, de la marca que indica su OUI", answer: "no", explain: "El OUI es aproximado y puede estar falsificado: no se afirma con seguridad.", hint: "¿El OUI es certeza o pista?" },
+        { id: "p3", label: "Sabemos qué persona manejaba el AP no registrado", answer: "no", explain: "Una MAC/BSSID no identifica a una persona: no se puede afirmar.", hint: "¿Una dirección es una identidad personal?" },
+        { id: "p4", label: "Dos redes anuncian el mismo SSID «CEDES-Lab»", answer: "si", explain: "Es observable en los beacons: afirmación válida (el nombre puede imitarse).", hint: "¿El SSID aparece repetido en el resumen?" }
+      ]
+    },
+    {
+      id: "s3", kind: "multi", lesson: "Detección de anomalías",
+      prompt: "Etapa 3 · Marca SOLO los indicios anómalos que justifican investigar y pulsa «Comprobar».",
+      items: [
+        { id: "i1", label: "Un segundo beacon con el mismo SSID pero BSSID no registrado y red abierta", target: true, explain: "Posible Evil Twin/Rogue AP: anomalía a verificar." },
+        { id: "i2", label: "Ráfaga de 58 desautenticaciones en 30 s sin mantenimiento previsto", target: true, explain: "Patrón anómalo de posible denegación de servicio." },
+        { id: "i3", label: "El AP legítimo emite su beacon normal a las 20:00", target: false, explain: "Actividad de base esperada: no es anomalía." },
+        { id: "i4", label: "Un portátil se asocia a «CEDES-Lab» a las 20:01", target: false, explain: "Una asociación normal: comportamiento esperable." },
+        { id: "i5", label: "El beacon del BSSID no registrado aparece y luego cesa", target: true, explain: "La aparición temporal de un AP desconocido es parte del patrón a investigar." }
+      ]
+    },
+    {
+      id: "s4", kind: "single", lesson: "Evidencia, hipótesis y conclusión",
+      prompt: "Etapa 4 · ¿Cuál de estas frases es EVIDENCIA (un hecho observable), no una hipótesis ni una conclusión?",
+      options: [
+        { label: "El AP no registrado atacó deliberadamente a los equipos del laboratorio", correct: false, explain: "Es una conclusión sobre intención: no se puede afirmar con este resumen." },
+        { label: "A las 20:05 se observan 58 desautenticaciones hacia clientes del AP legítimo", correct: true, explain: "Correcto: describe lo observado, con su tiempo y direcciones. Es evidencia." },
+        { label: "El dueño del AP desconocido es un estudiante del laboratorio", correct: false, explain: "Una dirección no identifica a una persona: es una suposición sin respaldo." },
+        { label: "Las reconexiones prueban que los clientes cayeron en una red falsa", correct: false, explain: "Con los datos no se ve a qué AP se unieron: sería una hipótesis, no un hecho." }
+      ]
+    },
+    {
+      id: "s5", kind: "single", lesson: "Informe y recomendaciones",
+      prompt: "Etapa 5 · Redacta la conclusión del expediente. ¿Cuál es la más rigurosa y útil?",
+      options: [
+        { label: "Evidencia: dos beacons con el mismo SSID y distinto BSSID, y una ráfaga de desautenticaciones. Hipótesis: posible AP no autorizado asociado a una denegación de servicio, no confirmada con este resumen. Recomendaciones: proteger tramas de gestión (PMF/WPA3), revisar el inventario de APs (posible Rogue AP/Evil Twin) y conservar la captura íntegra para ampliar el análisis", correct: true, explain: "Separa evidencia e hipótesis, reconoce los límites del resumen y propone defensas concretas y trazabilidad." },
+        { label: "Ataque confirmado del estudiante dueño del AP; caso cerrado", correct: false, explain: "Afirma intención y atribuye identidad sin evidencia suficiente: incorrecto." },
+        { label: "No pasó nada relevante; eran reconexiones normales", correct: false, explain: "Ignora indicios claros (BSSID no registrado y ráfaga de desautenticaciones)." },
+        { label: "Como el tráfico iba cifrado, la captura no sirve para nada", correct: false, explain: "El cifrado oculta el contenido, pero los metadatos y frames sí permiten este análisis." }
+      ]
+    }
+  ],
+  ctfLinks: [
+    ["Capturas .pcap", "tratar el archivo como evidencia: integridad y procedencia"],
+    ["Wireshark", "leer con método, sin esperar que descifre lo cifrado"],
+    ["Identificación de frames", "reconstruir qué pasaba a partir de los frames"],
+    ["Identificación de dispositivos", "interpretar MAC/BSSID/OUI sin atribuir identidad"],
+    ["Detección de anomalías", "separar lo inusual, el falso positivo y el incidente"],
+    ["Análisis de incidentes", "construir la línea temporal y el informe defensivo"]
+  ]
+};
+
 
 let terminalClient = null;
 let terminalEpoch = 0;
@@ -9519,7 +11187,7 @@ function goToAuth(mode) {
   publicScreen = "auth";
   render();
 }
-
+ 
 function backToLanding() {
   publicScreen = "landing";
   authMode = "login";
