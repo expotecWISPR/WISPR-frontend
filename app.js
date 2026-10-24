@@ -128,8 +128,8 @@ const lessons = {
           visual: {
             type: "icon-row",
             items: [
-              { icon: "🏷️", label: "SSID", caption: "Nombre visible, elegido a mano, se puede repetir." },
-              { icon: "🔑", label: "BSSID", caption: "MAC real de la radio, única por punto de acceso." }
+              { icon: "tag", label: "SSID", caption: "Nombre visible, elegido a mano, se puede repetir." },
+              { icon: "key-round", label: "BSSID", caption: "MAC real de la radio, única por punto de acceso." }
             ]
           }
         }
@@ -250,8 +250,8 @@ const lessons = {
           visual: {
             type: "icon-row",
             items: [
-              { icon: "📡", label: "802.11", caption: "La familia de estándares de las redes Wi-Fi." },
-              { icon: "🔁", label: "Compatibilidad", caption: "Permite que equipos de distintas marcas se entiendan entre sí." }
+              { icon: "radio-tower", label: "802.11", caption: "La familia de estándares de las redes Wi-Fi." },
+              { icon: "repeat", label: "Compatibilidad", caption: "Permite que equipos de distintas marcas se entiendan entre sí." }
             ]
           },
           check: {
@@ -271,9 +271,9 @@ const lessons = {
       success: "¡Red construida! Cada dispositivo se asoció al AP siguiendo las reglas que define 802.11 — así es como cualquier red Wi-Fi real empieza a funcionar.",
       zones: [{ id: "ap1", label: "AP — Aula de cómputo" }],
       devices: [
-        { id: "laptop", label: "Laptop de estudiante", icon: "💻" },
-        { id: "phone", label: "Teléfono", icon: "📱" },
-        { id: "tablet", label: "Tableta", icon: "📟" }
+        { id: "laptop", label: "Laptop de estudiante", icon: "laptop" },
+        { id: "phone", label: "Teléfono", icon: "smartphone" },
+        { id: "tablet", label: "Tableta", icon: "tablet" }
       ]
     },
     quiz: [
@@ -549,11 +549,11 @@ const lessons = {
         { id: "ap-oficina", label: "AP — Oficina" }
       ],
       devices: [
-        { id: "pc", label: "Computadora de oficina", icon: "🖥️", correctZone: "ap-oficina" },
-        { id: "printer", label: "Impresora inalámbrica", icon: "🖨️", correctZone: "ap-oficina" },
-        { id: "phone1", label: "Teléfono — Recepción", icon: "📱", correctZone: "ap-recepcion" },
-        { id: "phone2", label: "Teléfono — Visitas", icon: "📱", correctZone: "ap-recepcion" },
-        { id: "tablet", label: "Tableta de Recepción", icon: "📟", correctZone: "ap-recepcion" }
+        { id: "pc", label: "Computadora de oficina", icon: "monitor", correctZone: "ap-oficina" },
+        { id: "printer", label: "Impresora inalámbrica", icon: "printer", correctZone: "ap-oficina" },
+        { id: "phone1", label: "Teléfono — Recepción", icon: "smartphone", correctZone: "ap-recepcion" },
+        { id: "phone2", label: "Teléfono — Visitas", icon: "smartphone", correctZone: "ap-recepcion" },
+        { id: "tablet", label: "Tableta de Recepción", icon: "tablet", correctZone: "ap-recepcion" }
       ]
     },
     quiz: [
@@ -649,8 +649,8 @@ const lessons = {
           visual: {
             type: "icon-row",
             items: [
-              { icon: "📶", label: "Canales cercanos", caption: "Se solapan y pueden interferirse." },
-              { icon: "↔️", label: "Canales separados", caption: "1, 6 y 11 no se solapan entre sí en 2.4 GHz." }
+              { icon: "wifi", label: "Canales cercanos", caption: "Se solapan y pueden interferirse." },
+              { icon: "arrow-left-right", label: "Canales separados", caption: "1, 6 y 11 no se solapan entre sí en 2.4 GHz." }
             ]
           },
           check: {
@@ -1332,8 +1332,8 @@ Object.assign(lessons, {
       prompt: "¿Qué clave corresponde?",
       instructions: "Llegan paquetes al AP. Clasifica cada uno según la clave que lo protege: arrástralo o toca el compartimento correcto.",
       bins: [
-        { id: "ptk", label: "PTK", caption: "Tráfico individual", icon: "👤" },
-        { id: "gtk", label: "GTK", caption: "Tráfico de grupo", icon: "👥" }
+        { id: "ptk", label: "PTK", caption: "Tráfico individual", icon: "user" },
+        { id: "gtk", label: "GTK", caption: "Tráfico de grupo", icon: "users" }
       ],
       items: [
         { id: "i1", text: "La laptop de Ana descarga una página web a través del AP.", bin: "ptk", explain: "Solo Ana debe poder leerlo: PTK de Ana." },
@@ -1687,9 +1687,9 @@ Object.assign(lessons, {
           visual: {
             type: "icon-row",
             items: [
-              { icon: "🔑", label: "PMK", caption: "La clave maestra." },
-              { icon: "🏷️", label: "PMKID", caption: "Identificador de esa PMK en un contexto (AP + cliente)." },
-              { icon: "⏱️", label: "PTK", caption: "Clave derivada para la sesión." }
+              { icon: "key-round", label: "PMK", caption: "La clave maestra." },
+              { icon: "tag", label: "PMKID", caption: "Identificador de esa PMK en un contexto (AP + cliente)." },
+              { icon: "timer", label: "PTK", caption: "Clave derivada para la sesión." }
             ]
           }
         }
@@ -1772,7 +1772,7 @@ Object.assign(lessons, {
     title: "Operación: Autenticación",
     subtitle: "Misión final del Módulo 3",
     labTheme: true,
-    badge: { icon: "🛡️", name: "Analista de Autenticación" },
+    badge: { icon: "shield", name: "Analista de Autenticación" },
     claim: "Ahora entiendes qué está pasando detrás de una conexión Wi-Fi.",
     ctfLinks: [
       ["Four-Way Handshake", "comprender el proceso de autenticación"],
@@ -1848,8 +1848,8 @@ const BT_MISSION_ID = "bt-mision";
 moduleMissions[5] = { missionId: BT_MISSION_ID, sequence: BT_SEQUENCE };
 
 // Feedback con el formato pedido para este módulo.
-const BT_OK = "✓ Correcto";
-const BT_REVIEW = "✗ Revisa este concepto";
+const BT_OK = "Correcto";
+const BT_REVIEW = "Revisa este concepto";
 
 Object.assign(lessons, {
   "bt-classic-ble": {
@@ -1870,22 +1870,22 @@ Object.assign(lessons, {
             type: "bt-compare",
             options: [
               {
-                id: "classic", icon: "🎧", label: "Bluetooth clásico", tag: "BR/EDR", power: 78,
+                id: "classic", icon: "headphones", label: "Bluetooth clásico", tag: "BR/EDR", power: 78,
                 rows: [
                   { k: "Consumo", v: "Mayor: la radio se mantiene activa" },
                   { k: "Comunicación", v: "Conexión continua, flujo constante de datos" },
                   { k: "Usos", v: "Audio, llamadas, transferencia de archivos" }
                 ],
-                devices: ["🎧 Audífonos", "🔊 Altavoces", "🚗 Manos libres", "⌨️ Periféricos"]
+                devices: [{ icon: "headphones", label: "Audífonos" }, { icon: "volume-2", label: "Altavoces" }, { icon: "car", label: "Manos libres" }, { icon: "keyboard", label: "Periféricos" }]
               },
               {
-                id: "ble", icon: "⌚", label: "Bluetooth Low Energy", tag: "BLE", power: 18,
+                id: "ble", icon: "watch", label: "Bluetooth Low Energy", tag: "BLE", power: 18,
                 rows: [
                   { k: "Consumo", v: "Muy bajo: duerme la mayor parte del tiempo" },
                   { k: "Comunicación", v: "Ráfagas cortas de datos pequeños" },
                   { k: "Usos", v: "Sensores, IoT, wearables, balizas" }
                 ],
-                devices: ["⌚ Smartwatch", "🌡️ Sensores", "💓 Pulseras", "🏷️ Etiquetas / balizas"]
+                devices: [{ icon: "watch", label: "Smartwatch" }, { icon: "thermometer", label: "Sensores" }, { icon: "heart-pulse", label: "Pulseras" }, { icon: "tag", label: "Etiquetas / balizas" }]
               }
             ],
             summary: "Mismo nombre «Bluetooth», pero dos formas distintas de comunicarse: no son compatibles entre sí por sí solas."
@@ -1921,9 +1921,9 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada dispositivo.",
             nodes: [
-              { id: "phone", label: "📱 Smartphone", sublabel: "«Dual-mode»", detail: "Tiene ambas tecnologías: usa clásico con tus audífonos y BLE con tu reloj." },
-              { id: "kbd", label: "⌨️ Teclado y mouse", sublabel: "Depende del modelo", detail: "Existen versiones clásicas y versiones BLE. Hay que mirar la implementación concreta." },
-              { id: "audio", label: "🎧 Audífonos recientes", sublabel: "LE Audio", detail: "Los dispositivos más nuevos pueden transmitir audio también sobre BLE (LE Audio), aunque lo tradicional es el clásico." }
+              { id: "phone", icon: "smartphone", label: "Smartphone", sublabel: "«Dual-mode»", detail: "Tiene ambas tecnologías: usa clásico con tus audífonos y BLE con tu reloj." },
+              { id: "kbd", icon: "keyboard", label: "Teclado y mouse", sublabel: "Depende del modelo", detail: "Existen versiones clásicas y versiones BLE. Hay que mirar la implementación concreta." },
+              { id: "audio", icon: "headphones", label: "Audífonos recientes", sublabel: "LE Audio", detail: "Los dispositivos más nuevos pueden transmitir audio también sobre BLE (LE Audio), aunque lo tradicional es el clásico." }
             ]
           }
         }
@@ -1933,23 +1933,23 @@ Object.assign(lessons, {
       type: "packet-sort",
       prompt: "¿Clásico o BLE?",
       instructions: "Clasifica cada dispositivo según la tecnología que usa habitualmente. Arrástralo o toca un compartimento.",
-      itemLabel: "📡 Dispositivo",
+      itemIcon: "radio-tower", itemLabel: "Dispositivo",
       countLabel: "Dispositivos clasificados",
       binPrefix: "",
       okTitle: BT_OK,
       wrongTitle: BT_REVIEW,
       bins: [
-        { id: "classic", label: "Bluetooth clásico", caption: "Continuo · más consumo", icon: "🎧" },
-        { id: "ble", label: "BLE", caption: "Ráfagas · bajo consumo", icon: "⌚" }
+        { id: "classic", label: "Bluetooth clásico", caption: "Continuo · más consumo", icon: "headphones" },
+        { id: "ble", label: "BLE", caption: "Ráfagas · bajo consumo", icon: "watch" }
       ],
       items: [
-        { id: "headset", icon: "🎧", text: "Audífonos que reproducen música durante horas.", bin: "classic", explain: "El audio continuo es el uso típico del Bluetooth clásico.", hint: "Piensa en el tipo de comunicación: ¿la música llega en ráfagas o como un flujo constante?" },
-        { id: "temp", icon: "🌡️", text: "Sensor de temperatura con una pila que debe durar un año.", bin: "ble", explain: "Pocos datos y batería mínima: BLE.", hint: "Revisa el consumo: con una pila de botón para un año, ¿qué tecnología lo permite?" },
-        { id: "watch", icon: "⌚", text: "Smartwatch que sincroniza pasos y notificaciones.", bin: "ble", explain: "Los wearables usan BLE para sincronizar datos pequeños con bajo consumo.", hint: "Un wearable debe ahorrar batería y envía datos pequeños: ¿cuál tecnología fue diseñada para eso?" },
-        { id: "iot", icon: "💡", text: "Bombilla inteligente que recibe órdenes de encendido.", bin: "ble", explain: "Un dispositivo IoT que recibe órdenes cortas usa normalmente BLE.", hint: "Las órdenes son mensajes muy pequeños y esporádicos." },
-        { id: "keyboard", icon: "⌨️", text: "Teclado inalámbrico de oficina.", bin: "classic", accept: ["classic", "ble"], explain: "Depende del modelo: existen teclados clásicos y BLE. Ambas respuestas son válidas." },
-        { id: "mouse", icon: "🖱️", text: "Mouse inalámbrico.", bin: "ble", accept: ["classic", "ble"], explain: "Depende de la implementación: hay mouse clásicos y BLE. Ambas respuestas son válidas." },
-        { id: "car", icon: "🚗", text: "Manos libres del auto para llamadas.", bin: "classic", explain: "Las llamadas son audio continuo: Bluetooth clásico.", hint: "Una llamada es un flujo de voz continuo." }
+        { id: "headset", icon: "headphones", text: "Audífonos que reproducen música durante horas.", bin: "classic", explain: "El audio continuo es el uso típico del Bluetooth clásico.", hint: "Piensa en el tipo de comunicación: ¿la música llega en ráfagas o como un flujo constante?" },
+        { id: "temp", icon: "thermometer", text: "Sensor de temperatura con una pila que debe durar un año.", bin: "ble", explain: "Pocos datos y batería mínima: BLE.", hint: "Revisa el consumo: con una pila de botón para un año, ¿qué tecnología lo permite?" },
+        { id: "watch", icon: "watch", text: "Smartwatch que sincroniza pasos y notificaciones.", bin: "ble", explain: "Los wearables usan BLE para sincronizar datos pequeños con bajo consumo.", hint: "Un wearable debe ahorrar batería y envía datos pequeños: ¿cuál tecnología fue diseñada para eso?" },
+        { id: "iot", icon: "lightbulb", text: "Bombilla inteligente que recibe órdenes de encendido.", bin: "ble", explain: "Un dispositivo IoT que recibe órdenes cortas usa normalmente BLE.", hint: "Las órdenes son mensajes muy pequeños y esporádicos." },
+        { id: "keyboard", icon: "keyboard", text: "Teclado inalámbrico de oficina.", bin: "classic", accept: ["classic", "ble"], explain: "Depende del modelo: existen teclados clásicos y BLE. Ambas respuestas son válidas." },
+        { id: "mouse", icon: "mouse", text: "Mouse inalámbrico.", bin: "ble", accept: ["classic", "ble"], explain: "Depende de la implementación: hay mouse clásicos y BLE. Ambas respuestas son válidas." },
+        { id: "car", icon: "car", text: "Manos libres del auto para llamadas.", bin: "classic", explain: "Las llamadas son audio continuo: Bluetooth clásico.", hint: "Una llamada es un flujo de voz continuo." }
       ],
       hints: {},
       success: "Audio y flujos continuos → clásico. Datos pequeños con bajo consumo → BLE. Y algunos periféricos existen en ambas versiones."
@@ -2004,13 +2004,13 @@ Object.assign(lessons, {
           visual: {
             type: "bt-radar",
             devices: [
-              { id: "phone", icon: "📱", name: "Pixel-Luis", addr: "4C:EB:42:1A:90:3D", x: 22, y: 26, state: "found", detail: "Detectable: responde a la búsqueda con su nombre y su dirección." },
-              { id: "buds", icon: "🎧", name: "Audífonos-Ana", addr: "00:1B:66:8F:21:C4", x: 76, y: 22, state: "found", detail: "En modo emparejamiento: se anuncia para que otros lo encuentren." },
-              { id: "watch", icon: "⌚", name: "Reloj-Marta", addr: "7A:2F:… (aleatoria)", x: 80, y: 70, state: "found", detail: "BLE: envía anuncios periódicos. Su dirección es aleatoria y cambia para proteger la privacidad." },
-              { id: "sensor", icon: "🌡️", name: "Sensor-Temp-03", addr: "D4:36:39:0B:77:12", x: 30, y: 78, state: "found", detail: "BLE: anuncia su presencia y algunos datos básicos, sin necesidad de conectarse." },
-              { id: "unknown", icon: "❔", name: "(sin nombre)", addr: "E2:91:5C:3A:0F:7B", x: 56, y: 85, state: "found", detail: "Aparece solo con su dirección: un dispositivo desconocido. Vale la pena identificarlo antes de confiar en él." },
-              { id: "laptop", icon: "💻", name: "Laptop-Profe", addr: "—", x: 14, y: 54, state: "hidden", detail: "Está cerca y encendida, pero no es detectable: no responde a búsquedas. Puede seguir conectándose con dispositivos que ya conoce." },
-              { id: "speaker", icon: "🔊", name: "Altavoz-Pasillo", addr: "—", x: 93, y: 46, state: "far", detail: "Es detectable, pero está fuera de alcance: su señal no llega hasta tu laptop." }
+              { id: "phone", icon: "smartphone", name: "Pixel-Luis", addr: "4C:EB:42:1A:90:3D", x: 22, y: 26, state: "found", detail: "Detectable: responde a la búsqueda con su nombre y su dirección." },
+              { id: "buds", icon: "headphones", name: "Audífonos-Ana", addr: "00:1B:66:8F:21:C4", x: 76, y: 22, state: "found", detail: "En modo emparejamiento: se anuncia para que otros lo encuentren." },
+              { id: "watch", icon: "watch", name: "Reloj-Marta", addr: "7A:2F:… (aleatoria)", x: 80, y: 70, state: "found", detail: "BLE: envía anuncios periódicos. Su dirección es aleatoria y cambia para proteger la privacidad." },
+              { id: "sensor", icon: "thermometer", name: "Sensor-Temp-03", addr: "D4:36:39:0B:77:12", x: 30, y: 78, state: "found", detail: "BLE: anuncia su presencia y algunos datos básicos, sin necesidad de conectarse." },
+              { id: "unknown", icon: "circle-help", name: "(sin nombre)", addr: "E2:91:5C:3A:0F:7B", x: 56, y: 85, state: "found", detail: "Aparece solo con su dirección: un dispositivo desconocido. Vale la pena identificarlo antes de confiar en él." },
+              { id: "laptop", icon: "laptop", name: "Laptop-Profe", addr: "—", x: 14, y: 54, state: "hidden", detail: "Está cerca y encendida, pero no es detectable: no responde a búsquedas. Puede seguir conectándose con dispositivos que ya conoce." },
+              { id: "speaker", icon: "volume-2", name: "Altavoz-Pasillo", addr: "—", x: 93, y: 46, state: "far", detail: "Es detectable, pero está fuera de alcance: su señal no llega hasta tu laptop." }
             ]
           },
           check: {
@@ -2069,11 +2069,11 @@ Object.assign(lessons, {
         { id: "connected", label: "Ya conectado" }
       ],
       items: [
-        { id: "buds", icon: "🎧", name: "Audífonos-Ana", bars: 4, clues: ["Aparece en el escaneo", "Modo emparejamiento activo"], answer: "available", explain: "Aparece y acepta emparejarse: está disponible para conexión.", hint: "Fíjate: aparece en el escaneo y está esperando que alguien se empareje." },
-        { id: "laptop", icon: "💻", name: "Laptop-Profe", bars: 4, clues: ["A 2 m, encendida", "No responde a la búsqueda"], answer: "hidden", explain: "Está cerca, pero no es detectable: no se puede encontrar para iniciar una conexión nueva.", hint: "La señal llegaría, pero el dispositivo no responde: ¿qué configuración tiene?" },
-        { id: "speaker", icon: "🔊", name: "Altavoz-Pasillo", bars: 0, clues: ["Detectable", "Está en otro edificio: no se recibe señal"], answer: "far", explain: "Aunque sea detectable, su señal no llega: está fuera de alcance.", hint: "Mira las barras de señal: ¿llega algo hasta tu laptop?" },
-        { id: "mouse", icon: "🖱️", name: "Mouse-Oficina", bars: 3, clues: ["Emparejado con tu laptop", "Se está usando ahora mismo"], answer: "connected", explain: "Ya existe una conexión activa con tu laptop.", hint: "Este dispositivo ya está intercambiando datos con tu laptop." },
-        { id: "sensor", icon: "🌡️", name: "Sensor-Temp-03", bars: 2, clues: ["Envía anuncios BLE cada segundo", "Acepta conexiones"], answer: "available", explain: "Se anuncia y acepta conexiones: disponible.", hint: "Se anuncia y acepta conexiones: ¿qué impide conectarse?" }
+        { id: "buds", icon: "headphones", name: "Audífonos-Ana", bars: 4, clues: ["Aparece en el escaneo", "Modo emparejamiento activo"], answer: "available", explain: "Aparece y acepta emparejarse: está disponible para conexión.", hint: "Fíjate: aparece en el escaneo y está esperando que alguien se empareje." },
+        { id: "laptop", icon: "laptop", name: "Laptop-Profe", bars: 4, clues: ["A 2 m, encendida", "No responde a la búsqueda"], answer: "hidden", explain: "Está cerca, pero no es detectable: no se puede encontrar para iniciar una conexión nueva.", hint: "La señal llegaría, pero el dispositivo no responde: ¿qué configuración tiene?" },
+        { id: "speaker", icon: "volume-2", name: "Altavoz-Pasillo", bars: 0, clues: ["Detectable", "Está en otro edificio: no se recibe señal"], answer: "far", explain: "Aunque sea detectable, su señal no llega: está fuera de alcance.", hint: "Mira las barras de señal: ¿llega algo hasta tu laptop?" },
+        { id: "mouse", icon: "mouse", name: "Mouse-Oficina", bars: 3, clues: ["Emparejado con tu laptop", "Se está usando ahora mismo"], answer: "connected", explain: "Ya existe una conexión activa con tu laptop.", hint: "Este dispositivo ya está intercambiando datos con tu laptop." },
+        { id: "sensor", icon: "thermometer", name: "Sensor-Temp-03", bars: 2, clues: ["Envía anuncios BLE cada segundo", "Acepta conexiones"], answer: "available", explain: "Se anuncia y acepta conexiones: disponible.", hint: "Se anuncia y acepta conexiones: ¿qué impide conectarse?" }
       ],
       success: "Disponible = se puede encontrar y acepta conexión. No detectable, fuera de alcance o ya conectado son situaciones distintas, aunque el dispositivo exista."
     },
@@ -2127,11 +2127,11 @@ Object.assign(lessons, {
           visual: {
             type: "bt-pairing",
             stages: [
-              { id: "discover", icon: "🔍", label: "Descubrimiento", link: "none", detail: "El teléfono encuentra «Audífonos-Ana» en el escaneo. Todavía no hay ninguna relación entre ellos." },
-              { id: "select", icon: "👆", label: "Selección", link: "request", detail: "El usuario elige los audífonos: el teléfono envía una solicitud de emparejamiento." },
-              { id: "pair", icon: "🔢", label: "Emparejamiento", link: "verify", code: "482 913", detail: "Ambos acuerdan claves. Con comparación numérica, los dos muestran el mismo código y el usuario confirma que coincide: eso autentica al otro dispositivo." },
-              { id: "trust", icon: "🔑", label: "Confianza", link: "key", detail: "Cada uno guarda la clave del otro (vinculación). Ya se reconocen como dispositivos de confianza." },
-              { id: "connect", icon: "🔒", label: "Conexión", link: "secure", detail: "Se conectan usando esas claves: la comunicación queda autenticada y cifrada. La próxima vez se reconectarán sin repetir el emparejamiento." }
+              { id: "discover", icon: "search", label: "Descubrimiento", link: "none", detail: "El teléfono encuentra «Audífonos-Ana» en el escaneo. Todavía no hay ninguna relación entre ellos." },
+              { id: "select", icon: "pointer", label: "Selección", link: "request", detail: "El usuario elige los audífonos: el teléfono envía una solicitud de emparejamiento." },
+              { id: "pair", icon: "hash", label: "Emparejamiento", link: "verify", code: "482 913", detail: "Ambos acuerdan claves. Con comparación numérica, los dos muestran el mismo código y el usuario confirma que coincide: eso autentica al otro dispositivo." },
+              { id: "trust", icon: "key-round", label: "Confianza", link: "key", detail: "Cada uno guarda la clave del otro (vinculación). Ya se reconocen como dispositivos de confianza." },
+              { id: "connect", icon: "lock", label: "Conexión", link: "secure", detail: "Se conectan usando esas claves: la comunicación queda autenticada y cifrada. La próxima vez se reconectarán sin repetir el emparejamiento." }
             ],
             summary: "Descubrir es encontrar. Emparejar es acordar claves y establecer confianza. Solo entonces llega la conexión protegida."
           },
@@ -2149,10 +2149,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada método.",
             nodes: [
-              { id: "num", label: "🔢 Comparación numérica", sublabel: "Ambos tienen pantalla", detail: "Los dos muestran el mismo código de 6 dígitos y el usuario confirma que coinciden." },
-              { id: "pass", label: "⌨️ Código (passkey)", sublabel: "Uno tiene teclado", detail: "Un dispositivo muestra un código y el usuario lo escribe en el otro." },
-              { id: "jw", label: "⚡ Just Works", sublabel: "Sin pantalla ni teclado", detail: "Se empareja sin confirmación visible. Es cómodo, pero no permite comprobar que hablas con el dispositivo correcto." },
-              { id: "oob", label: "📶 Fuera de banda (OOB)", sublabel: "p. ej. NFC", detail: "La información de emparejamiento se intercambia por otro canal, como acercar los dispositivos con NFC." }
+              { id: "num", icon: "hash", label: "Comparación numérica", sublabel: "Ambos tienen pantalla", detail: "Los dos muestran el mismo código de 6 dígitos y el usuario confirma que coinciden." },
+              { id: "pass", icon: "keyboard", label: "Código (passkey)", sublabel: "Uno tiene teclado", detail: "Un dispositivo muestra un código y el usuario lo escribe en el otro." },
+              { id: "jw", icon: "zap", label: "Just Works", sublabel: "Sin pantalla ni teclado", detail: "Se empareja sin confirmación visible. Es cómodo, pero no permite comprobar que hablas con el dispositivo correcto." },
+              { id: "oob", icon: "wifi", label: "Fuera de banda (OOB)", sublabel: "p. ej. NFC", detail: "La información de emparejamiento se intercambia por otro canal, como acercar los dispositivos con NFC." }
             ]
           },
           check: {
@@ -2178,11 +2178,11 @@ Object.assign(lessons, {
       prompt: "Ordena el proceso",
       instructions: "Toca (o arrastra) los pasos en el orden lógico, desde que el teléfono encuentra los audífonos hasta que se conectan.",
       steps: [
-        { id: "discover", label: "Descubrir dispositivo", icon: "🔍", hint: "Todo empieza encontrando el dispositivo: no puedes emparejarte con algo que no conoces." },
-        { id: "start", label: "Iniciar emparejamiento", icon: "👆", hint: "Una vez encontrado, alguien debe solicitar el emparejamiento." },
-        { id: "auth", label: "Confirmar / autenticar", icon: "🔢", hint: "Tras la solicitud, el usuario confirma (por ejemplo, el código) para autenticar al otro dispositivo." },
-        { id: "trust", label: "Establecer confianza", icon: "🔑", hint: "Con la autenticación hecha, las claves se guardan: nace la confianza." },
-        { id: "connect", label: "Establecer conexión", icon: "🔒", hint: "La conexión protegida llega al final, usando las claves acordadas." }
+        { id: "discover", label: "Descubrir dispositivo", icon: "search", hint: "Todo empieza encontrando el dispositivo: no puedes emparejarte con algo que no conoces." },
+        { id: "start", label: "Iniciar emparejamiento", icon: "pointer", hint: "Una vez encontrado, alguien debe solicitar el emparejamiento." },
+        { id: "auth", label: "Confirmar / autenticar", icon: "hash", hint: "Tras la solicitud, el usuario confirma (por ejemplo, el código) para autenticar al otro dispositivo." },
+        { id: "trust", label: "Establecer confianza", icon: "key-round", hint: "Con la autenticación hecha, las claves se guardan: nace la confianza." },
+        { id: "connect", label: "Establecer conexión", icon: "lock", hint: "La conexión protegida llega al final, usando las claves acordadas." }
       ],
       success: "Descubrir → iniciar → autenticar → confianza → conexión. Cada paso depende del anterior."
     },
@@ -2237,9 +2237,9 @@ Object.assign(lessons, {
           visual: {
             type: "bt-layers",
             layers: [
-              { id: "authn", tone: "authn", icon: "🪪", label: "Autenticación", question: "¿Con quién estoy hablando?", example: "Al reconectarse, los audífonos demuestran con la clave guardada que son los mismos que emparejaste ayer." },
-              { id: "authz", tone: "authz", icon: "🛂", label: "Autorización", question: "¿Qué puede hacer este dispositivo?", example: "Tu teléfono pregunta: «¿Permitir que este reloj acceda a tus contactos?». Puede conectarse, pero solo hace lo que permites." },
-              { id: "crypto", tone: "crypto", icon: "🔐", label: "Cifrado", question: "¿Cómo protegemos la información en el camino?", example: "El audio viaja cifrado: alguien que capture la señal solo ve datos ilegibles." }
+              { id: "authn", tone: "authn", icon: "id-card", label: "Autenticación", question: "¿Con quién estoy hablando?", example: "Al reconectarse, los audífonos demuestran con la clave guardada que son los mismos que emparejaste ayer." },
+              { id: "authz", tone: "authz", icon: "user-check", label: "Autorización", question: "¿Qué puede hacer este dispositivo?", example: "Tu teléfono pregunta: «¿Permitir que este reloj acceda a tus contactos?». Puede conectarse, pero solo hace lo que permites." },
+              { id: "crypto", tone: "crypto", icon: "lock-keyhole", label: "Cifrado", question: "¿Cómo protegemos la información en el camino?", example: "El audio viaja cifrado: alguien que capture la señal solo ve datos ilegibles." }
             ],
             summary: "Autenticación = identidad · Autorización = permisos · Cifrado = confidencialidad. Las tres trabajan juntas."
           },
@@ -2290,23 +2290,23 @@ Object.assign(lessons, {
       type: "packet-sort",
       prompt: "Autenticación, autorización o cifrado",
       instructions: "Clasifica cada situación según el mecanismo que representa principalmente.",
-      itemLabel: "🛡️ Situación",
+      itemIcon: "shield", itemLabel: "Situación",
       countLabel: "Situaciones clasificadas",
       binPrefix: "",
       okTitle: BT_OK,
       wrongTitle: BT_REVIEW,
       bins: [
-        { id: "authn", label: "Autenticación", caption: "¿Con quién hablo?", icon: "🪪" },
-        { id: "authz", label: "Autorización", caption: "¿Qué puede hacer?", icon: "🛂" },
-        { id: "crypto", label: "Cifrado", caption: "¿Cómo se protege?", icon: "🔐" }
+        { id: "authn", label: "Autenticación", caption: "¿Con quién hablo?", icon: "id-card" },
+        { id: "authz", label: "Autorización", caption: "¿Qué puede hacer?", icon: "user-check" },
+        { id: "crypto", label: "Cifrado", caption: "¿Cómo se protege?", icon: "lock-keyhole" }
       ],
       items: [
-        { id: "s1", icon: "🪪", text: "El dispositivo confirma la identidad del otro dispositivo antes de aceptar la conexión.", bin: "authn", explain: "Confirmar identidad = autenticación." },
-        { id: "s2", icon: "🛂", text: "El teléfono permite que el reloj lea notificaciones, pero no los contactos.", bin: "authz", explain: "Decidir qué funciones se permiten = autorización." },
-        { id: "s3", icon: "🔐", text: "La información se protege para que terceros no puedan interpretarla.", bin: "crypto", explain: "Volver ilegible la información para terceros = cifrado." },
-        { id: "s4", icon: "🔢", text: "El usuario comprueba que el código 482 913 coincide en ambas pantallas.", bin: "authn", explain: "Verificar el código asegura con quién te emparejas: autenticación." },
-        { id: "s5", icon: "📁", text: "La laptop pregunta si el teléfono puede enviarle archivos.", bin: "authz", explain: "Conceder o negar una acción concreta = autorización." },
-        { id: "s6", icon: "📡", text: "Alguien captura el tráfico, pero solo obtiene datos ilegibles.", bin: "crypto", explain: "El contenido capturado es ilegible gracias al cifrado." }
+        { id: "s1", icon: "id-card", text: "El dispositivo confirma la identidad del otro dispositivo antes de aceptar la conexión.", bin: "authn", explain: "Confirmar identidad = autenticación." },
+        { id: "s2", icon: "user-check", text: "El teléfono permite que el reloj lea notificaciones, pero no los contactos.", bin: "authz", explain: "Decidir qué funciones se permiten = autorización." },
+        { id: "s3", icon: "lock-keyhole", text: "La información se protege para que terceros no puedan interpretarla.", bin: "crypto", explain: "Volver ilegible la información para terceros = cifrado." },
+        { id: "s4", icon: "hash", text: "El usuario comprueba que el código 482 913 coincide en ambas pantallas.", bin: "authn", explain: "Verificar el código asegura con quién te emparejas: autenticación." },
+        { id: "s5", icon: "folder", text: "La laptop pregunta si el teléfono puede enviarle archivos.", bin: "authz", explain: "Conceder o negar una acción concreta = autorización." },
+        { id: "s6", icon: "radio-tower", text: "Alguien captura el tráfico, pero solo obtiene datos ilegibles.", bin: "crypto", explain: "El contenido capturado es ilegible gracias al cifrado." }
       ],
       hints: {
         authn: "Esta situación trata de verificar la IDENTIDAD del otro dispositivo.",
@@ -2365,13 +2365,13 @@ Object.assign(lessons, {
           visual: {
             type: "threat-cards",
             threats: [
-              { id: "unauth", icon: "🚪", title: "Conexión no autorizada", meaning: "Un dispositivo se conecta sin que lo hayas aprobado.", impact: "Acceso a datos o funciones del dispositivo.", defense: "Rechaza solicitudes que no iniciaste y revisa la lista de dispositivos vinculados." },
-              { id: "unknown", icon: "❔", title: "Dispositivo desconocido", meaning: "Un dispositivo sin identificar aparece cerca o intenta interactuar.", impact: "Puede ser un intento de engaño o de rastreo.", defense: "No te emparejes con lo que no reconoces; identifica antes de confiar." },
-              { id: "exposure", icon: "📢", title: "Exposición innecesaria", meaning: "El dispositivo queda detectable todo el tiempo sin necesitarlo.", impact: "Más fácil de encontrar y de recibir intentos de conexión.", defense: "Activa la visibilidad solo al emparejar y apaga Bluetooth si no lo usas." },
-              { id: "spoof", icon: "🎭", title: "Suplantación", meaning: "Un dispositivo imita el nombre o la identidad de otro conocido.", impact: "El usuario confía en un dispositivo que no es el real.", defense: "Verifica el código al emparejar; el nombre por sí solo no prueba identidad." },
-              { id: "vuln", icon: "🐞", title: "Vulnerabilidades de implementación", meaning: "Fallos en el software Bluetooth de un dispositivo o sistema.", impact: "Pueden comprometer el dispositivo aunque el usuario no haga nada.", defense: "Mantén sistema y firmware actualizados." },
-              { id: "config", icon: "⚙️", title: "Configuración insegura", meaning: "Opciones débiles: PIN fijo como 0000 o emparejar sin verificación.", impact: "Debilita la autenticación y la protección de las claves.", defense: "Usa métodos con confirmación y cambia valores por defecto." },
-              { id: "mitm", icon: "🕵️", title: "Interceptación o manipulación", meaning: "Un tercero se interpone cuando la seguridad del emparejamiento es débil.", impact: "Podría leer o alterar la comunicación.", defense: "Prefiere emparejamiento con verificación y conexiones cifradas." }
+              { id: "unauth", icon: "door-open", title: "Conexión no autorizada", meaning: "Un dispositivo se conecta sin que lo hayas aprobado.", impact: "Acceso a datos o funciones del dispositivo.", defense: "Rechaza solicitudes que no iniciaste y revisa la lista de dispositivos vinculados." },
+              { id: "unknown", icon: "circle-help", title: "Dispositivo desconocido", meaning: "Un dispositivo sin identificar aparece cerca o intenta interactuar.", impact: "Puede ser un intento de engaño o de rastreo.", defense: "No te emparejes con lo que no reconoces; identifica antes de confiar." },
+              { id: "exposure", icon: "megaphone", title: "Exposición innecesaria", meaning: "El dispositivo queda detectable todo el tiempo sin necesitarlo.", impact: "Más fácil de encontrar y de recibir intentos de conexión.", defense: "Activa la visibilidad solo al emparejar y apaga Bluetooth si no lo usas." },
+              { id: "spoof", icon: "venetian-mask", title: "Suplantación", meaning: "Un dispositivo imita el nombre o la identidad de otro conocido.", impact: "El usuario confía en un dispositivo que no es el real.", defense: "Verifica el código al emparejar; el nombre por sí solo no prueba identidad." },
+              { id: "vuln", icon: "bug", title: "Vulnerabilidades de implementación", meaning: "Fallos en el software Bluetooth de un dispositivo o sistema.", impact: "Pueden comprometer el dispositivo aunque el usuario no haga nada.", defense: "Mantén sistema y firmware actualizados." },
+              { id: "config", icon: "settings", title: "Configuración insegura", meaning: "Opciones débiles: PIN fijo como 0000 o emparejar sin verificación.", impact: "Debilita la autenticación y la protección de las claves.", defense: "Usa métodos con confirmación y cambia valores por defecto." },
+              { id: "mitm", icon: "scan-eye", title: "Interceptación o manipulación", meaning: "Un tercero se interpone cuando la seguridad del emparejamiento es débil.", impact: "Podría leer o alterar la comunicación.", defense: "Prefiere emparejamiento con verificación y conexiones cifradas." }
             ]
           },
           check: {
@@ -2387,11 +2387,11 @@ Object.assign(lessons, {
           visual: {
             type: "icon-row",
             items: [
-              { icon: "🙈", label: "Visibilidad mínima", caption: "Detectable solo para emparejar." },
-              { icon: "🚫", label: "Rechaza lo desconocido", caption: "No aceptes solicitudes que no iniciaste." },
-              { icon: "🔢", label: "Verifica el código", caption: "Confirma que coincide en ambos." },
-              { icon: "🔄", label: "Actualiza", caption: "Sistema y firmware al día." },
-              { icon: "🧹", label: "Revisa vinculados", caption: "Elimina lo que ya no usas." }
+              { icon: "eye-off", label: "Visibilidad mínima", caption: "Detectable solo para emparejar." },
+              { icon: "ban", label: "Rechaza lo desconocido", caption: "No aceptes solicitudes que no iniciaste." },
+              { icon: "hash", label: "Verifica el código", caption: "Confirma que coincide en ambos." },
+              { icon: "refresh-cw", label: "Actualiza", caption: "Sistema y firmware al día." },
+              { icon: "eraser", label: "Revisa vinculados", caption: "Elimina lo que ya no usas." }
             ]
           },
           check: {
@@ -2408,12 +2408,12 @@ Object.assign(lessons, {
       prompt: "Analiza el entorno Bluetooth",
       instructions: "Toca cada dispositivo alrededor de la estación de trabajo, revisa su ficha y decide: ¿Seguro o Requiere atención?",
       devices: [
-        { id: "unknown", icon: "❔", name: "«BT-Device»", x: 14, y: 18, facts: ["Envía una solicitud de emparejamiento", "Nadie en la oficina la inició"], answer: "risk", explain: "Un dispositivo desconocido intentando conectarse: rechazar la solicitud." },
-        { id: "speaker", icon: "🔊", name: "Altavoz de sala", x: 84, y: 16, facts: ["Detectable todo el día", "Solo se empareja una vez al mes"], answer: "risk", explain: "Exposición innecesaria: debería ser detectable solo al emparejar." },
-        { id: "band", icon: "⌚", name: "Pulsera deportiva", x: 88, y: 66, facts: ["Su app pide contactos, mensajes y ubicación", "Solo mide pasos"], answer: "risk", explain: "Permisos excesivos: autoriza solo lo que necesita." },
-        { id: "keyboard", icon: "⌨️", name: "Teclado de la estación", x: 30, y: 84, facts: ["Emparejado con comparación numérica", "Firmware actualizado", "No detectable"], answer: "safe", explain: "Configuración correcta: autenticado, actualizado y sin exposición." },
-        { id: "buds", icon: "🎧", name: "Audífonos ajenos", x: 66, y: 86, facts: ["Aparecen conectados a la laptop", "Nadie los conectó"], answer: "risk", explain: "Conexión inesperada: revisar y eliminar el vínculo." },
-        { id: "mouse", icon: "🖱️", name: "Mouse de la estación", x: 10, y: 56, facts: ["Vinculado por el usuario", "Firmware al día"], answer: "safe", explain: "Conexión conocida, aprobada y actualizada." }
+        { id: "unknown", icon: "circle-help", name: "«BT-Device»", x: 14, y: 18, facts: ["Envía una solicitud de emparejamiento", "Nadie en la oficina la inició"], answer: "risk", explain: "Un dispositivo desconocido intentando conectarse: rechazar la solicitud." },
+        { id: "speaker", icon: "volume-2", name: "Altavoz de sala", x: 84, y: 16, facts: ["Detectable todo el día", "Solo se empareja una vez al mes"], answer: "risk", explain: "Exposición innecesaria: debería ser detectable solo al emparejar." },
+        { id: "band", icon: "watch", name: "Pulsera deportiva", x: 88, y: 66, facts: ["Su app pide contactos, mensajes y ubicación", "Solo mide pasos"], answer: "risk", explain: "Permisos excesivos: autoriza solo lo que necesita." },
+        { id: "keyboard", icon: "keyboard", name: "Teclado de la estación", x: 30, y: 84, facts: ["Emparejado con comparación numérica", "Firmware actualizado", "No detectable"], answer: "safe", explain: "Configuración correcta: autenticado, actualizado y sin exposición." },
+        { id: "buds", icon: "headphones", name: "Audífonos ajenos", x: 66, y: 86, facts: ["Aparecen conectados a la laptop", "Nadie los conectó"], answer: "risk", explain: "Conexión inesperada: revisar y eliminar el vínculo." },
+        { id: "mouse", icon: "mouse", name: "Mouse de la estación", x: 10, y: 56, facts: ["Vinculado por el usuario", "Firmware al día"], answer: "safe", explain: "Conexión conocida, aprobada y actualizada." }
       ],
       success: "Detectaste solicitudes desconocidas, exposición innecesaria, permisos excesivos y conexiones inesperadas, y distinguiste las configuraciones correctas."
     },
@@ -2460,7 +2460,7 @@ Object.assign(lessons, {
     labTheme: true,
     doneTitle: "MISIÓN COMPLETADA",
     claim: "Analizaste un entorno Bluetooth completo: quién está, cómo se comunica, en quién se confía y qué representa un riesgo.",
-    badge: { icon: "📶", name: "Analista Bluetooth" },
+    badge: { icon: "wifi", name: "Analista Bluetooth" },
     phases: [
       { id: "s1", label: "Tecnología" },
       { id: "s2", label: "Descubrimiento" },
@@ -2477,11 +2477,11 @@ Object.assign(lessons, {
       ["Amenazas", "reconocer comportamientos anómalos"]
     ],
     devices: [
-      { id: "buds", icon: "🎧", name: "Audífonos de la estación", tech: "classic", discovered: false, paired: true, clues: ["Reproducen audio de las videollamadas sin cortes", "Se reconectan solos cada mañana con la clave guardada"] },
-      { id: "sensor", icon: "🌡️", name: "Sensor ambiental", tech: "ble", discovered: true, paired: false, clues: ["Pila de botón que dura un año", "Envía anuncios cada 2 s; nadie se ha emparejado con él"] },
-      { id: "band", icon: "⌚", name: "Pulsera del analista", tech: "ble", discovered: false, paired: true, clues: ["Sincroniza pasos en pequeñas ráfagas", "Vinculada al teléfono del analista desde hace meses"] },
-      { id: "speaker", icon: "🔊", name: "Altavoz de la sala", tech: "classic", discovered: true, paired: false, clues: ["Reproduce música de forma continua", "En modo emparejamiento todo el día; aparece en cualquier escaneo"] },
-      { id: "tag", icon: "🏷️", name: "Etiqueta «BT-7F3A»", tech: "ble", discovered: true, paired: false, clues: ["Baliza diminuta que emite anuncios cortos", "Nadie la reconoce; aparece en el escaneo cerca de la estación"] }
+      { id: "buds", icon: "headphones", name: "Audífonos de la estación", tech: "classic", discovered: false, paired: true, clues: ["Reproducen audio de las videollamadas sin cortes", "Se reconectan solos cada mañana con la clave guardada"] },
+      { id: "sensor", icon: "thermometer", name: "Sensor ambiental", tech: "ble", discovered: true, paired: false, clues: ["Pila de botón que dura un año", "Envía anuncios cada 2 s; nadie se ha emparejado con él"] },
+      { id: "band", icon: "watch", name: "Pulsera del analista", tech: "ble", discovered: false, paired: true, clues: ["Sincroniza pasos en pequeñas ráfagas", "Vinculada al teléfono del analista desde hace meses"] },
+      { id: "speaker", icon: "volume-2", name: "Altavoz de la sala", tech: "classic", discovered: true, paired: false, clues: ["Reproduce música de forma continua", "En modo emparejamiento todo el día; aparece en cualquier escaneo"] },
+      { id: "tag", icon: "tag", name: "Etiqueta «BT-7F3A»", tech: "ble", discovered: true, paired: false, clues: ["Baliza diminuta que emite anuncios cortos", "Nadie la reconoce; aparece en el escaneo cerca de la estación"] }
     ],
     events: [
       { id: "e1", text: "Al reconectarse, los audífonos prueban con la clave guardada que son los mismos de ayer.", answer: "authn" },
@@ -2555,10 +2555,10 @@ lessons[M1_MISSION_ID] = {
   labTheme: true,
   doneTitle: "MISIÓN COMPLETADA",
   claim: "Leíste un entorno Wi-Fi como lo hace un analista: estándares, identidades, dispositivos, canales y tramas.",
-  badge: { icon: "📡", name: "Explorador Wi-Fi" },
+  badge: { icon: "radio-tower", name: "Explorador Wi-Fi" },
   brief: {
     file: "Expediente · Módulo 1",
-    heading: "📡 Misión: Reconocimiento Wi-Fi",
+    headingIcon: "radio-tower", heading: "Misión: Reconocimiento Wi-Fi",
     text: "El equipo de TI del colegio sospecha que alguien instaló un punto de acceso falso. Te entregan un escaneo del edificio. Analízalo paso a paso con todo lo que aprendiste en el módulo."
   },
   scan: {
@@ -2676,8 +2676,8 @@ const M2_MISSION_ID = "m2-mision";
 moduleMissions[2] = { missionId: M2_MISSION_ID, sequence: M2_SEQUENCE };
 
 // Feedback con el formato pedido para este módulo (texto + color, nunca solo color).
-const M2_OK = "✓ Correcto";
-const M2_RETRY = "✗ Inténtalo de nuevo";
+const M2_OK = "Correcto";
+const M2_RETRY = "Inténtalo de nuevo";
 const M2_COMMON = { labTheme: true, feedbackTitles: [M2_OK, M2_RETRY], quizOkTitle: M2_OK, quizWrongTitle: M2_RETRY };
 
 Object.assign(lessons, {
@@ -2699,10 +2699,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "name", label: "🔤 Significado", sublabel: "Wired Equivalent Privacy", detail: "«Privacidad equivalente a la cableada»: la idea era que el aire fuera tan privado como un cable." },
-              { id: "goal", label: "🎯 Propósito", sublabel: "Proteger lo que viaja por el aire", detail: "Cifraba las tramas entre los dispositivos y el punto de acceso para que alguien cercano no pudiera leerlas." },
-              { id: "how", label: "🔑 Cómo", sublabel: "Una clave para todos + RC4", detail: "La misma clave se configuraba en el AP y en cada dispositivo, y se combinaba con el cifrador RC4." },
-              { id: "era", label: "📅 Su época", sublabel: "1997, el 802.11 original", detail: "Fue un avance histórico: la primera protección estándar de Wi-Fi. Pero se diseñó antes de entender bien sus riesgos." }
+              { id: "name", icon: "type", label: "Significado", sublabel: "Wired Equivalent Privacy", detail: "«Privacidad equivalente a la cableada»: la idea era que el aire fuera tan privado como un cable." },
+              { id: "goal", icon: "target", label: "Propósito", sublabel: "Proteger lo que viaja por el aire", detail: "Cifraba las tramas entre los dispositivos y el punto de acceso para que alguien cercano no pudiera leerlas." },
+              { id: "how", icon: "key-round", label: "Cómo", sublabel: "Una clave para todos + RC4", detail: "La misma clave se configuraba en el AP y en cada dispositivo, y se combinaba con el cifrador RC4." },
+              { id: "era", icon: "calendar", label: "Su época", sublabel: "1997, el 802.11 original", detail: "Fue un avance histórico: la primera protección estándar de Wi-Fi. Pero se diseñó antes de entender bien sus riesgos." }
             ]
           },
           check: {
@@ -2720,18 +2720,18 @@ Object.assign(lessons, {
             prompt: "Elige un modo para ver la comunicación.",
             modes: [
               {
-                id: "wep", label: "Con WEP", icon: "🔓", tone: "bad",
-                nodes: [{ icon: "💻", label: "Laptop A" }, { icon: "📡", label: "Punto de acceso" }, { icon: "💻", label: "Laptop B" }],
+                id: "wep", label: "Con WEP", icon: "lock-open", tone: "bad",
+                nodes: [{ icon: "laptop", label: "Laptop A" }, { icon: "radio-tower", label: "Punto de acceso" }, { icon: "laptop", label: "Laptop B" }],
                 links: [{ label: "RC4 · clave compartida" }, { label: "RC4 · clave compartida" }],
                 packet: "WEP",
                 observer: { title: "Alguien cerca, con suficientes tramas…", text: "puede recuperar la clave WEP con herramientas conocidas desde hace años y leer el tráfico." },
                 detail: "WEP sí cifraba, pero mal: su vector de inicialización (IV) es de solo 24 bits y se repite, la misma clave sirve para todos y casi nunca cambia, y su control de integridad (CRC-32) no impide alterar mensajes."
               },
               {
-                id: "modern", label: "Con seguridad moderna", icon: "🔒", tone: "ok",
-                nodes: [{ icon: "💻", label: "Laptop A" }, { icon: "📡", label: "Punto de acceso" }, { icon: "💻", label: "Laptop B" }],
+                id: "modern", label: "Con seguridad moderna", icon: "lock", tone: "ok",
+                nodes: [{ icon: "laptop", label: "Laptop A" }, { icon: "radio-tower", label: "Punto de acceso" }, { icon: "laptop", label: "Laptop B" }],
                 links: [{ label: "AES-CCMP · clave de sesión" }, { label: "AES-CCMP · clave de sesión" }],
-                packet: "🔒",
+                packet: "lock",
                 observer: { title: "Alguien cerca…", text: "ve que hay tráfico, pero no puede leerlo sin la clave de la sesión, y el protocolo detecta si alguien altera un mensaje." },
                 detail: "WPA2 y WPA3-Personal cifran con AES-CCMP y derivan claves nuevas en cada conexión. Aun así, el nivel real depende del protocolo configurado, de la contraseña y del estado de los equipos."
               }
@@ -2752,10 +2752,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada debilidad.",
             nodes: [
-              { id: "iv", label: "🔁 IV de 24 bits", sublabel: "Se repite pronto", detail: "Solo hay unos 16,7 millones de valores: en una red con tráfico se repiten rápido, y repetir un IV con la misma clave filtra información." },
-              { id: "key", label: "🔑 Clave estática y compartida", sublabel: "La misma para todos", detail: "No se renueva por sesión: si se descubre, sirve para leer el tráfico de todos los dispositivos." },
-              { id: "icv", label: "🧩 Integridad débil", sublabel: "CRC-32", detail: "Su comprobación de integridad no es criptográfica: un atacante puede modificar paquetes sin que se note." },
-              { id: "status", label: "🚫 Estado actual", sublabel: "Obsoleto desde 2004", detail: "El IEEE lo declaró obsoleto al aprobar 802.11i (la base de WPA2). Los equipos modernos ya no lo ofrecen o lo marcan como inseguro." }
+              { id: "iv", icon: "repeat", label: "IV de 24 bits", sublabel: "Se repite pronto", detail: "Solo hay unos 16,7 millones de valores: en una red con tráfico se repiten rápido, y repetir un IV con la misma clave filtra información." },
+              { id: "key", icon: "key-round", label: "Clave estática y compartida", sublabel: "La misma para todos", detail: "No se renueva por sesión: si se descubre, sirve para leer el tráfico de todos los dispositivos." },
+              { id: "icv", icon: "puzzle", label: "Integridad débil", sublabel: "CRC-32", detail: "Su comprobación de integridad no es criptográfica: un atacante puede modificar paquetes sin que se note." },
+              { id: "status", icon: "ban", label: "Estado actual", sublabel: "Obsoleto desde 2004", detail: "El IEEE lo declaró obsoleto al aprobar 802.11i (la base de WPA2). Los equipos modernos ya no lo ofrecen o lo marcan como inseguro." }
             ]
           },
           check: {
@@ -2779,10 +2779,10 @@ Object.assign(lessons, {
         { id: "modern", label: "Más moderna" }
       ],
       items: [
-        { id: "bodega", icon: "🏚️", name: "Bodega_2009", clues: ["Seguridad: WEP", "Router de 2009"], answer: "obsolete", explain: "WEP es obsoleto: necesita actualizarse a WPA2 (solo AES) o WPA3.", hint: "Piensa en lo que viste: ¿las fallas de WEP se arreglan con una buena clave?" },
-        { id: "oficina", icon: "🏢", name: "Oficina_Central", clues: ["WPA2-Personal", "Cifrado AES-CCMP", "Contraseña larga y única"], answer: "ok", explain: "Protocolo vigente, cifrado AES y contraseña robusta: adecuada si se mantiene actualizada.", hint: "Es un protocolo vigente y bien configurado, pero no el más reciente." },
-        { id: "docentes", icon: "🏫", name: "Sala_Docentes", clues: ["WPA3-Personal (SAE)", "Firmware al día"], answer: "modern", explain: "WPA3 es la generación más reciente; con firmware al día es la opción más moderna de la lista.", hint: "Busca el protocolo de generación más reciente." },
-        { id: "cafe", icon: "☕", name: "Cafe_Libre", clues: ["Red abierta", "Sin contraseña ni cifrado Wi-Fi"], answer: "none", explain: "Sin autenticación ni cifrado Wi-Fi: cualquiera puede conectarse y el enlace no tiene la protección de Wi-Fi. Necesita actualizarse.", hint: "No pide contraseña y no cifra el enlace: ¿qué protección Wi-Fi tiene?" }
+        { id: "bodega", icon: "warehouse", name: "Bodega_2009", clues: ["Seguridad: WEP", "Router de 2009"], answer: "obsolete", explain: "WEP es obsoleto: necesita actualizarse a WPA2 (solo AES) o WPA3.", hint: "Piensa en lo que viste: ¿las fallas de WEP se arreglan con una buena clave?" },
+        { id: "oficina", icon: "building-2", name: "Oficina_Central", clues: ["WPA2-Personal", "Cifrado AES-CCMP", "Contraseña larga y única"], answer: "ok", explain: "Protocolo vigente, cifrado AES y contraseña robusta: adecuada si se mantiene actualizada.", hint: "Es un protocolo vigente y bien configurado, pero no el más reciente." },
+        { id: "docentes", icon: "school", name: "Sala_Docentes", clues: ["WPA3-Personal (SAE)", "Firmware al día"], answer: "modern", explain: "WPA3 es la generación más reciente; con firmware al día es la opción más moderna de la lista.", hint: "Busca el protocolo de generación más reciente." },
+        { id: "cafe", icon: "coffee", name: "Cafe_Libre", clues: ["Red abierta", "Sin contraseña ni cifrado Wi-Fi"], answer: "none", explain: "Sin autenticación ni cifrado Wi-Fi: cualquiera puede conectarse y el enlace no tiene la protección de Wi-Fi. Necesita actualizarse.", hint: "No pide contraseña y no cifra el enlace: ¿qué protección Wi-Fi tiene?" }
       ],
       success: "WEP y las redes abiertas necesitan actualizarse. WPA2 con AES bien configurado es adecuado; WPA3 es lo más moderno. Pero ninguna etiqueta garantiza la seguridad por sí sola: también importan la contraseña, el firmware y la configuración."
     },
@@ -2813,19 +2813,19 @@ Object.assign(lessons, {
             type: "bt-compare",
             prompt: "Toca cada etapa.",
             options: [
-              { id: "wep", icon: "🕰️", label: "WEP", tag: "1997", tone: "bad", rows: [
+              { id: "wep", icon: "history", label: "WEP", tag: "1997", tone: "bad", rows: [
                 { k: "Contexto", v: "La primera protección del estándar 802.11." },
                 { k: "Mejora", v: "Introdujo el cifrado en Wi-Fi." },
                 { k: "Limitaciones", v: "IV corto, clave estática, integridad débil." },
                 { k: "Hoy", v: "Obsoleto: no debe usarse." }
               ] },
-              { id: "wpa", icon: "🩹", label: "WPA", tag: "2003", tone: "warn", rows: [
+              { id: "wpa", icon: "bandage", label: "WPA", tag: "2003", tone: "warn", rows: [
                 { k: "Contexto", v: "Una solución de transición mientras se terminaba 802.11i, pensada para que equipos de la época de WEP pudieran actualizarse." },
                 { k: "Mejora", v: "TKIP: mezcla una clave distinta para cada paquete y agrega un control de integridad (Michael) en lugar de CRC-32." },
                 { k: "Limitaciones", v: "TKIP sigue basado en RC4 y tiene debilidades conocidas." },
                 { k: "Hoy", v: "Heredado: conviene pasar a WPA2 o WPA3." }
               ] },
-              { id: "wpa2", icon: "🛡️", label: "WPA2", tag: "2004", tone: "ok", rows: [
+              { id: "wpa2", icon: "shield", label: "WPA2", tag: "2004", tone: "ok", rows: [
                 { k: "Contexto", v: "Implementa el estándar 802.11i completo." },
                 { k: "Mejora", v: "AES-CCMP: cifrado AES con un control de integridad robusto, obligatorio en equipos certificados WPA2." },
                 { k: "Limitaciones", v: "En modo Personal, una contraseña débil puede adivinarse; y algunos equipos aún permiten activar TKIP." },
@@ -2848,10 +2848,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada pieza.",
             nodes: [
-              { id: "aes", label: "🔐 AES", sublabel: "El cifrador", detail: "Un cifrador por bloques moderno y muy estudiado: sin la clave, los datos son ilegibles." },
-              { id: "ccmp", label: "🧾 CCMP", sublabel: "Cómo se usa AES en Wi-Fi", detail: "Cifra cada trama y le agrega un código de integridad: si alguien la altera, el receptor lo detecta." },
-              { id: "session", label: "🔄 Claves por sesión", sublabel: "No es la contraseña", detail: "La clave de cifrado se deriva en cada conexión (lo verás en el Four-Way Handshake del Módulo 3)." },
-              { id: "tkip", label: "⚠️ TKIP", sublabel: "El modo heredado", detail: "Algunos routers lo siguen ofreciendo por compatibilidad. Si ves «WPA2-TKIP» o «AES+TKIP», conviene dejar solo AES." }
+              { id: "aes", icon: "lock-keyhole", label: "AES", sublabel: "El cifrador", detail: "Un cifrador por bloques moderno y muy estudiado: sin la clave, los datos son ilegibles." },
+              { id: "ccmp", icon: "receipt", label: "CCMP", sublabel: "Cómo se usa AES en Wi-Fi", detail: "Cifra cada trama y le agrega un código de integridad: si alguien la altera, el receptor lo detecta." },
+              { id: "session", icon: "refresh-cw", label: "Claves por sesión", sublabel: "No es la contraseña", detail: "La clave de cifrado se deriva en cada conexión (lo verás en el Four-Way Handshake del Módulo 3)." },
+              { id: "tkip", icon: "triangle-alert", label: "TKIP", sublabel: "El modo heredado", detail: "Algunos routers lo siguen ofreciendo por compatibilidad. Si ves «WPA2-TKIP» o «AES+TKIP», conviene dejar solo AES." }
             ]
           },
           check: {
@@ -2892,22 +2892,22 @@ Object.assign(lessons, {
       type: "packet-sort",
       prompt: "Selecciona la protección adecuada",
       instructions: "Decide si cada configuración es recomendable o necesita actualizarse. El nombre del protocolo no lo es todo: fíjate también en el cifrado, el modo y la contraseña.",
-      itemLabel: "📶 Configuración",
+      itemIcon: "wifi", itemLabel: "Configuración",
       countLabel: "Configuraciones revisadas",
       binPrefix: "",
       okTitle: M2_OK,
       wrongTitle: M2_RETRY,
       bins: [
-        { id: "ok", label: "Recomendable", caption: "Mantener", icon: "✅" },
-        { id: "update", label: "Necesita actualizarse", caption: "Cambiar configuración o equipo", icon: "🔧" }
+        { id: "ok", label: "Recomendable", caption: "Mantener", icon: "circle-check" },
+        { id: "update", label: "Necesita actualizarse", caption: "Cambiar configuración o equipo", icon: "wrench" }
       ],
       items: [
-        { id: "wep", icon: "🏚️", text: "Red antigua que todavía usa WEP.", bin: "update", explain: "WEP es obsoleto: no basta con cambiarle la clave.", hint: "¿La debilidad de WEP está en la clave o en su diseño?" },
-        { id: "wpa2aes", icon: "🛡️", text: "Router con WPA2-Personal, solo AES-CCMP y una contraseña larga y única.", bin: "ok", explain: "Protocolo vigente, cifrado AES y contraseña robusta: buena combinación.", hint: "Revisa los tres factores: protocolo, cifrado y contraseña. ¿Alguno falla?" },
-        { id: "wpa2tkip", icon: "⚠️", text: "Router con WPA2, pero configurado con TKIP por un equipo viejo.", bin: "update", explain: "El nombre dice WPA2, pero TKIP es heredado: conviene usar solo AES-CCMP.", hint: "Mira el mecanismo de cifrado, no solo el nombre del protocolo." },
-        { id: "wpa", icon: "🩹", text: "Red con WPA original (TKIP).", bin: "update", explain: "WPA original fue una transición; hoy se considera heredado.", hint: "WPA fue el puente entre WEP y WPA2: ¿sigue siendo lo recomendado?" },
-        { id: "weak", icon: "🔑", text: "WPA2 con AES, pero la contraseña es «12345678».", bin: "update", explain: "El protocolo está bien, pero en modo Personal una contraseña débil puede adivinarse: hay que cambiarla.", hint: "El protocolo no es el único factor: ¿qué pasa con esa contraseña?" },
-        { id: "ent", icon: "🏫", text: "Colegio con WPA2-Enterprise, cuentas individuales y AES.", bin: "ok", explain: "Autenticación individual (802.1X) y cifrado AES: adecuado para una institución.", hint: "Credenciales por persona y cifrado AES: ¿qué le faltaría?" }
+        { id: "wep", icon: "warehouse", text: "Red antigua que todavía usa WEP.", bin: "update", explain: "WEP es obsoleto: no basta con cambiarle la clave.", hint: "¿La debilidad de WEP está en la clave o en su diseño?" },
+        { id: "wpa2aes", icon: "shield", text: "Router con WPA2-Personal, solo AES-CCMP y una contraseña larga y única.", bin: "ok", explain: "Protocolo vigente, cifrado AES y contraseña robusta: buena combinación.", hint: "Revisa los tres factores: protocolo, cifrado y contraseña. ¿Alguno falla?" },
+        { id: "wpa2tkip", icon: "triangle-alert", text: "Router con WPA2, pero configurado con TKIP por un equipo viejo.", bin: "update", explain: "El nombre dice WPA2, pero TKIP es heredado: conviene usar solo AES-CCMP.", hint: "Mira el mecanismo de cifrado, no solo el nombre del protocolo." },
+        { id: "wpa", icon: "bandage", text: "Red con WPA original (TKIP).", bin: "update", explain: "WPA original fue una transición; hoy se considera heredado.", hint: "WPA fue el puente entre WEP y WPA2: ¿sigue siendo lo recomendado?" },
+        { id: "weak", icon: "key-round", text: "WPA2 con AES, pero la contraseña es «12345678».", bin: "update", explain: "El protocolo está bien, pero en modo Personal una contraseña débil puede adivinarse: hay que cambiarla.", hint: "El protocolo no es el único factor: ¿qué pasa con esa contraseña?" },
+        { id: "ent", icon: "school", text: "Colegio con WPA2-Enterprise, cuentas individuales y AES.", bin: "ok", explain: "Autenticación individual (802.1X) y cifrado AES: adecuado para una institución.", hint: "Credenciales por persona y cifrado AES: ¿qué le faltaría?" }
       ],
       hints: { ok: "Revisa si el protocolo, el cifrado y la contraseña son adecuados.", update: "Busca el factor débil: protocolo, cifrado o contraseña." },
       success: "El nombre del protocolo no lo es todo: importan también el cifrado (AES, no TKIP), el modo (Personal o Enterprise) y la contraseña."
@@ -2939,10 +2939,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "why", label: "🎯 Por qué nació", sublabel: "Reforzar a WPA2", detail: "Para cubrir puntos débiles de WPA2, sobre todo cuando la contraseña de una red Personal es débil." },
-              { id: "sae", label: "🔑 SAE", sublabel: "En WPA3-Personal", detail: "SAE (Simultaneous Authentication of Equals) reemplaza el intercambio con clave precompartida (PSK) de WPA2-Personal." },
-              { id: "pmf", label: "🛡️ PMF obligatorio", sublabel: "Tramas de gestión protegidas", detail: "WPA3 exige protección de tramas de gestión (802.11w), que dificulta, por ejemplo, falsificar desautenticaciones." },
-              { id: "ent", label: "🏢 WPA3-Enterprise", sublabel: "802.1X + más exigencias", detail: "Sigue usando 802.1X y suma requisitos; tiene un modo opcional de 192 bits para entornos con necesidades altas." }
+              { id: "why", icon: "target", label: "Por qué nació", sublabel: "Reforzar a WPA2", detail: "Para cubrir puntos débiles de WPA2, sobre todo cuando la contraseña de una red Personal es débil." },
+              { id: "sae", icon: "key-round", label: "SAE", sublabel: "En WPA3-Personal", detail: "SAE (Simultaneous Authentication of Equals) reemplaza el intercambio con clave precompartida (PSK) de WPA2-Personal." },
+              { id: "pmf", icon: "shield", label: "PMF obligatorio", sublabel: "Tramas de gestión protegidas", detail: "WPA3 exige protección de tramas de gestión (802.11w), que dificulta, por ejemplo, falsificar desautenticaciones." },
+              { id: "ent", icon: "building-2", label: "WPA3-Enterprise", sublabel: "802.1X + más exigencias", detail: "Sigue usando 802.1X y suma requisitos; tiene un modo opcional de 192 bits para entornos con necesidades altas." }
             ]
           },
           check: {
@@ -2959,14 +2959,14 @@ Object.assign(lessons, {
             type: "bt-compare",
             prompt: "Toca cada protocolo.",
             options: [
-              { id: "wpa2", icon: "🛡️", label: "WPA2-Personal", tag: "PSK", tone: "warn", rows: [
+              { id: "wpa2", icon: "shield", label: "WPA2-Personal", tag: "PSK", tone: "warn", rows: [
                 { k: "Autenticación", v: "Clave precompartida (PSK) y Four-Way Handshake" },
                 { k: "Contraseña débil", v: "Si alguien captura el handshake, puede probar contraseñas sin conexión (offline), sin límite de intentos" },
                 { k: "Si la contraseña se filtra luego", v: "Se podría descifrar tráfico capturado antes" },
                 { k: "Tramas de gestión", v: "Protección (PMF) opcional" },
                 { k: "Compatibilidad", v: "Prácticamente todos los dispositivos" }
               ] },
-              { id: "wpa3", icon: "🔰", label: "WPA3-Personal", tag: "SAE", tone: "ok", rows: [
+              { id: "wpa3", icon: "shield-check", label: "WPA3-Personal", tag: "SAE", tone: "ok", rows: [
                 { k: "Autenticación", v: "SAE: ambos lados prueban que conocen la contraseña sin exponerla" },
                 { k: "Contraseña débil", v: "Capturar el intercambio no basta para probar contraseñas offline: cada intento exige interactuar con la red" },
                 { k: "Si la contraseña se filtra luego", v: "El tráfico capturado antes sigue protegido (secreto hacia adelante)" },
@@ -2990,9 +2990,9 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "base", label: "🏢 WPA3-Enterprise", sublabel: "Base", detail: "Usa 802.1X como WPA2-Enterprise y exige PMF." },
-              { id: "192", label: "🔒 Modo de 192 bits", sublabel: "Opcional", detail: "Para entornos con requisitos altos: exige suites criptográficas más fuertes (como GCMP-256)." },
-              { id: "config", label: "⚙️ La configuración manda", sublabel: "EAP y certificados", detail: "El nivel real depende del método de autenticación (EAP), de que los equipos validen el certificado del servidor y de cómo se administre." }
+              { id: "base", icon: "building-2", label: "WPA3-Enterprise", sublabel: "Base", detail: "Usa 802.1X como WPA2-Enterprise y exige PMF." },
+              { id: "192", icon: "lock", label: "Modo de 192 bits", sublabel: "Opcional", detail: "Para entornos con requisitos altos: exige suites criptográficas más fuertes (como GCMP-256)." },
+              { id: "config", icon: "settings", label: "La configuración manda", sublabel: "EAP y certificados", detail: "El nivel real depende del método de autenticación (EAP), de que los equipos validen el certificado del servidor y de cómo se administre." }
             ]
           },
           check: {
@@ -3011,7 +3011,7 @@ Object.assign(lessons, {
       scenario: {
         title: "Escenario: colegio pequeño (ficticio)",
         text: "El router admite WPA2 y WPA3. Las laptops y los teléfonos del personal son nuevos y compatibles con WPA3; la impresora es de 2015 y solo admite WPA2.",
-        devices: ["📡 Router WPA2/WPA3", "💻 Laptops (WPA3)", "📱 Teléfonos (WPA3)", "🖨️ Impresora (solo WPA2)"]
+        devices: [{ icon: "radio-tower", label: "Router WPA2/WPA3" }, { icon: "laptop", label: "Laptops (WPA3)" }, { icon: "smartphone", label: "Teléfonos (WPA3)" }, { icon: "printer", label: "Impresora (solo WPA2)" }]
       },
       decisions: [
         {
@@ -3076,15 +3076,15 @@ Object.assign(lessons, {
             prompt: "Elige un modo.",
             modes: [
               {
-                id: "open", label: "Sin cifrado Wi-Fi", icon: "🔓", tone: "bad",
-                nodes: [{ icon: "💻", label: "Laptop" }, { icon: "📡", label: "Punto de acceso" }, { icon: "🌐", label: "Internet" }],
+                id: "open", label: "Sin cifrado Wi-Fi", icon: "lock-open", tone: "bad",
+                nodes: [{ icon: "laptop", label: "Laptop" }, { icon: "radio-tower", label: "Punto de acceso" }, { icon: "globe", label: "Internet" }],
                 links: [{ label: "aire · sin cifrado Wi-Fi", packet: "nota=95" }, { label: "cable / internet", tone: "plain" }],
                 observer: { title: "Lo que captaría alguien cerca del AP", text: "usuario=ana&nota=95 → legible, salvo que la aplicación use su propio cifrado (como HTTPS)." },
                 detail: "En una red abierta, el tramo inalámbrico no tiene la protección criptográfica de Wi-Fi."
               },
               {
-                id: "wifi", label: "Con cifrado Wi-Fi", icon: "🔒", tone: "ok",
-                nodes: [{ icon: "💻", label: "Laptop" }, { icon: "📡", label: "Punto de acceso" }, { icon: "🌐", label: "Internet" }],
+                id: "wifi", label: "Con cifrado Wi-Fi", icon: "lock", tone: "ok",
+                nodes: [{ icon: "laptop", label: "Laptop" }, { icon: "radio-tower", label: "Punto de acceso" }, { icon: "globe", label: "Internet" }],
                 links: [{ label: "aire · cifrado (AES-CCMP)", packet: "9f3a…" }, { label: "cable / internet · sin la protección de Wi-Fi", tone: "plain" }],
                 observer: { title: "Lo que captaría alguien cerca del AP", text: "9f 3a c1 7e 02 d8 … → ilegible sin la clave de la sesión." },
                 detail: "El cifrado Wi-Fi protege el tramo entre la laptop y el AP. Después del AP los datos ya no tienen esa protección: para todo el recorrido hacen falta medidas como HTTPS."
@@ -3127,12 +3127,12 @@ Object.assign(lessons, {
           explanation: "Cumplen funciones relacionadas, pero distintas. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "🔒 Cifrado", rows: [
+            left: { icon: "lock", title: "Cifrado", rows: [
               { label: "Responde", value: "¿Quién puede leer el mensaje?" },
               { label: "Protege", value: "El contenido (y su integridad, si el mecanismo la incluye)" },
               { label: "Ejemplo en Wi-Fi", value: "AES-CCMP en WPA2" }
             ] },
-            right: { title: "🪪 Autenticación", rows: [
+            right: { icon: "id-card", title: "Autenticación", rows: [
               { label: "Responde", value: "¿Quién puede entrar a la red?" },
               { label: "Protege", value: "El acceso: verifica credenciales" },
               { label: "Ejemplo en Wi-Fi", value: "Contraseña (Personal) o 802.1X (Enterprise)" }
@@ -3159,11 +3159,11 @@ Object.assign(lessons, {
         { id: "app", label: "Cifrado Wi-Fi, app sin protección propia" }
       ],
       items: [
-        { id: "cafe", icon: "☕", name: "Café con red abierta", clues: ["Red sin contraseña", "Página http://"], answer: "none", explain: "Ni el enlace Wi-Fi ni la página están cifrados: alguien cerca podría leer lo que se envía.", hint: "¿La red pide contraseña y cifra el enlace?" },
-        { id: "printer", icon: "🖨️", name: "Documento a la impresora", clues: ["Oficina con WPA2-AES", "Laptop → impresora de la misma red"], answer: "wifi", explain: "El tramo inalámbrico va cifrado por WPA2: protege contra quien escucha el aire. Los equipos de la propia red siguen siendo puntos a cuidar.", hint: "Todo ocurre dentro de una red Wi-Fi cifrada, sin salir a internet." },
-        { id: "bank", icon: "🏦", name: "Banca en línea", clues: ["Red WPA3 del colegio", "Sitio https://"], answer: "https", explain: "Dos capas: Wi-Fi protege el aire y HTTPS protege los datos de extremo a extremo hasta el banco.", hint: "Fíjate en la dirección del sitio: además de la red, ¿hay otra capa?" },
-        { id: "chat", icon: "💬", name: "App de chat antigua", clues: ["Red WPA2 de la casa", "La app envía los mensajes sin cifrar a su servidor"], answer: "app", explain: "Wi-Fi solo protege hasta el router; desde ahí los mensajes viajan legibles por internet. Hace falta una app con cifrado propio.", hint: "La red está cifrada, pero ¿qué pasa con los mensajes después del router?" },
-        { id: "airport", icon: "✈️", name: "Aeropuerto", clues: ["Red abierta", "Sitio https://"], answer: "none", explain: "El enlace Wi-Fi no está cifrado. HTTPS sí protege el contenido de esa página, pero otro tráfico del equipo sin cifrado propio quedaría expuesto.", hint: "Clasifica según el enlace Wi-Fi: ¿la red cifra el aire?" }
+        { id: "cafe", icon: "coffee", name: "Café con red abierta", clues: ["Red sin contraseña", "Página http://"], answer: "none", explain: "Ni el enlace Wi-Fi ni la página están cifrados: alguien cerca podría leer lo que se envía.", hint: "¿La red pide contraseña y cifra el enlace?" },
+        { id: "printer", icon: "printer", name: "Documento a la impresora", clues: ["Oficina con WPA2-AES", "Laptop → impresora de la misma red"], answer: "wifi", explain: "El tramo inalámbrico va cifrado por WPA2: protege contra quien escucha el aire. Los equipos de la propia red siguen siendo puntos a cuidar.", hint: "Todo ocurre dentro de una red Wi-Fi cifrada, sin salir a internet." },
+        { id: "bank", icon: "landmark", name: "Banca en línea", clues: ["Red WPA3 del colegio", "Sitio https://"], answer: "https", explain: "Dos capas: Wi-Fi protege el aire y HTTPS protege los datos de extremo a extremo hasta el banco.", hint: "Fíjate en la dirección del sitio: además de la red, ¿hay otra capa?" },
+        { id: "chat", icon: "message-circle", name: "App de chat antigua", clues: ["Red WPA2 de la casa", "La app envía los mensajes sin cifrar a su servidor"], answer: "app", explain: "Wi-Fi solo protege hasta el router; desde ahí los mensajes viajan legibles por internet. Hace falta una app con cifrado propio.", hint: "La red está cifrada, pero ¿qué pasa con los mensajes después del router?" },
+        { id: "airport", icon: "plane", name: "Aeropuerto", clues: ["Red abierta", "Sitio https://"], answer: "none", explain: "El enlace Wi-Fi no está cifrado. HTTPS sí protege el contenido de esa página, pero otro tráfico del equipo sin cifrado propio quedaría expuesto.", hint: "Clasifica según el enlace Wi-Fi: ¿la red cifra el aire?" }
       ],
       success: "Cada capa protege un tramo: el cifrado Wi-Fi cuida el aire; HTTPS o el cifrado de la aplicación cuidan el recorrido completo. Una no reemplaza a la otra."
     },
@@ -3195,24 +3195,24 @@ Object.assign(lessons, {
             prompt: "Elige un modo.",
             modes: [
               {
-                id: "personal", label: "WPA-Personal", icon: "🏠", tone: "info",
+                id: "personal", label: "WPA-Personal", icon: "house", tone: "info",
                 nodes: [
-                  { icon: "📱", label: "Dispositivo", detail: "Conoce la contraseña de la red: la misma que usan todos." },
-                  { icon: "📡", label: "Punto de acceso", detail: "Comprueba que el dispositivo conoce la contraseña compartida." },
-                  { icon: "🌐", label: "Red", detail: "Una vez dentro, el dispositivo usa la red." }
+                  { icon: "smartphone", label: "Dispositivo", detail: "Conoce la contraseña de la red: la misma que usan todos." },
+                  { icon: "radio-tower", label: "Punto de acceso", detail: "Comprueba que el dispositivo conoce la contraseña compartida." },
+                  { icon: "globe", label: "Red", detail: "Una vez dentro, el dispositivo usa la red." }
                 ],
-                links: [{ label: "🔑 contraseña compartida" }, { label: "acceso" }],
+                links: [{ icon: "key-round", label: "contraseña compartida" }, { label: "acceso" }],
                 detail: "Todos comparten una contraseña. Es simple y habitual en hogares y redes pequeñas; su seguridad depende, entre otras cosas, de que sea robusta y se mantenga privada."
               },
               {
-                id: "enterprise", label: "WPA-Enterprise", icon: "🏢", tone: "info",
+                id: "enterprise", label: "WPA-Enterprise", icon: "building-2", tone: "info",
                 nodes: [
-                  { icon: "📱", label: "Dispositivo", detail: "Presenta una credencial propia: usuario y contraseña, o un certificado." },
-                  { icon: "📡", label: "Punto de acceso", detail: "No decide solo: reenvía la solicitud al servidor de autenticación (802.1X)." },
-                  { icon: "🗄️", label: "Servidor RADIUS", detail: "Verifica la credencial y responde si se permite el acceso, según las políticas." },
-                  { icon: "🌐", label: "Red", detail: "El acceso puede depender de quién es la persona (por ejemplo, docente o estudiante)." }
+                  { icon: "smartphone", label: "Dispositivo", detail: "Presenta una credencial propia: usuario y contraseña, o un certificado." },
+                  { icon: "radio-tower", label: "Punto de acceso", detail: "No decide solo: reenvía la solicitud al servidor de autenticación (802.1X)." },
+                  { icon: "server", label: "Servidor RADIUS", detail: "Verifica la credencial y responde si se permite el acceso, según las políticas." },
+                  { icon: "globe", label: "Red", detail: "El acceso puede depender de quién es la persona (por ejemplo, docente o estudiante)." }
                 ],
-                links: [{ label: "👤 credencial individual" }, { label: "802.1X: el AP consulta" }, { label: "acceso según políticas" }],
+                links: [{ icon: "user", label: "credencial individual" }, { label: "802.1X: el AP consulta" }, { label: "acceso según políticas" }],
                 detail: "Cada persona tiene su credencial y un servidor de autenticación (como RADIUS) la verifica. Los detalles dependen del método (EAP) configurado."
               }
             ],
@@ -3230,13 +3230,13 @@ Object.assign(lessons, {
           explanation: "La diferencia se nota al administrar los accesos. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "🏠 WPA-Personal", rows: [
+            left: { icon: "house", title: "WPA-Personal", rows: [
               { label: "Credencial", value: "Una contraseña para todos" },
               { label: "Alguien deja la organización", value: "Hay que cambiar la contraseña y avisar a todos" },
               { label: "Saber quién se conectó", value: "Difícil: todos usan la misma" },
               { label: "Infraestructura", value: "Solo el router" }
             ] },
-            right: { title: "🏢 WPA-Enterprise", rows: [
+            right: { icon: "building-2", title: "WPA-Enterprise", rows: [
               { label: "Credencial", value: "Una por persona" },
               { label: "Alguien deja la organización", value: "Se desactiva solo su cuenta" },
               { label: "Saber quién se conectó", value: "Cada acceso se asocia a un usuario" },
@@ -3257,9 +3257,9 @@ Object.assign(lessons, {
             type: "list-select",
             prompt: "Toca cada acción.",
             items: [
-              { id: "auth", label: "🔑 Verificar la contraseña al conectarse", note: "Autenticación: decide quién entra a la red." },
-              { id: "crypto", label: "🔒 Hacer ilegibles las tramas en el aire", note: "Cifrado: protege el contenido de lo que viaja." },
-              { id: "both", label: "🤝 El Four-Way Handshake", note: "Las une: confirma que ambos lados comparten la clave correcta y deriva las claves de cifrado de la sesión (lo verás en el Módulo 3)." }
+              { id: "auth", icon: "key-round", label: "Verificar la contraseña al conectarse", note: "Autenticación: decide quién entra a la red." },
+              { id: "crypto", icon: "lock", label: "Hacer ilegibles las tramas en el aire", note: "Cifrado: protege el contenido de lo que viaja." },
+              { id: "both", icon: "handshake", label: "El Four-Way Handshake", note: "Las une: confirma que ambos lados comparten la clave correcta y deriva las claves de cifrado de la sesión (lo verás en el Módulo 3)." }
             ]
           },
           check: {
@@ -3275,21 +3275,21 @@ Object.assign(lessons, {
       type: "packet-sort",
       prompt: "Elige el sistema de acceso",
       instructions: "Relaciona cada escenario con el enfoque que mejor se ajusta a sus necesidades. Arrástralo o toca un compartimento.",
-      itemLabel: "🧭 Escenario",
+      itemIcon: "compass", itemLabel: "Escenario",
       countLabel: "Escenarios resueltos",
       binPrefix: "",
       okTitle: M2_OK,
       wrongTitle: M2_RETRY,
       bins: [
-        { id: "personal", label: "WPA-Personal", caption: "Contraseña compartida", icon: "🏠" },
-        { id: "enterprise", label: "WPA-Enterprise", caption: "802.1X + servidor", icon: "🏢" }
+        { id: "personal", label: "WPA-Personal", caption: "Contraseña compartida", icon: "house" },
+        { id: "enterprise", label: "WPA-Enterprise", caption: "802.1X + servidor", icon: "building-2" }
       ],
       items: [
-        { id: "home", icon: "🏠", text: "Una vivienda con 6 dispositivos de la familia.", bin: "personal", explain: "Pocos dispositivos y personas de confianza: una contraseña robusta y privada suele bastar.", hint: "¿Hace falta un servidor y cuentas individuales para una familia?" },
-        { id: "school", icon: "🏫", text: "Una institución educativa con cientos de estudiantes y docentes, cada uno con su usuario.", bin: "enterprise", explain: "Credenciales individuales y control por persona: Enterprise.", hint: "Cada persona ya tiene su propio usuario: ¿qué enfoque lo aprovecha?" },
-        { id: "company", icon: "🏢", text: "Una empresa que debe dar y quitar acceso a empleados de varios departamentos.", bin: "enterprise", explain: "Enterprise permite políticas por persona y revocar accesos de forma individual.", hint: "Dar y quitar accesos uno por uno es difícil con una sola contraseña." },
-        { id: "shared", icon: "🔁", text: "Una oficina donde todos comparten una sola contraseña y ya nadie sabe quién la tiene.", bin: "enterprise", explain: "Es el problema típico de una clave compartida a escala: pasar a credenciales individuales facilita la gestión.", hint: "El problema es justamente la contraseña compartida." },
-        { id: "shop", icon: "🛍️", text: "Una tienda pequeña con 3 empleados de confianza y sin servidor propio.", bin: "personal", accept: ["personal", "enterprise"], explain: "Depende de sus necesidades: Personal con una contraseña robusta suele bastar; Enterprise también es posible, pero exige más infraestructura. Ambas respuestas son válidas." }
+        { id: "home", icon: "house", text: "Una vivienda con 6 dispositivos de la familia.", bin: "personal", explain: "Pocos dispositivos y personas de confianza: una contraseña robusta y privada suele bastar.", hint: "¿Hace falta un servidor y cuentas individuales para una familia?" },
+        { id: "school", icon: "school", text: "Una institución educativa con cientos de estudiantes y docentes, cada uno con su usuario.", bin: "enterprise", explain: "Credenciales individuales y control por persona: Enterprise.", hint: "Cada persona ya tiene su propio usuario: ¿qué enfoque lo aprovecha?" },
+        { id: "company", icon: "building-2", text: "Una empresa que debe dar y quitar acceso a empleados de varios departamentos.", bin: "enterprise", explain: "Enterprise permite políticas por persona y revocar accesos de forma individual.", hint: "Dar y quitar accesos uno por uno es difícil con una sola contraseña." },
+        { id: "shared", icon: "repeat", text: "Una oficina donde todos comparten una sola contraseña y ya nadie sabe quién la tiene.", bin: "enterprise", explain: "Es el problema típico de una clave compartida a escala: pasar a credenciales individuales facilita la gestión.", hint: "El problema es justamente la contraseña compartida." },
+        { id: "shop", icon: "shopping-bag", text: "Una tienda pequeña con 3 empleados de confianza y sin servidor propio.", bin: "personal", accept: ["personal", "enterprise"], explain: "Depende de sus necesidades: Personal con una contraseña robusta suele bastar; Enterprise también es posible, pero exige más infraestructura. Ambas respuestas son válidas." }
       ],
       hints: { personal: "Piensa en cuántas personas hay y si hace falta gestionarlas una por una.", enterprise: "Piensa en cuántas personas hay y si hace falta gestionarlas una por una." },
       success: "No hay una opción universal: Personal es simple para pocos usuarios de confianza; Enterprise escala y permite gestionar identidades cuando hay muchas personas o se necesita control individual."
@@ -3316,10 +3316,10 @@ lessons[M2_MISSION_ID] = {
   subtitle: "Misión final del Módulo 2",
   doneTitle: "MISIÓN COMPLETADA",
   claim: "Revisaste una red como un auditor: protocolos, configuración, cifrado y autenticación, hasta emitir una recomendación fundamentada.",
-  badge: { icon: "🛡️", name: "Guardián Wi-Fi" },
+  badge: { icon: "shield", name: "Guardián Wi-Fi" },
   brief: {
     file: "Expediente · Módulo 2",
-    heading: "🛡️ Operación: Red Segura",
+    headingIcon: "shield", heading: "Operación: Red Segura",
     text: "El equipo de WISPR recibió el encargo de revisar la configuración de una red inalámbrica. Hay varios perfiles disponibles, pero algunos utilizan mecanismos antiguos o configuraciones inadecuadas. Analiza las evidencias y recomienda una configuración más segura."
   },
   scan: {
@@ -3428,8 +3428,8 @@ const M4_SEQUENCE = ["m4-deauth", "m4-evil-twin", "m4-rogue-ap", "m4-captive-por
 const M4_MISSION_ID = "m4-mision";
 moduleMissions[4] = { missionId: M4_MISSION_ID, sequence: M4_SEQUENCE };
 
-const M4_OK = "✓ Correcto";
-const M4_RETRY = "✗ Inténtalo de nuevo";
+const M4_OK = "Correcto";
+const M4_RETRY = "Inténtalo de nuevo";
 const M4_COMMON = { labTheme: true, feedbackTitles: [M4_OK, M4_RETRY], quizOkTitle: M4_OK, quizWrongTitle: M4_RETRY };
 
 Object.assign(lessons, {
@@ -3454,10 +3454,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "mgmt", label: "⚙️ Tramas de gestión", sublabel: "Coordinan el enlace", detail: "Son tramas de control del propio Wi-Fi (no llevan datos del usuario): asociación, baliza/beacon, autenticación y también desconexión. Organizan quién se une al punto de acceso y quién se va." },
-              { id: "deauth", label: "👋 Deauthentication", sublabel: "«Quedas desconectado»", detail: "Una trama de desautenticación es un aviso de fin de sesión entre un cliente y el punto de acceso. En una red sana es legítima y ocasional: por ejemplo, al apagar el equipo o alejarte." },
-              { id: "legacy", label: "🕰️ Un diseño antiguo", sublabel: "Sin protección por defecto", detail: "En el 802.11 clásico, estas tramas de gestión viajaban sin firmar ni cifrar. Por eso un equipo podía dar por buena una desconexión sin poder comprobar quién la originó." },
-              { id: "effect", label: "📴 Efecto visible", sublabel: "Se pierde la conexión", detail: "El resultado de recibir una desautenticación es que el dispositivo se desconecta y suele intentar reconectarse enseguida." }
+              { id: "mgmt", icon: "settings", label: "Tramas de gestión", sublabel: "Coordinan el enlace", detail: "Son tramas de control del propio Wi-Fi (no llevan datos del usuario): asociación, baliza/beacon, autenticación y también desconexión. Organizan quién se une al punto de acceso y quién se va." },
+              { id: "deauth", icon: "log-out", label: "Deauthentication", sublabel: "«Quedas desconectado»", detail: "Una trama de desautenticación es un aviso de fin de sesión entre un cliente y el punto de acceso. En una red sana es legítima y ocasional: por ejemplo, al apagar el equipo o alejarte." },
+              { id: "legacy", icon: "history", label: "Un diseño antiguo", sublabel: "Sin protección por defecto", detail: "En el 802.11 clásico, estas tramas de gestión viajaban sin firmar ni cifrar. Por eso un equipo podía dar por buena una desconexión sin poder comprobar quién la originó." },
+              { id: "effect", icon: "wifi-off", label: "Efecto visible", sublabel: "Se pierde la conexión", detail: "El resultado de recibir una desautenticación es que el dispositivo se desconecta y suele intentar reconectarse enseguida." }
             ]
           },
           check: {
@@ -3474,13 +3474,13 @@ Object.assign(lessons, {
             type: "bt-compare",
             prompt: "Toca cada caso.",
             options: [
-              { id: "normal", icon: "✅", label: "Desconexión esperable", tag: "Ruido normal", tone: "ok", rows: [
+              { id: "normal", icon: "circle-check", label: "Desconexión esperable", tag: "Ruido normal", tone: "ok", rows: [
                 { k: "Frecuencia", v: "Aislada u ocasional." },
                 { k: "Contexto", v: "Coincide con apagar el equipo, alejarse o un reinicio del router." },
                 { k: "Alcance", v: "Afecta a uno o pocos dispositivos puntuales." },
                 { k: "Lectura", v: "Comportamiento habitual de cualquier red." }
               ] },
-              { id: "anomaly", icon: "🚩", label: "Patrón que conviene investigar", tag: "Indicador", tone: "warn", rows: [
+              { id: "anomaly", icon: "flag", label: "Patrón que conviene investigar", tag: "Indicador", tone: "warn", rows: [
                 { k: "Frecuencia", v: "Ráfagas repetidas en poco tiempo." },
                 { k: "Contexto", v: "Sin causa aparente; varios equipos caen a la vez una y otra vez." },
                 { k: "Alcance", v: "Desconexiones persistentes que impiden trabajar." },
@@ -3503,10 +3503,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "pmf", label: "🛡️ PMF", sublabel: "Protected Management Frames", detail: "Mecanismo del estándar 802.11w: protege ciertas tramas de gestión para que no puedan falsificarse ni alterarse en el tramo inalámbrico." },
-              { id: "how", label: "🔏 Qué aporta", sublabel: "Integridad y autenticidad", detail: "Permite que el receptor compruebe que una trama de gestión protegida proviene realmente de la contraparte legítima y no fue modificada." },
-              { id: "wpa3", label: "🔰 WPA3 lo exige", sublabel: "Opcional en WPA2", detail: "En WPA3 el PMF es obligatorio; en WPA2 es opcional. Por eso activarlo (cuando los equipos lo soportan) es una buena práctica defensiva." },
-              { id: "limit", label: "⚠️ Qué NO resuelve", sublabel: "No es una muralla total", detail: "PMF reduce mucho la falsificación de desautenticaciones, pero no cubre todo tipo de interferencia inalámbrica. Sigue siendo una capa más, no una garantía absoluta." }
+              { id: "pmf", icon: "shield", label: "PMF", sublabel: "Protected Management Frames", detail: "Mecanismo del estándar 802.11w: protege ciertas tramas de gestión para que no puedan falsificarse ni alterarse en el tramo inalámbrico." },
+              { id: "how", icon: "badge-check", label: "Qué aporta", sublabel: "Integridad y autenticidad", detail: "Permite que el receptor compruebe que una trama de gestión protegida proviene realmente de la contraparte legítima y no fue modificada." },
+              { id: "wpa3", icon: "shield-check", label: "WPA3 lo exige", sublabel: "Opcional en WPA2", detail: "En WPA3 el PMF es obligatorio; en WPA2 es opcional. Por eso activarlo (cuando los equipos lo soportan) es una buena práctica defensiva." },
+              { id: "limit", icon: "triangle-alert", label: "Qué NO resuelve", sublabel: "No es una muralla total", detail: "PMF reduce mucho la falsificación de desautenticaciones, pero no cubre todo tipo de interferencia inalámbrica. Sigue siendo una capa más, no una garantía absoluta." }
             ]
           },
           check: {
@@ -3529,11 +3529,11 @@ Object.assign(lessons, {
         { id: "defensa", label: "Medida defensiva" }
       ],
       items: [
-        { id: "ev1", icon: "📴", name: "Una laptop se desconecta al cerrarse la tapa", clues: ["Evento aislado", "Causa clara"], answer: "normal", explain: "Desconexión con causa evidente: comportamiento esperable.", hint: "¿Hay una explicación obvia para esta única desconexión?" },
-        { id: "ev2", icon: "🚩", name: "40 desautenticaciones por minuto, varios equipos caen a la vez, sin causa aparente", clues: ["Ráfaga repetida", "Afecta a varios"], answer: "investigar", explain: "Patrón anómalo de denegación de servicio: hay que investigarlo, aunque todavía no sea prueba definitiva.", hint: "Fíjate en la frecuencia y en cuántos equipos afecta." },
-        { id: "ev3", icon: "🛡️", name: "Activar PMF (802.11w) en los puntos de acceso compatibles", clues: ["802.11w", "Protege tramas de gestión"], answer: "defensa", explain: "PMF dificulta la falsificación de desautenticaciones: es una medida preventiva.", hint: "¿Esto ataca, observa o protege?" },
-        { id: "ev4", icon: "🔰", name: "Migrar a WPA3, donde PMF es obligatorio", clues: ["WPA3", "PMF obligatorio"], answer: "defensa", explain: "WPA3 exige PMF, reforzando la protección de las tramas de gestión.", hint: "WPA3 incorpora una protección que en WPA2 era opcional." },
-        { id: "ev5", icon: "🔁", name: "Un teléfono se reconecta tras un reinicio programado del router", clues: ["Mantenimiento conocido", "Evento aislado"], answer: "normal", explain: "La reconexión coincide con un mantenimiento planificado: evento normal.", hint: "¿La causa estaba anunciada?" }
+        { id: "ev1", icon: "wifi-off", name: "Una laptop se desconecta al cerrarse la tapa", clues: ["Evento aislado", "Causa clara"], answer: "normal", explain: "Desconexión con causa evidente: comportamiento esperable.", hint: "¿Hay una explicación obvia para esta única desconexión?" },
+        { id: "ev2", icon: "flag", name: "40 desautenticaciones por minuto, varios equipos caen a la vez, sin causa aparente", clues: ["Ráfaga repetida", "Afecta a varios"], answer: "investigar", explain: "Patrón anómalo de denegación de servicio: hay que investigarlo, aunque todavía no sea prueba definitiva.", hint: "Fíjate en la frecuencia y en cuántos equipos afecta." },
+        { id: "ev3", icon: "shield", name: "Activar PMF (802.11w) en los puntos de acceso compatibles", clues: ["802.11w", "Protege tramas de gestión"], answer: "defensa", explain: "PMF dificulta la falsificación de desautenticaciones: es una medida preventiva.", hint: "¿Esto ataca, observa o protege?" },
+        { id: "ev4", icon: "shield-check", name: "Migrar a WPA3, donde PMF es obligatorio", clues: ["WPA3", "PMF obligatorio"], answer: "defensa", explain: "WPA3 exige PMF, reforzando la protección de las tramas de gestión.", hint: "WPA3 incorpora una protección que en WPA2 era opcional." },
+        { id: "ev5", icon: "repeat", name: "Un teléfono se reconecta tras un reinicio programado del router", clues: ["Mantenimiento conocido", "Evento aislado"], answer: "normal", explain: "La reconexión coincide con un mantenimiento planificado: evento normal.", hint: "¿La causa estaba anunciada?" }
       ],
       success: "Distinguir una desconexión normal de un patrón anómalo es el corazón del análisis. Ante la sospecha, se investiga; para prevenir, se protegen las tramas de gestión con PMF/WPA3."
     },
@@ -3567,10 +3567,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "idea", label: "👯 La idea", sublabel: "Un «gemelo malvado»", detail: "Un punto de acceso ilegítimo que copia el nombre de red (SSID) de uno legítimo para que los usuarios y sus dispositivos lo confundan con el verdadero." },
-              { id: "ssid", label: "🔤 Copia el SSID", sublabel: "Mismo nombre visible", detail: "El SSID es solo una etiqueta de texto; no es un dato secreto ni único. Que dos redes muestren «Cafe_Central» no garantiza que sean el mismo equipo." },
-              { id: "goal", label: "🎯 El objetivo", sublabel: "Que te conectes a él", detail: "Busca que el dispositivo se asocie al equipo falso en lugar del real, para quedar en posición de intermediario del tráfico de la víctima." },
-              { id: "auto", label: "📲 Reconexión automática", sublabel: "El punto débil humano", detail: "Muchos dispositivos se reconectan solos a redes «conocidas» por su nombre. Un gemelo con el mismo SSID puede aprovechar esa comodidad." }
+              { id: "idea", icon: "copy", label: "La idea", sublabel: "Un «gemelo malvado»", detail: "Un punto de acceso ilegítimo que copia el nombre de red (SSID) de uno legítimo para que los usuarios y sus dispositivos lo confundan con el verdadero." },
+              { id: "ssid", icon: "type", label: "Copia el SSID", sublabel: "Mismo nombre visible", detail: "El SSID es solo una etiqueta de texto; no es un dato secreto ni único. Que dos redes muestren «Cafe_Central» no garantiza que sean el mismo equipo." },
+              { id: "goal", icon: "target", label: "El objetivo", sublabel: "Que te conectes a él", detail: "Busca que el dispositivo se asocie al equipo falso en lugar del real, para quedar en posición de intermediario del tráfico de la víctima." },
+              { id: "auto", icon: "rotate-cw", label: "Reconexión automática", sublabel: "El punto débil humano", detail: "Muchos dispositivos se reconectan solos a redes «conocidas» por su nombre. Un gemelo con el mismo SSID puede aprovechar esa comodidad." }
             ]
           },
           check: {
@@ -3585,13 +3585,13 @@ Object.assign(lessons, {
           explanation: "A simple vista pueden verse idénticas. Pulsa «Resaltar diferencias» para ver qué las separa realmente.",
           visual: {
             type: "compare-pair",
-            left: { title: "📡 Red legítima", rows: [
+            left: { icon: "radio-tower", title: "Red legítima", rows: [
               { label: "Nombre (SSID)", value: "Cafe_Central" },
               { label: "Identificador del equipo (BSSID)", value: "El del router real del local" },
               { label: "Seguridad", value: "La configurada por el local (p. ej. WPA2/WPA3)" },
               { label: "Certificado (si es Enterprise)", value: "Válido y reconocido por el dispositivo" }
             ] },
-            right: { title: "🎭 Red suplantada (Evil Twin)", rows: [
+            right: { icon: "venetian-mask", title: "Red suplantada (Evil Twin)", rows: [
               { label: "Nombre (SSID)", value: "Cafe_Central (idéntico a propósito)" },
               { label: "Identificador del equipo (BSSID)", value: "Distinto: es otro equipo" },
               { label: "Seguridad", value: "A veces abierta o distinta, para facilitar la conexión" },
@@ -3612,11 +3612,11 @@ Object.assign(lessons, {
             type: "list-select",
             prompt: "Toca cada señal o medida.",
             items: [
-              { id: "s1", label: "🔓 Una red «conocida» aparece de pronto como abierta o pide credenciales que antes no pedía", note: "Señal de alerta: un cambio inesperado en la seguridad o en lo que se solicita merece desconfianza." },
-              { id: "s2", label: "🔁 El dispositivo se conecta solo a una red pública por su nombre", note: "Prevención: desactiva la reconexión automática a redes públicas y «olvida» las que no vuelvas a usar." },
-              { id: "s3", label: "🏢 En redes de organización, validar el certificado del servidor (WPA2/WPA3-Enterprise)", note: "Prevención: un cliente bien configurado solo confía en el certificado correcto, así un gemelo sin él no logra engañarlo." },
-              { id: "s4", label: "🔐 Usar WPA3 y una capa adicional como una VPN de confianza en redes públicas", note: "Prevención: aunque te conectes a algo dudoso, el cifrado de extremo a extremo limita lo que un intermediario podría leer." },
-              { id: "s5", label: "✅ Confirmar el nombre exacto de la red con el personal del lugar", note: "Prevención sencilla: preguntar cuál es la red oficial evita conectarse a una imitación de nombre parecido." }
+              { id: "s1", icon: "lock-open", label: "Una red «conocida» aparece de pronto como abierta o pide credenciales que antes no pedía", note: "Señal de alerta: un cambio inesperado en la seguridad o en lo que se solicita merece desconfianza." },
+              { id: "s2", icon: "repeat", label: "El dispositivo se conecta solo a una red pública por su nombre", note: "Prevención: desactiva la reconexión automática a redes públicas y «olvida» las que no vuelvas a usar." },
+              { id: "s3", icon: "building-2", label: "En redes de organización, validar el certificado del servidor (WPA2/WPA3-Enterprise)", note: "Prevención: un cliente bien configurado solo confía en el certificado correcto, así un gemelo sin él no logra engañarlo." },
+              { id: "s4", icon: "lock-keyhole", label: "Usar WPA3 y una capa adicional como una VPN de confianza en redes públicas", note: "Prevención: aunque te conectes a algo dudoso, el cifrado de extremo a extremo limita lo que un intermediario podría leer." },
+              { id: "s5", icon: "circle-check", label: "Confirmar el nombre exacto de la red con el personal del lugar", note: "Prevención sencilla: preguntar cuál es la red oficial evita conectarse a una imitación de nombre parecido." }
             ]
           },
           check: {
@@ -3639,11 +3639,11 @@ Object.assign(lessons, {
         { id: "otra", label: "Otra red, sin relación" }
       ],
       items: [
-        { id: "n1", icon: "☕", name: "Cafe_Central · WPA2 · equipo del local", clues: ["Nombre oficial", "Seguridad esperada"], answer: "legit", explain: "Coincide con el nombre y la seguridad que confirmó el local.", hint: "¿Coincide con lo que anuncia el establecimiento?" },
-        { id: "n2", icon: "🎭", name: "Cafe_Central · ABIERTA · otro identificador de equipo", clues: ["Mismo nombre", "Sin seguridad", "BSSID distinto"], answer: "sospecha", explain: "Mismo SSID pero abierta y en otro equipo: señal razonable para verificar, aún sin ser prueba definitiva.", hint: "Mismo nombre, pero ¿la seguridad y el equipo coinciden con el oficial?" },
-        { id: "n3", icon: "🏠", name: "Casa_Lopez · WPA3 · señal débil", clues: ["Red doméstica vecina", "Nombre distinto"], answer: "otra", explain: "Es la red de un vecino: no tiene relación con la cafetería.", hint: "¿Este nombre tiene algo que ver con el local?" },
-        { id: "n4", icon: "🆓", name: "Cafe_Central_FREE · ABIERTA · pide correo y contraseña personal", clues: ["Nombre parecido", "Pide credenciales sensibles"], answer: "sospecha", explain: "Nombre imitado y solicitud de datos sensibles: motivo claro para desconfiar y verificar.", hint: "Fíjate en el nombre ligeramente cambiado y en qué te pide." },
-        { id: "n5", icon: "🖨️", name: "HP-Print-2F · red de una impresora", clues: ["Dispositivo conocido", "Otro propósito"], answer: "otra", explain: "Es una red de servicio de una impresora, sin relación con el Wi-Fi del local.", hint: "¿Este nombre busca imitar al de la cafetería?" }
+        { id: "n1", icon: "coffee", name: "Cafe_Central · WPA2 · equipo del local", clues: ["Nombre oficial", "Seguridad esperada"], answer: "legit", explain: "Coincide con el nombre y la seguridad que confirmó el local.", hint: "¿Coincide con lo que anuncia el establecimiento?" },
+        { id: "n2", icon: "venetian-mask", name: "Cafe_Central · ABIERTA · otro identificador de equipo", clues: ["Mismo nombre", "Sin seguridad", "BSSID distinto"], answer: "sospecha", explain: "Mismo SSID pero abierta y en otro equipo: señal razonable para verificar, aún sin ser prueba definitiva.", hint: "Mismo nombre, pero ¿la seguridad y el equipo coinciden con el oficial?" },
+        { id: "n3", icon: "house", name: "Casa_Lopez · WPA3 · señal débil", clues: ["Red doméstica vecina", "Nombre distinto"], answer: "otra", explain: "Es la red de un vecino: no tiene relación con la cafetería.", hint: "¿Este nombre tiene algo que ver con el local?" },
+        { id: "n4", icon: "ticket", name: "Cafe_Central_FREE · ABIERTA · pide correo y contraseña personal", clues: ["Nombre parecido", "Pide credenciales sensibles"], answer: "sospecha", explain: "Nombre imitado y solicitud de datos sensibles: motivo claro para desconfiar y verificar.", hint: "Fíjate en el nombre ligeramente cambiado y en qué te pide." },
+        { id: "n5", icon: "printer", name: "HP-Print-2F · red de una impresora", clues: ["Dispositivo conocido", "Otro propósito"], answer: "otra", explain: "Es una red de servicio de una impresora, sin relación con el Wi-Fi del local.", hint: "¿Este nombre busca imitar al de la cafetería?" }
       ],
       success: "El SSID no prueba identidad. Ante un mismo nombre con seguridad distinta, otro equipo o solicitudes inusuales, lo prudente es verificar la red oficial antes de conectarse."
     },
@@ -3677,10 +3677,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "def", label: "📡 Definición", sublabel: "AP no autorizado", detail: "Un punto de acceso que opera en el alcance o dentro de la infraestructura de una organización sin que el equipo de red lo haya aprobado ni lo administre." },
-              { id: "origin", label: "🧩 De dónde sale", sublabel: "No siempre es malicioso", detail: "Puede ser deliberado (alguien instala un AP para saltarse controles) o accidental: un empleado que enchufa un router personal «para tener mejor señal» crea, sin querer, una puerta no vigilada." },
-              { id: "risk", label: "🚪 Por qué importa", sublabel: "Una puerta sin control", detail: "Amplía el perímetro de la red por un punto que nadie supervisa: puede no cumplir las políticas de seguridad y abrir acceso a la red interna." },
-              { id: "shadow", label: "👤 TI en la sombra", sublabel: "Shadow IT", detail: "Es un ejemplo de «shadow IT»: tecnología conectada fuera del conocimiento del área responsable, difícil de proteger porque, simplemente, no se sabe que existe." }
+              { id: "def", icon: "radio-tower", label: "Definición", sublabel: "AP no autorizado", detail: "Un punto de acceso que opera en el alcance o dentro de la infraestructura de una organización sin que el equipo de red lo haya aprobado ni lo administre." },
+              { id: "origin", icon: "puzzle", label: "De dónde sale", sublabel: "No siempre es malicioso", detail: "Puede ser deliberado (alguien instala un AP para saltarse controles) o accidental: un empleado que enchufa un router personal «para tener mejor señal» crea, sin querer, una puerta no vigilada." },
+              { id: "risk", icon: "door-open", label: "Por qué importa", sublabel: "Una puerta sin control", detail: "Amplía el perímetro de la red por un punto que nadie supervisa: puede no cumplir las políticas de seguridad y abrir acceso a la red interna." },
+              { id: "shadow", icon: "user", label: "TI en la sombra", sublabel: "Shadow IT", detail: "Es un ejemplo de «shadow IT»: tecnología conectada fuera del conocimiento del área responsable, difícil de proteger porque, simplemente, no se sabe que existe." }
             ]
           },
           check: {
@@ -3695,13 +3695,13 @@ Object.assign(lessons, {
           explanation: "Se confunden, pero no son lo mismo. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "📡 Rogue AP", rows: [
+            left: { icon: "radio-tower", title: "Rogue AP", rows: [
               { label: "Qué es", value: "Un AP no autorizado en/junto a la red" },
               { label: "¿Imita a otra red?", value: "No necesariamente: puede tener su propio nombre" },
               { label: "Relación con la red", value: "Suele estar conectado a la infraestructura interna" },
               { label: "Preocupa sobre todo a", value: "La organización (su perímetro)" }
             ] },
-            right: { title: "🎭 Evil Twin", rows: [
+            right: { icon: "venetian-mask", title: "Evil Twin", rows: [
               { label: "Qué es", value: "Un AP falso que imita a uno legítimo" },
               { label: "¿Imita a otra red?", value: "Sí: copia el SSID de una red real" },
               { label: "Relación con la red", value: "Puede ser totalmente externo" },
@@ -3722,10 +3722,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "inv", label: "📋 Inventario", sublabel: "Saber qué debería existir", detail: "Mantener una lista de los puntos de acceso autorizados (y sus identificadores) permite notar cuándo aparece uno que no está en la lista." },
-              { id: "wips", label: "🛰️ Monitoreo (WIDS/WIPS)", sublabel: "Vigilar el espectro", detail: "Sistemas de detección/prevención de intrusos inalámbricos observan las redes presentes y alertan sobre APs desconocidos. La alerta es un punto de partida para verificar, no una condena automática." },
-              { id: "nac", label: "🔑 Control de acceso a la red", sublabel: "802.1X / NAC", detail: "Exigir autenticación para que un dispositivo pueda usar una toma de red dificulta que un AP no autorizado se conecte a la infraestructura interna." },
-              { id: "policy", label: "📜 Políticas y concienciación", sublabel: "Factor humano", detail: "Reglas claras (no conectar equipos de red propios) y formación reducen los Rogue AP accidentales, que son muy comunes." }
+              { id: "inv", icon: "clipboard-list", label: "Inventario", sublabel: "Saber qué debería existir", detail: "Mantener una lista de los puntos de acceso autorizados (y sus identificadores) permite notar cuándo aparece uno que no está en la lista." },
+              { id: "wips", icon: "satellite", label: "Monitoreo (WIDS/WIPS)", sublabel: "Vigilar el espectro", detail: "Sistemas de detección/prevención de intrusos inalámbricos observan las redes presentes y alertan sobre APs desconocidos. La alerta es un punto de partida para verificar, no una condena automática." },
+              { id: "nac", icon: "key-round", label: "Control de acceso a la red", sublabel: "802.1X / NAC", detail: "Exigir autenticación para que un dispositivo pueda usar una toma de red dificulta que un AP no autorizado se conecte a la infraestructura interna." },
+              { id: "policy", icon: "scroll-text", label: "Políticas y concienciación", sublabel: "Factor humano", detail: "Reglas claras (no conectar equipos de red propios) y formación reducen los Rogue AP accidentales, que son muy comunes." }
             ]
           },
           check: {
@@ -3741,22 +3741,22 @@ Object.assign(lessons, {
       type: "packet-sort",
       prompt: "Revisión de inventario de red (simulada)",
       instructions: "Eres parte del equipo de red. Clasifica cada punto de acceso detectado según el inventario oficial. Una alerta no es una acusación: lo que no está autorizado debe verificarse y controlarse.",
-      itemLabel: "📡 Punto de acceso",
+      itemIcon: "radio-tower", itemLabel: "Punto de acceso",
       countLabel: "Puntos revisados",
       binPrefix: "",
       okTitle: M4_OK,
       wrongTitle: M4_RETRY,
       bins: [
-        { id: "ok", label: "Autorizado", caption: "Está en el inventario", icon: "✅" },
-        { id: "rogue", label: "No autorizado: investigar", caption: "Fuera del inventario", icon: "🚩" }
+        { id: "ok", label: "Autorizado", caption: "Está en el inventario", icon: "circle-check" },
+        { id: "rogue", label: "No autorizado: investigar", caption: "Fuera del inventario", icon: "flag" }
       ],
       items: [
-        { id: "a1", icon: "🏢", text: "AP-Piso2-03, en la lista oficial, administrado por el equipo de red.", bin: "ok", explain: "Figura en el inventario y está gestionado: autorizado.", hint: "¿Aparece en el inventario oficial?" },
-        { id: "a2", icon: "🔌", text: "Un router doméstico enchufado a una toma de la sala de reuniones, sin registro.", bin: "rogue", explain: "AP no autorizado conectado a la infraestructura: Rogue AP que hay que investigar.", hint: "¿Lo instaló y administra el equipo de red?" },
-        { id: "a3", icon: "📡", text: "AP-Recepcion-01, con firmware al día y en el inventario.", bin: "ok", explain: "Autorizado y mantenido: correcto.", hint: "Está registrado y actualizado." },
-        { id: "a4", icon: "📱", text: "Un punto de acceso móvil (hotspot) con un nombre desconocido dentro de la oficina, no registrado.", bin: "rogue", explain: "Dispositivo no autorizado dentro del perímetro: verificar su origen.", hint: "¿Lo aprobó alguien del área responsable?" },
-        { id: "a5", icon: "🛠️", text: "AP-Lab-02, instalado hoy por el equipo de red y agregado al inventario.", bin: "ok", explain: "Nuevo, pero autorizado y documentado: correcto.", hint: "Es nuevo, pero ¿quién lo instaló y está registrado?" },
-        { id: "a6", icon: "❓", text: "Un AP con el mismo nombre que la red corporativa pero equipo y ubicación desconocidos.", bin: "rogue", explain: "No está en el inventario y además imita el nombre: doble motivo para investigar.", hint: "Imitar el nombre y no estar registrado son dos señales juntas." }
+        { id: "a1", icon: "building-2", text: "AP-Piso2-03, en la lista oficial, administrado por el equipo de red.", bin: "ok", explain: "Figura en el inventario y está gestionado: autorizado.", hint: "¿Aparece en el inventario oficial?" },
+        { id: "a2", icon: "plug", text: "Un router doméstico enchufado a una toma de la sala de reuniones, sin registro.", bin: "rogue", explain: "AP no autorizado conectado a la infraestructura: Rogue AP que hay que investigar.", hint: "¿Lo instaló y administra el equipo de red?" },
+        { id: "a3", icon: "radio-tower", text: "AP-Recepcion-01, con firmware al día y en el inventario.", bin: "ok", explain: "Autorizado y mantenido: correcto.", hint: "Está registrado y actualizado." },
+        { id: "a4", icon: "smartphone", text: "Un punto de acceso móvil (hotspot) con un nombre desconocido dentro de la oficina, no registrado.", bin: "rogue", explain: "Dispositivo no autorizado dentro del perímetro: verificar su origen.", hint: "¿Lo aprobó alguien del área responsable?" },
+        { id: "a5", icon: "hammer", text: "AP-Lab-02, instalado hoy por el equipo de red y agregado al inventario.", bin: "ok", explain: "Nuevo, pero autorizado y documentado: correcto.", hint: "Es nuevo, pero ¿quién lo instaló y está registrado?" },
+        { id: "a6", icon: "circle-help", text: "Un AP con el mismo nombre que la red corporativa pero equipo y ubicación desconocidos.", bin: "rogue", explain: "No está en el inventario y además imita el nombre: doble motivo para investigar.", hint: "Imitar el nombre y no estar registrado son dos señales juntas." }
       ],
       hints: { ok: "Debe estar en el inventario y gestionado por el equipo de red.", rogue: "Si no está registrado ni aprobado, se investiga antes de confiar." },
       success: "Un Rogue AP es cualquier AP no autorizado, malicioso o no. La defensa se apoya en inventario, monitoreo (WIDS/WIPS), control de acceso (802.1X/NAC) y políticas claras."
@@ -3791,10 +3791,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "what", label: "🌐 Qué es", sublabel: "Página de bienvenida", detail: "Una página que la red muestra para aceptar condiciones de uso, iniciar sesión como huésped o introducir un código antes de permitir la navegación." },
-              { id: "where", label: "🏨 Dónde se usa", sublabel: "Hoteles, aeropuertos, campus", detail: "Es habitual y, en sí mismo, legítimo: sirve para gestionar el acceso de invitados en redes públicas o semipúblicas." },
-              { id: "normal", label: "✅ Qué suele pedir", sublabel: "Lo mínimo", detail: "Aceptar términos, un nombre o correo para el registro de invitado, o un código entregado por el establecimiento. Lo razonable es pedir poco." },
-              { id: "legit", label: "🔒 Cómo se ve uno confiable", sublabel: "Coherente y seguro", detail: "Usa HTTPS con un certificado válido, coincide con el nombre del lugar y no obliga a instalar programas ni a entregar contraseñas de otras cuentas." }
+              { id: "what", icon: "globe", label: "Qué es", sublabel: "Página de bienvenida", detail: "Una página que la red muestra para aceptar condiciones de uso, iniciar sesión como huésped o introducir un código antes de permitir la navegación." },
+              { id: "where", icon: "hotel", label: "Dónde se usa", sublabel: "Hoteles, aeropuertos, campus", detail: "Es habitual y, en sí mismo, legítimo: sirve para gestionar el acceso de invitados en redes públicas o semipúblicas." },
+              { id: "normal", icon: "circle-check", label: "Qué suele pedir", sublabel: "Lo mínimo", detail: "Aceptar términos, un nombre o correo para el registro de invitado, o un código entregado por el establecimiento. Lo razonable es pedir poco." },
+              { id: "legit", icon: "lock", label: "Cómo se ve uno confiable", sublabel: "Coherente y seguro", detail: "Usa HTTPS con un certificado válido, coincide con el nombre del lugar y no obliga a instalar programas ni a entregar contraseñas de otras cuentas." }
             ]
           },
           check: {
@@ -3809,13 +3809,13 @@ Object.assign(lessons, {
           explanation: "Una página falsa copia el aspecto de una real para engañar. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "✅ Portal legítimo", rows: [
+            left: { icon: "circle-check", title: "Portal legítimo", rows: [
               { label: "Qué pide", value: "Aceptar términos o un dato mínimo de invitado" },
               { label: "Conexión", value: "HTTPS con certificado válido del establecimiento" },
               { label: "Contraseñas", value: "No pide la contraseña de tu correo, banco o redes" },
               { label: "Descargas", value: "No te obliga a instalar programas para «navegar»" }
             ] },
-            right: { title: "🎣 Portal falso (malicioso)", rows: [
+            right: { icon: "fish", title: "Portal falso (malicioso)", rows: [
               { label: "Qué pide", value: "Datos sensibles: contraseñas de otras cuentas, tarjetas, documentos" },
               { label: "Conexión", value: "Sin HTTPS, con aviso de certificado o un dominio extraño" },
               { label: "Contraseñas", value: "Intenta que escribas credenciales que no deberían ir ahí" },
@@ -3836,11 +3836,11 @@ Object.assign(lessons, {
             type: "list-select",
             prompt: "Toca cada señal o buena práctica.",
             items: [
-              { id: "c1", label: "🔑 Pide contraseñas de cuentas ajenas al Wi-Fi (correo, banco, redes sociales)", note: "Señal de alerta fuerte: el acceso a una red nunca necesita esas credenciales." },
-              { id: "c2", label: "⚠️ El navegador avisa de un certificado inválido o la dirección no usa HTTPS", note: "Señal de alerta: desconfía antes de introducir cualquier dato." },
-              { id: "c3", label: "⬇️ Obliga a instalar un programa o «certificado» para poder navegar", note: "Señal de alerta: instalar algo para «entrar a internet» es un patrón típico de engaño." },
-              { id: "c4", label: "🏷️ El nombre o dominio no coincide con el del lugar donde estás", note: "Verificación: confirma con el personal cuál es la red y la página oficiales." },
-              { id: "c5", label: "🧾 Entregar solo lo mínimo y nunca reutilizar contraseñas importantes", note: "Buena práctica: así, aunque un portal sea falso, el daño posible es menor." }
+              { id: "c1", icon: "key-round", label: "Pide contraseñas de cuentas ajenas al Wi-Fi (correo, banco, redes sociales)", note: "Señal de alerta fuerte: el acceso a una red nunca necesita esas credenciales." },
+              { id: "c2", icon: "triangle-alert", label: "El navegador avisa de un certificado inválido o la dirección no usa HTTPS", note: "Señal de alerta: desconfía antes de introducir cualquier dato." },
+              { id: "c3", icon: "download", label: "Obliga a instalar un programa o «certificado» para poder navegar", note: "Señal de alerta: instalar algo para «entrar a internet» es un patrón típico de engaño." },
+              { id: "c4", icon: "tag", label: "El nombre o dominio no coincide con el del lugar donde estás", note: "Verificación: confirma con el personal cuál es la red y la página oficiales." },
+              { id: "c5", icon: "receipt", label: "Entregar solo lo mínimo y nunca reutilizar contraseñas importantes", note: "Buena práctica: así, aunque un portal sea falso, el daño posible es menor." }
             ]
           },
           check: {
@@ -3862,11 +3862,11 @@ Object.assign(lessons, {
         { id: "alerta", label: "Señal de alerta" }
       ],
       items: [
-        { id: "p1", icon: "📄", name: "«Acepta los términos de uso para continuar»", clues: ["Dato mínimo", "Sin credenciales"], answer: "normal", explain: "Aceptar condiciones es una petición habitual y razonable.", hint: "¿Te pide algún dato sensible?" },
-        { id: "p2", icon: "📧", name: "«Introduce la contraseña de tu correo para verificarte»", clues: ["Credencial ajena", "No tiene sentido"], answer: "alerta", explain: "El acceso a Wi-Fi no necesita la contraseña de tu correo: alerta clara.", hint: "¿Para dar internet hace falta la clave de tu correo?" },
-        { id: "p3", icon: "🏷️", name: "«Ingresa el código que te dio la recepción»", clues: ["Código del lugar", "Acceso de invitado"], answer: "normal", explain: "Un código entregado por el establecimiento es un método legítimo de acceso.", hint: "¿El propio local te dio ese dato?" },
-        { id: "p4", icon: "⬇️", name: "«Instala este certificado/app para poder navegar»", clues: ["Obliga a instalar", "Patrón de engaño"], answer: "alerta", explain: "Exigir una instalación para «tener internet» es un patrón típico de portal malicioso.", hint: "¿Navegar debería obligarte a instalar algo?" },
-        { id: "p5", icon: "💳", name: "«Confirma tu número de tarjeta para activar el Wi-Fi gratuito»", clues: ["Dato financiero", "Contradicción: gratis pero pide tarjeta"], answer: "alerta", explain: "Un Wi-Fi «gratuito» que pide la tarjeta se contradice: señal de alerta.", hint: "¿Un servicio gratuito necesita tu tarjeta?" }
+        { id: "p1", icon: "file-text", name: "«Acepta los términos de uso para continuar»", clues: ["Dato mínimo", "Sin credenciales"], answer: "normal", explain: "Aceptar condiciones es una petición habitual y razonable.", hint: "¿Te pide algún dato sensible?" },
+        { id: "p2", icon: "mail", name: "«Introduce la contraseña de tu correo para verificarte»", clues: ["Credencial ajena", "No tiene sentido"], answer: "alerta", explain: "El acceso a Wi-Fi no necesita la contraseña de tu correo: alerta clara.", hint: "¿Para dar internet hace falta la clave de tu correo?" },
+        { id: "p3", icon: "tag", name: "«Ingresa el código que te dio la recepción»", clues: ["Código del lugar", "Acceso de invitado"], answer: "normal", explain: "Un código entregado por el establecimiento es un método legítimo de acceso.", hint: "¿El propio local te dio ese dato?" },
+        { id: "p4", icon: "download", name: "«Instala este certificado/app para poder navegar»", clues: ["Obliga a instalar", "Patrón de engaño"], answer: "alerta", explain: "Exigir una instalación para «tener internet» es un patrón típico de portal malicioso.", hint: "¿Navegar debería obligarte a instalar algo?" },
+        { id: "p5", icon: "credit-card", name: "«Confirma tu número de tarjeta para activar el Wi-Fi gratuito»", clues: ["Dato financiero", "Contradicción: gratis pero pide tarjeta"], answer: "alerta", explain: "Un Wi-Fi «gratuito» que pide la tarjeta se contradice: señal de alerta.", hint: "¿Un servicio gratuito necesita tu tarjeta?" }
       ],
       success: "Un portal legítimo pide lo mínimo y usa HTTPS; uno falso busca credenciales sensibles, datos financieros o instalaciones. Verifica el nombre oficial y nunca reutilices contraseñas importantes."
     },
@@ -3900,10 +3900,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "goal", label: "🎯 Para qué nació", sublabel: "Facilitar la conexión", detail: "Permite unir un dispositivo a la red sin teclear la contraseña WPA completa, pensando en la comodidad del usuario doméstico." },
-              { id: "button", label: "🔘 Botón (push-button)", sublabel: "Pulsar para conectar", detail: "Se pulsa un botón en el router y, durante unos segundos, el dispositivo cercano puede unirse. Es el método más simple." },
-              { id: "pin", label: "🔢 PIN", sublabel: "Un número de 8 dígitos", detail: "Un código numérico de 8 dígitos que el dispositivo presenta al router para unirse. Aquí es donde aparecen los problemas de diseño." },
-              { id: "scope", label: "🏠 Dónde se ve", sublabel: "Routers domésticos", detail: "Es común en equipos de hogar. En entornos gestionados suele desactivarse por los riesgos que veremos." }
+              { id: "goal", icon: "target", label: "Para qué nació", sublabel: "Facilitar la conexión", detail: "Permite unir un dispositivo a la red sin teclear la contraseña WPA completa, pensando en la comodidad del usuario doméstico." },
+              { id: "button", icon: "circle-dot", label: "Botón (push-button)", sublabel: "Pulsar para conectar", detail: "Se pulsa un botón en el router y, durante unos segundos, el dispositivo cercano puede unirse. Es el método más simple." },
+              { id: "pin", icon: "hash", label: "PIN", sublabel: "Un número de 8 dígitos", detail: "Un código numérico de 8 dígitos que el dispositivo presenta al router para unirse. Aquí es donde aparecen los problemas de diseño." },
+              { id: "scope", icon: "house", label: "Dónde se ve", sublabel: "Routers domésticos", detail: "Es común en equipos de hogar. En entornos gestionados suele desactivarse por los riesgos que veremos." }
             ]
           },
           check: {
@@ -3920,10 +3920,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "split", label: "✂️ El PIN se valida en partes", sublabel: "Debilidad de diseño", detail: "En varias implementaciones, el PIN de 8 dígitos no se comprueba entero sino por mitades, y un dígito es solo de verificación. Eso reduce muchísimo la cantidad de combinaciones que habría que considerar." },
-              { id: "feasible", label: "⏱️ Menos combinaciones", sublabel: "Se vuelve factible probarlas", detail: "Al validarse por partes, el espacio de posibilidades se encoge tanto que probar el PIN deja de ser impracticable, debilitando la protección que debería dar." },
-              { id: "bypass", label: "🚪 Puentea la contraseña fuerte", sublabel: "El riesgo clave", detail: "Si el PIN cae, se obtiene acceso aunque la contraseña WPA sea larga y robusta: WPS se convierte en una puerta lateral que anula el esfuerzo de una buena clave." },
-              { id: "notall", label: "🧩 No todos los equipos igual", sublabel: "Depende de la implementación", detail: "No todos los routers son vulnerables del mismo modo; algunos añaden límites de intentos o bloqueos. Aun así, la recomendación general es prudente." }
+              { id: "split", icon: "scissors", label: "El PIN se valida en partes", sublabel: "Debilidad de diseño", detail: "En varias implementaciones, el PIN de 8 dígitos no se comprueba entero sino por mitades, y un dígito es solo de verificación. Eso reduce muchísimo la cantidad de combinaciones que habría que considerar." },
+              { id: "feasible", icon: "timer", label: "Menos combinaciones", sublabel: "Se vuelve factible probarlas", detail: "Al validarse por partes, el espacio de posibilidades se encoge tanto que probar el PIN deja de ser impracticable, debilitando la protección que debería dar." },
+              { id: "bypass", icon: "door-open", label: "Puentea la contraseña fuerte", sublabel: "El riesgo clave", detail: "Si el PIN cae, se obtiene acceso aunque la contraseña WPA sea larga y robusta: WPS se convierte en una puerta lateral que anula el esfuerzo de una buena clave." },
+              { id: "notall", icon: "puzzle", label: "No todos los equipos igual", sublabel: "Depende de la implementación", detail: "No todos los routers son vulnerables del mismo modo; algunos añaden límites de intentos o bloqueos. Aun así, la recomendación general es prudente." }
             ]
           },
           check: {
@@ -3940,10 +3940,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "pixie", label: "✨ Qué es «Pixie Dust»", sublabel: "Explota PIN débiles", detail: "El nombre de un enfoque que aprovecha que algunas implementaciones de WPS generan valores internos predecibles o débiles al calcular el PIN. Conceptualmente, es la consecuencia práctica de la debilidad anterior." },
-              { id: "off", label: "🔕 Desactivar WPS", sublabel: "Medida principal", detail: "Si no se usa, conviene apagarlo en el router. Es la defensa más directa: lo que no está activo no se puede aprovechar." },
-              { id: "fw", label: "🔄 Firmware al día", sublabel: "Cierra fallos conocidos", detail: "Mantener el router actualizado corrige implementaciones vulnerables y añade protecciones como límites de intentos." },
-              { id: "strong", label: "🔐 Buena base de seguridad", sublabel: "WPA2/WPA3 + clave robusta", detail: "Desactivar WPS no sustituye lo demás: sigue siendo clave usar un protocolo vigente y una contraseña larga y única." }
+              { id: "pixie", icon: "sparkles", label: "Qué es «Pixie Dust»", sublabel: "Explota PIN débiles", detail: "El nombre de un enfoque que aprovecha que algunas implementaciones de WPS generan valores internos predecibles o débiles al calcular el PIN. Conceptualmente, es la consecuencia práctica de la debilidad anterior." },
+              { id: "off", icon: "bell-off", label: "Desactivar WPS", sublabel: "Medida principal", detail: "Si no se usa, conviene apagarlo en el router. Es la defensa más directa: lo que no está activo no se puede aprovechar." },
+              { id: "fw", icon: "refresh-cw", label: "Firmware al día", sublabel: "Cierra fallos conocidos", detail: "Mantener el router actualizado corrige implementaciones vulnerables y añade protecciones como límites de intentos." },
+              { id: "strong", icon: "lock-keyhole", label: "Buena base de seguridad", sublabel: "WPA2/WPA3 + clave robusta", detail: "Desactivar WPS no sustituye lo demás: sigue siendo clave usar un protocolo vigente y una contraseña larga y única." }
             ]
           },
           check: {
@@ -3962,7 +3962,7 @@ Object.assign(lessons, {
       scenario: {
         title: "Escenario: hogar con un router nuevo (ficticio)",
         text: "El router trae WPS activado de fábrica, firmware de hace dos años y la contraseña de administración por defecto. La familia solo conecta teléfonos, una TV y una laptop, todos modernos.",
-        devices: ["📡 Router (WPS activo)", "📱 Teléfonos", "📺 TV", "💻 Laptop"]
+        devices: [{ icon: "radio-tower", label: "Router (WPS activo)" }, { icon: "smartphone", label: "Teléfonos" }, { icon: "tv", label: "TV" }, { icon: "laptop", label: "Laptop" }]
       },
       decisions: [
         {
@@ -4027,10 +4027,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "what", label: "🏷️ Qué es", sublabel: "Identificador de la tarjeta de red", detail: "Una etiqueta que identifica la interfaz de red de un dispositivo en la red local. Acompaña a las tramas para decir «de quién a quién» en el tramo local." },
-              { id: "format", label: "🔢 Cómo se ve", sublabel: "Seis pares, como AA:BB:CC:11:22:33", detail: "Se escribe como seis pares de dígitos. Parte de ella suele identificar al fabricante del equipo." },
-              { id: "soft", label: "✍️ Se puede cambiar", sublabel: "No está grabada en piedra", detail: "Aunque cada tarjeta trae una de fábrica, la mayoría de los sistemas permiten cambiarla por software. Esa flexibilidad es la base tanto del spoofing como de la aleatorización." },
-              { id: "local", label: "📍 Alcance local", sublabel: "No viaja por internet", detail: "La MAC identifica dentro del tramo de red local; no es un identificador global que llegue hasta un servidor remoto en internet." }
+              { id: "what", icon: "tag", label: "Qué es", sublabel: "Identificador de la tarjeta de red", detail: "Una etiqueta que identifica la interfaz de red de un dispositivo en la red local. Acompaña a las tramas para decir «de quién a quién» en el tramo local." },
+              { id: "format", icon: "hash", label: "Cómo se ve", sublabel: "Seis pares, como AA:BB:CC:11:22:33", detail: "Se escribe como seis pares de dígitos. Parte de ella suele identificar al fabricante del equipo." },
+              { id: "soft", icon: "pencil-line", label: "Se puede cambiar", sublabel: "No está grabada en piedra", detail: "Aunque cada tarjeta trae una de fábrica, la mayoría de los sistemas permiten cambiarla por software. Esa flexibilidad es la base tanto del spoofing como de la aleatorización." },
+              { id: "local", icon: "map-pin", label: "Alcance local", sublabel: "No viaja por internet", detail: "La MAC identifica dentro del tramo de red local; no es un identificador global que llegue hasta un servidor remoto en internet." }
             ]
           },
           check: {
@@ -4045,13 +4045,13 @@ Object.assign(lessons, {
           explanation: "Cambiar la MAC no siempre es un ataque: a veces es una función de privacidad. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "🎭 MAC Spoofing", rows: [
+            left: { icon: "venetian-mask", title: "MAC Spoofing", rows: [
               { label: "Intención", value: "Hacerse pasar por otro dispositivo concreto" },
               { label: "Objetivo", value: "Suplantar identidad o evadir un control basado en MAC" },
               { label: "Quién lo hace", value: "Alguien que busca eludir una restricción" },
               { label: "Legitimidad", value: "Engañoso: imita una dirección ajena" }
             ] },
-            right: { title: "🔀 Aleatorización legítima", rows: [
+            right: { icon: "shuffle", title: "Aleatorización legítima", rows: [
               { label: "Intención", value: "Proteger la privacidad del usuario" },
               { label: "Objetivo", value: "Evitar el rastreo entre redes por una MAC fija" },
               { label: "Quién lo hace", value: "El sistema operativo del teléfono/laptop, de forma automática" },
@@ -4072,10 +4072,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "noproof", label: "❌ No prueba quién es", sublabel: "Se puede copiar", detail: "Como puede cambiarse e imitarse, ver una MAC conocida no garantiza que sea ese dispositivo. Es un dato, no una credencial." },
-              { id: "filter", label: "🚧 El filtrado por MAC es débil", sublabel: "No es un control serio", detail: "Permitir solo ciertas MAC da una falsa sensación de seguridad: una dirección permitida puede imitarse. Sirve de comodidad, no de barrera real." },
-              { id: "real", label: "🔑 Autenticación de verdad", sublabel: "802.1X / credenciales", detail: "La identidad se verifica con mecanismos criptográficos (por ejemplo WPA2/WPA3-Enterprise con 802.1X), no con una etiqueta que se puede falsificar." },
-              { id: "watch", label: "🔎 Indicadores, con prudencia", sublabel: "Investigar, no condenar", detail: "Dos equipos con la misma MAC a la vez, o una MAC «de fábrica» que aparece donde no debería, son motivos para investigar; por sí solos no prueban un ataque." }
+              { id: "noproof", icon: "circle-x", label: "No prueba quién es", sublabel: "Se puede copiar", detail: "Como puede cambiarse e imitarse, ver una MAC conocida no garantiza que sea ese dispositivo. Es un dato, no una credencial." },
+              { id: "filter", icon: "construction", label: "El filtrado por MAC es débil", sublabel: "No es un control serio", detail: "Permitir solo ciertas MAC da una falsa sensación de seguridad: una dirección permitida puede imitarse. Sirve de comodidad, no de barrera real." },
+              { id: "real", icon: "key-round", label: "Autenticación de verdad", sublabel: "802.1X / credenciales", detail: "La identidad se verifica con mecanismos criptográficos (por ejemplo WPA2/WPA3-Enterprise con 802.1X), no con una etiqueta que se puede falsificar." },
+              { id: "watch", icon: "scan-search", label: "Indicadores, con prudencia", sublabel: "Investigar, no condenar", detail: "Dos equipos con la misma MAC a la vez, o una MAC «de fábrica» que aparece donde no debería, son motivos para investigar; por sí solos no prueban un ataque." }
             ]
           },
           check: {
@@ -4098,11 +4098,11 @@ Object.assign(lessons, {
         { id: "defensa", label: "Medida defensiva" }
       ],
       items: [
-        { id: "m1", icon: "🔀", name: "Un teléfono usa una MAC distinta en cada red Wi-Fi", clues: ["Función del sistema", "Privacidad"], answer: "normal", explain: "Es la aleatorización de MAC por privacidad: comportamiento normal de los equipos modernos.", hint: "¿Esto lo hace el propio sistema operativo por diseño?" },
-        { id: "m2", icon: "👯", name: "Dos dispositivos responden con la MISMA MAC al mismo tiempo", clues: ["Conflicto", "Posible suplantación"], answer: "investigar", explain: "Una MAC duplicada en uso simultáneo es un indicador que merece investigación (aún no una prueba).", hint: "¿Puede una misma dirección estar activa en dos equipos a la vez sin más?" },
-        { id: "m3", icon: "🔑", name: "Exigir 802.1X (WPA2/WPA3-Enterprise) para entrar a la red", clues: ["Autenticación criptográfica", "Identidad real"], answer: "defensa", explain: "Verifica la identidad con credenciales, no con una etiqueta falsificable.", hint: "¿Esto prueba identidad de forma seria o solo mira una etiqueta?" },
-        { id: "m4", icon: "🚧", name: "Confiar solo en una lista de MAC permitidas como seguridad", clues: ["Falsa sensación", "Imitable"], answer: "investigar", explain: "El filtrado por MAC es débil y no debe ser la única barrera: conviene revisarlo y reforzarlo.", hint: "¿Una dirección permitida puede imitarse?" },
-        { id: "m5", icon: "🔎", name: "Registrar y revisar cambios de MAC asociados a eventos extraños", clues: ["Monitoreo", "Correlación"], answer: "defensa", explain: "Observar con contexto ayuda a detectar anomalías sin sacar conclusiones apresuradas.", hint: "Observar con prudencia, ¿ataca o protege?" }
+        { id: "m1", icon: "shuffle", name: "Un teléfono usa una MAC distinta en cada red Wi-Fi", clues: ["Función del sistema", "Privacidad"], answer: "normal", explain: "Es la aleatorización de MAC por privacidad: comportamiento normal de los equipos modernos.", hint: "¿Esto lo hace el propio sistema operativo por diseño?" },
+        { id: "m2", icon: "copy", name: "Dos dispositivos responden con la MISMA MAC al mismo tiempo", clues: ["Conflicto", "Posible suplantación"], answer: "investigar", explain: "Una MAC duplicada en uso simultáneo es un indicador que merece investigación (aún no una prueba).", hint: "¿Puede una misma dirección estar activa en dos equipos a la vez sin más?" },
+        { id: "m3", icon: "key-round", name: "Exigir 802.1X (WPA2/WPA3-Enterprise) para entrar a la red", clues: ["Autenticación criptográfica", "Identidad real"], answer: "defensa", explain: "Verifica la identidad con credenciales, no con una etiqueta falsificable.", hint: "¿Esto prueba identidad de forma seria o solo mira una etiqueta?" },
+        { id: "m4", icon: "construction", name: "Confiar solo en una lista de MAC permitidas como seguridad", clues: ["Falsa sensación", "Imitable"], answer: "investigar", explain: "El filtrado por MAC es débil y no debe ser la única barrera: conviene revisarlo y reforzarlo.", hint: "¿Una dirección permitida puede imitarse?" },
+        { id: "m5", icon: "scan-search", name: "Registrar y revisar cambios de MAC asociados a eventos extraños", clues: ["Monitoreo", "Correlación"], answer: "defensa", explain: "Observar con contexto ayuda a detectar anomalías sin sacar conclusiones apresuradas.", hint: "Observar con prudencia, ¿ataca o protege?" }
       ],
       success: "Una MAC es un dato útil, no una prueba de identidad. La aleatorización es normal; las duplicadas o los controles basados solo en MAC merecen atención; la autenticación seria usa 802.1X."
     },
@@ -4129,10 +4129,10 @@ lessons[M4_MISSION_ID] = {
   subtitle: "Misión final del Módulo 4",
   doneTitle: "MISIÓN COMPLETADA",
   claim: "Actuaste como el equipo que defiende una red: distinguiste hechos de sospechas, reconociste amenazas inalámbricas y propusiste defensas fundamentadas, sin atacar nada.",
-  badge: { icon: "🛰️", name: "Centinela del Aire" },
+  badge: { icon: "satellite", name: "Centinela del Aire" },
   brief: {
     file: "Expediente · Módulo 4",
-    heading: "🛰️ Operación: Perímetro Inalámbrico",
+    headingIcon: "satellite", heading: "Operación: Perímetro Inalámbrico",
     text: "El equipo de WISPR recibe el registro de una tarde en el Wi-Fi de un campus ficticio. Hay eventos normales, indicadores que conviene investigar y decisiones de defensa por tomar. Analiza la evidencia con prudencia: un indicio no es una prueba, y propón medidas preventivas."
   },
   scan: {
@@ -4244,8 +4244,8 @@ const M6_SEQUENCE = ["m6-pcap", "m6-wireshark", "m6-frames", "m6-dispositivos", 
 const M6_MISSION_ID = "m6-mision";
 moduleMissions[6] = { missionId: M6_MISSION_ID, sequence: M6_SEQUENCE };
 
-const M6_OK = "✓ Correcto";
-const M6_RETRY = "✗ Inténtalo de nuevo";
+const M6_OK = "Correcto";
+const M6_RETRY = "Inténtalo de nuevo";
 const M6_COMMON = { labTheme: true, feedbackTitles: [M6_OK, M6_RETRY], quizOkTitle: M6_OK, quizWrongTitle: M6_RETRY };
 
 Object.assign(lessons, {
@@ -4270,10 +4270,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "what", label: "💾 Qué es", sublabel: "Una grabación de tramas", detail: "Un archivo que almacena copias de las tramas observadas en un punto de la red durante un intervalo, con su marca de tiempo. Es la «caja negra» del análisis." },
-              { id: "has", label: "📦 Qué contiene", sublabel: "Metadatos y contenido visible", detail: "Marcas de tiempo, direcciones, protocolos y la parte de cada trama que no esté cifrada. Si el tráfico va cifrado, la captura guarda los datos cifrados: no revela su contenido." },
-              { id: "use", label: "🔎 Para qué sirve", sublabel: "Analizar después", detail: "Permite revisar con calma lo que ocurrió: reconstruir una secuencia, contar eventos o buscar patrones, sin tener que estar presente en el momento." },
-              { id: "practice", label: "🧪 En WISPR", sublabel: "Archivos de práctica", detail: "Trabajas con capturas ficticias ya preparadas y autorizadas. El análisis consiste en examinar datos disponibles, nunca en interceptar comunicaciones ajenas." }
+              { id: "what", icon: "save", label: "Qué es", sublabel: "Una grabación de tramas", detail: "Un archivo que almacena copias de las tramas observadas en un punto de la red durante un intervalo, con su marca de tiempo. Es la «caja negra» del análisis." },
+              { id: "has", icon: "package", label: "Qué contiene", sublabel: "Metadatos y contenido visible", detail: "Marcas de tiempo, direcciones, protocolos y la parte de cada trama que no esté cifrada. Si el tráfico va cifrado, la captura guarda los datos cifrados: no revela su contenido." },
+              { id: "use", icon: "scan-search", label: "Para qué sirve", sublabel: "Analizar después", detail: "Permite revisar con calma lo que ocurrió: reconstruir una secuencia, contar eventos o buscar patrones, sin tener que estar presente en el momento." },
+              { id: "practice", icon: "flask-conical", label: "En WISPR", sublabel: "Archivos de práctica", detail: "Trabajas con capturas ficticias ya preparadas y autorizadas. El análisis consiste en examinar datos disponibles, nunca en interceptar comunicaciones ajenas." }
             ]
           },
           check: {
@@ -4288,13 +4288,13 @@ Object.assign(lessons, {
           explanation: "Son dos formatos para guardar capturas. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "📄 .pcap (clásico)", rows: [
+            left: { icon: "file-text", title: ".pcap (clásico)", rows: [
               { label: "Antigüedad", value: "Formato tradicional, muy compatible" },
               { label: "Interfaces", value: "Pensado para una sola interfaz de captura" },
               { label: "Metadatos", value: "Básicos (poco espacio para información extra)" },
               { label: "Comentarios", value: "No admite anotaciones dentro del archivo" }
             ] },
-            right: { title: "📑 .pcapng (nuevo)", rows: [
+            right: { icon: "files", title: ".pcapng (nuevo)", rows: [
               { label: "Antigüedad", value: "Formato moderno (next generation)" },
               { label: "Interfaces", value: "Admite varias interfaces en un mismo archivo" },
               { label: "Metadatos", value: "Más ricos (detalles del equipo, resolución de tiempo)" },
@@ -4315,10 +4315,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "origin", label: "📍 Procedencia", sublabel: "¿De dónde salió?", detail: "Saber dónde, cuándo y con qué permiso se obtuvo la captura. Una evidencia sin origen claro pierde valor para cualquier conclusión." },
-              { id: "hash", label: "🔒 Integridad", sublabel: "Que no se haya alterado", detail: "Un valor hash (una huella del archivo) permite comprobar más tarde que la captura es exactamente la misma que se obtuvo, sin modificaciones." },
-              { id: "chain", label: "📝 Trazabilidad", sublabel: "Cadena de custodia", detail: "Registrar quién manejó la evidencia y cuándo. En un análisis serio, se trabaja sobre copias y se preserva el original intacto." },
-              { id: "limit", label: "✂️ Captura incompleta", sublabel: "Límite importante", detail: "Si faltan paquetes, la captura empezó tarde o solo vio parte del tráfico, las conclusiones son parciales. Ausencia de evidencia no es evidencia de ausencia." }
+              { id: "origin", icon: "map-pin", label: "Procedencia", sublabel: "¿De dónde salió?", detail: "Saber dónde, cuándo y con qué permiso se obtuvo la captura. Una evidencia sin origen claro pierde valor para cualquier conclusión." },
+              { id: "hash", icon: "lock", label: "Integridad", sublabel: "Que no se haya alterado", detail: "Un valor hash (una huella del archivo) permite comprobar más tarde que la captura es exactamente la misma que se obtuvo, sin modificaciones." },
+              { id: "chain", icon: "notebook-pen", label: "Trazabilidad", sublabel: "Cadena de custodia", detail: "Registrar quién manejó la evidencia y cuándo. En un análisis serio, se trabaja sobre copias y se preserva el original intacto." },
+              { id: "limit", icon: "scissors", label: "Captura incompleta", sublabel: "Límite importante", detail: "Si faltan paquetes, la captura empezó tarde o solo vio parte del tráfico, las conclusiones son parciales. Ausencia de evidencia no es evidencia de ausencia." }
             ]
           },
           check: {
@@ -4341,11 +4341,11 @@ Object.assign(lessons, {
         { id: "limite", label: "Limitación a anotar" }
       ],
       items: [
-        { id: "e1", icon: "🔒", name: "Calcular el hash del archivo al recibirlo y guardarlo", clues: ["Verificar integridad"], answer: "buena", explain: "Permite comprobar después que la evidencia no fue alterada.", hint: "¿Esto protege o daña la confianza en la evidencia?" },
-        { id: "e2", icon: "✏️", name: "Editar la captura original para «limpiar» paquetes molestos", clues: ["Modifica el original"], answer: "error", explain: "Altera la evidencia: se trabaja sobre copias y se preserva el original.", hint: "¿Se debe tocar el archivo original?" },
-        { id: "e3", icon: "✂️", name: "La captura empezó 10 minutos después del evento reportado", clues: ["Falta el inicio"], answer: "limite", explain: "No es un error de manejo, pero limita lo que se puede concluir: hay que anotarlo.", hint: "¿Es un error humano o una limitación de los datos?" },
-        { id: "e4", icon: "📝", name: "Registrar de dónde, cuándo y con qué permiso se obtuvo la captura", clues: ["Procedencia", "Cadena de custodia"], answer: "buena", explain: "Documentar la procedencia da valor y trazabilidad a la evidencia.", hint: "¿Documentar el origen ayuda o estorba?" },
-        { id: "e5", icon: "🗑️", name: "No guardar copia y analizar directamente sobre el único archivo", clues: ["Sin respaldo"], answer: "error", explain: "Arriesga perder o alterar la evidencia única: siempre se trabaja sobre copias.", hint: "¿Qué pasa si ese único archivo se corrompe?" }
+        { id: "e1", icon: "lock", name: "Calcular el hash del archivo al recibirlo y guardarlo", clues: ["Verificar integridad"], answer: "buena", explain: "Permite comprobar después que la evidencia no fue alterada.", hint: "¿Esto protege o daña la confianza en la evidencia?" },
+        { id: "e2", icon: "pencil", name: "Editar la captura original para «limpiar» paquetes molestos", clues: ["Modifica el original"], answer: "error", explain: "Altera la evidencia: se trabaja sobre copias y se preserva el original.", hint: "¿Se debe tocar el archivo original?" },
+        { id: "e3", icon: "scissors", name: "La captura empezó 10 minutos después del evento reportado", clues: ["Falta el inicio"], answer: "limite", explain: "No es un error de manejo, pero limita lo que se puede concluir: hay que anotarlo.", hint: "¿Es un error humano o una limitación de los datos?" },
+        { id: "e4", icon: "notebook-pen", name: "Registrar de dónde, cuándo y con qué permiso se obtuvo la captura", clues: ["Procedencia", "Cadena de custodia"], answer: "buena", explain: "Documentar la procedencia da valor y trazabilidad a la evidencia.", hint: "¿Documentar el origen ayuda o estorba?" },
+        { id: "e5", icon: "trash-2", name: "No guardar copia y analizar directamente sobre el único archivo", clues: ["Sin respaldo"], answer: "error", explain: "Arriesga perder o alterar la evidencia única: siempre se trabaja sobre copias.", hint: "¿Qué pasa si ese único archivo se corrompe?" }
       ],
       success: "Una captura es evidencia: se preserva el original, se verifica su integridad con un hash, se documenta su procedencia y se anotan sus limitaciones (como una captura incompleta)."
     },
@@ -4379,10 +4379,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "what", label: "🦈 Qué es", sublabel: "Analizador de protocolos", detail: "Un programa que abre archivos de captura e interpreta las tramas protocolo por protocolo, mostrándolas de forma comprensible para el análisis." },
-              { id: "for", label: "🎯 Para qué se usa", sublabel: "Entender el tráfico", detail: "Para examinar qué protocolos aparecen, reconstruir secuencias, contar eventos y documentar hallazgos. En WISPR se usa sobre capturas de práctica." },
-              { id: "notmagic", label: "🚫 Qué NO hace", sublabel: "No descifra ni inventa", detail: "No descifra tráfico protegido solo por abrirlo, ni muestra lo que no se capturó. Interpreta lo que hay en el archivo, nada más." },
-              { id: "defense", label: "🛡️ Uso responsable", sublabel: "Datos autorizados", detail: "La herramienta es neutral: aquí se emplea para análisis defensivo sobre datos propios o autorizados, no para observar comunicaciones ajenas." }
+              { id: "what", icon: "audio-waveform", label: "Qué es", sublabel: "Analizador de protocolos", detail: "Un programa que abre archivos de captura e interpreta las tramas protocolo por protocolo, mostrándolas de forma comprensible para el análisis." },
+              { id: "for", icon: "target", label: "Para qué se usa", sublabel: "Entender el tráfico", detail: "Para examinar qué protocolos aparecen, reconstruir secuencias, contar eventos y documentar hallazgos. En WISPR se usa sobre capturas de práctica." },
+              { id: "notmagic", icon: "ban", label: "Qué NO hace", sublabel: "No descifra ni inventa", detail: "No descifra tráfico protegido solo por abrirlo, ni muestra lo que no se capturó. Interpreta lo que hay en el archivo, nada más." },
+              { id: "defense", icon: "shield", label: "Uso responsable", sublabel: "Datos autorizados", detail: "La herramienta es neutral: aquí se emplea para análisis defensivo sobre datos propios o autorizados, no para observar comunicaciones ajenas." }
             ]
           },
           check: {
@@ -4419,13 +4419,13 @@ Object.assign(lessons, {
           explanation: "Son dos cosas distintas que suelen confundirse. Pulsa «Resaltar diferencias» (es conceptual, no se escriben comandos).",
           visual: {
             type: "compare-pair",
-            left: { title: "🎛️ Filtro de captura", rows: [
+            left: { icon: "sliders-horizontal", title: "Filtro de captura", rows: [
               { label: "Cuándo actúa", value: "Antes/durante: decide qué se guarda" },
               { label: "Efecto", value: "Lo descartado no queda en el archivo" },
               { label: "Riesgo", value: "Si es muy estricto, se pierde evidencia para siempre" },
               { label: "Idea", value: "Reduce lo que se graba" }
             ] },
-            right: { title: "🔍 Filtro de visualización", rows: [
+            right: { icon: "search", title: "Filtro de visualización", rows: [
               { label: "Cuándo actúa", value: "Después: sobre una captura ya guardada" },
               { label: "Efecto", value: "Solo oculta temporalmente; nada se borra" },
               { label: "Riesgo", value: "Bajo: se puede quitar y volver a ver todo" },
@@ -4452,11 +4452,11 @@ Object.assign(lessons, {
         { id: "limite", label: "Limitación real" }
       ],
       items: [
-        { id: "w1", icon: "🕒", name: "Uso la columna Tiempo para medir el intervalo entre eventos", clues: ["Ordenar la secuencia"], answer: "correcto", explain: "El tiempo permite reconstruir y medir la secuencia: uso correcto.", hint: "¿Para qué sirve la marca de tiempo?" },
-        { id: "w2", icon: "🔓", name: "Wireshark me mostrará las contraseñas de un chat cifrado con solo abrir la captura", clues: ["Contra el cifrado"], answer: "mito", explain: "Abrir una captura no descifra tráfico protegido: es un mito.", hint: "¿Una captura vence al cifrado por sí sola?" },
-        { id: "w3", icon: "📑", name: "Reviso el panel de detalles para ver los campos de la trama por capas", clues: ["Estructura de la trama"], answer: "correcto", explain: "El panel de detalles desglosa la trama: uso correcto.", hint: "¿Dónde se lee la estructura de una trama?" },
-        { id: "w4", icon: "✂️", name: "Faltan paquetes del inicio, así que no veo cómo empezó la conexión", clues: ["Captura incompleta"], answer: "limite", explain: "Es una limitación real de los datos, no un mito ni un error de uso.", hint: "¿Es culpa de la herramienta o de que faltan datos?" },
-        { id: "w5", icon: "🔮", name: "Si un dispositivo no apareció en la captura, Wireshark lo deduce igual", clues: ["Inventar datos"], answer: "mito", explain: "Wireshark solo muestra lo capturado; no deduce lo que no se registró.", hint: "¿Puede mostrar algo que nunca se capturó?" }
+        { id: "w1", icon: "clock", name: "Uso la columna Tiempo para medir el intervalo entre eventos", clues: ["Ordenar la secuencia"], answer: "correcto", explain: "El tiempo permite reconstruir y medir la secuencia: uso correcto.", hint: "¿Para qué sirve la marca de tiempo?" },
+        { id: "w2", icon: "lock-open", name: "Wireshark me mostrará las contraseñas de un chat cifrado con solo abrir la captura", clues: ["Contra el cifrado"], answer: "mito", explain: "Abrir una captura no descifra tráfico protegido: es un mito.", hint: "¿Una captura vence al cifrado por sí sola?" },
+        { id: "w3", icon: "files", name: "Reviso el panel de detalles para ver los campos de la trama por capas", clues: ["Estructura de la trama"], answer: "correcto", explain: "El panel de detalles desglosa la trama: uso correcto.", hint: "¿Dónde se lee la estructura de una trama?" },
+        { id: "w4", icon: "scissors", name: "Faltan paquetes del inicio, así que no veo cómo empezó la conexión", clues: ["Captura incompleta"], answer: "limite", explain: "Es una limitación real de los datos, no un mito ni un error de uso.", hint: "¿Es culpa de la herramienta o de que faltan datos?" },
+        { id: "w5", icon: "wand-sparkles", name: "Si un dispositivo no apareció en la captura, Wireshark lo deduce igual", clues: ["Inventar datos"], answer: "mito", explain: "Wireshark solo muestra lo capturado; no deduce lo que no se registró.", hint: "¿Puede mostrar algo que nunca se capturó?" }
       ],
       success: "Wireshark interpreta lo que hay en la captura: ordena por tiempo, desglosa tramas y enfoca con filtros de visualización. No descifra tráfico protegido ni inventa lo que no se capturó."
     },
@@ -4490,10 +4490,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "mgmt", label: "⚙️ Administración", sublabel: "Establecen y gestionan el enlace", detail: "Anuncian redes y gestionan la relación entre cliente y AP: beacon, probe, autenticación, asociación, desautenticación. Son los más informativos para el análisis de red." },
-              { id: "ctrl", label: "🚦 Control", sublabel: "Coordinan el medio", detail: "Ayudan a ordenar el acceso al aire y a confirmar recepción (por ejemplo, confirmaciones). Suelen ser breves y muy numerosos." },
-              { id: "data", label: "📦 Datos", sublabel: "Transportan la información", detail: "Llevan el tráfico útil del usuario. Si la red está cifrada, su contenido va protegido: en la captura se ve que hay datos, pero no lo que dicen." },
-              { id: "why", label: "🎯 Por qué importa", sublabel: "Saber qué pasaba", detail: "Clasificar el frame es el primer paso para decir qué ocurría: ¿se anunciaba una red, alguien se conectaba, o se forzaban desconexiones?" }
+              { id: "mgmt", icon: "settings", label: "Administración", sublabel: "Establecen y gestionan el enlace", detail: "Anuncian redes y gestionan la relación entre cliente y AP: beacon, probe, autenticación, asociación, desautenticación. Son los más informativos para el análisis de red." },
+              { id: "ctrl", icon: "traffic-cone", label: "Control", sublabel: "Coordinan el medio", detail: "Ayudan a ordenar el acceso al aire y a confirmar recepción (por ejemplo, confirmaciones). Suelen ser breves y muy numerosos." },
+              { id: "data", icon: "package", label: "Datos", sublabel: "Transportan la información", detail: "Llevan el tráfico útil del usuario. Si la red está cifrada, su contenido va protegido: en la captura se ve que hay datos, pero no lo que dicen." },
+              { id: "why", icon: "target", label: "Por qué importa", sublabel: "Saber qué pasaba", detail: "Clasificar el frame es el primer paso para decir qué ocurría: ¿se anunciaba una red, alguien se conectaba, o se forzaban desconexiones?" }
             ]
           },
           check: {
@@ -4510,25 +4510,25 @@ Object.assign(lessons, {
             type: "bt-compare",
             prompt: "Toca cada frame.",
             options: [
-              { id: "beacon", icon: "📡", label: "Beacon", tag: "AP anuncia", tone: "info", rows: [
+              { id: "beacon", icon: "radio-tower", label: "Beacon", tag: "AP anuncia", tone: "info", rows: [
                 { k: "Quién lo envía", v: "El punto de acceso, de forma periódica." },
                 { k: "Para qué", v: "Anunciar la red: SSID, capacidades, canal." },
                 { k: "Se puede leer", v: "El nombre de la red y sus parámetros básicos." },
                 { k: "Límite", v: "Un nombre de red puede ser imitado por otro equipo." }
               ] },
-              { id: "probe", icon: "❓", label: "Probe Request / Response", tag: "Buscar redes", tone: "info", rows: [
+              { id: "probe", icon: "circle-help", label: "Probe Request / Response", tag: "Buscar redes", tone: "info", rows: [
                 { k: "Quién lo envía", v: "Request: un cliente que busca redes. Response: el AP que contesta." },
                 { k: "Para qué", v: "Descubrir redes disponibles." },
                 { k: "Se puede leer", v: "Qué redes busca un cliente y qué AP responde." },
                 { k: "Límite", v: "La MAC del cliente puede estar aleatorizada por privacidad." }
               ] },
-              { id: "authassoc", icon: "🤝", label: "Authentication / Association", tag: "Unirse", tone: "ok", rows: [
+              { id: "authassoc", icon: "handshake", label: "Authentication / Association", tag: "Unirse", tone: "ok", rows: [
                 { k: "Quién lo envía", v: "Cliente y AP, en un intercambio ordenado." },
                 { k: "Para qué", v: "El proceso de unirse a la red (previo al cifrado de datos)." },
                 { k: "Se puede leer", v: "Que un cliente intentó/logró unirse al AP." },
                 { k: "Límite", v: "Autenticarse aquí no prueba la identidad real de la persona." }
               ] },
-              { id: "deauth", icon: "👋", label: "Deauthentication / Disassociation", tag: "Terminar", tone: "warn", rows: [
+              { id: "deauth", icon: "log-out", label: "Deauthentication / Disassociation", tag: "Terminar", tone: "warn", rows: [
                 { k: "Quién lo envía", v: "Cliente o AP para cerrar la relación." },
                 { k: "Para qué", v: "Terminar una sesión o una asociación." },
                 { k: "Se puede leer", v: "Que hubo una desconexión y entre qué direcciones." },
@@ -4551,11 +4551,11 @@ Object.assign(lessons, {
             type: "list-select",
             prompt: "Toca cada afirmación.",
             items: [
-              { id: "f1", label: "✅ De un beacon se puede leer el SSID y el canal de una red", note: "Correcto: son datos que el AP anuncia en claro." },
-              { id: "f2", label: "✅ De una secuencia de autenticación/asociación se ve que un cliente intentó unirse a un AP", note: "Correcto: se observa el proceso, entre qué direcciones ocurrió." },
-              { id: "f3", label: "⚠️ Ver el SSID en un beacon NO prueba que esa red sea la legítima", note: "Límite: un nombre de red puede ser imitado (recuerda el Evil Twin del Módulo 4)." },
-              { id: "f4", label: "⚠️ Ver desautenticaciones NO prueba por sí solo un ataque", note: "Límite: una es normal; solo un patrón repetido y sin causa justifica investigar." },
-              { id: "f5", label: "⚠️ Que un cliente «busque» una red en un probe NO revela su contenido ni su identidad real", note: "Límite: la MAC puede estar aleatorizada y el contenido de datos va cifrado." }
+              { id: "f1", icon: "circle-check", label: "De un beacon se puede leer el SSID y el canal de una red", note: "Correcto: son datos que el AP anuncia en claro." },
+              { id: "f2", icon: "circle-check", label: "De una secuencia de autenticación/asociación se ve que un cliente intentó unirse a un AP", note: "Correcto: se observa el proceso, entre qué direcciones ocurrió." },
+              { id: "f3", icon: "triangle-alert", label: "Ver el SSID en un beacon NO prueba que esa red sea la legítima", note: "Límite: un nombre de red puede ser imitado (recuerda el Evil Twin del Módulo 4)." },
+              { id: "f4", icon: "triangle-alert", label: "Ver desautenticaciones NO prueba por sí solo un ataque", note: "Límite: una es normal; solo un patrón repetido y sin causa justifica investigar." },
+              { id: "f5", icon: "triangle-alert", label: "Que un cliente «busque» una red en un probe NO revela su contenido ni su identidad real", note: "Límite: la MAC puede estar aleatorizada y el contenido de datos va cifrado." }
             ]
           },
           check: {
@@ -4571,23 +4571,23 @@ Object.assign(lessons, {
       type: "packet-sort",
       prompt: "Clasifica los frames de la captura (simulado)",
       instructions: "Arrastra cada frame observado a su categoría. Recuerda: administración gestiona el enlace, control coordina el medio y datos transporta el tráfico (cifrado, si la red lo está).",
-      itemLabel: "📨 Frame",
+      itemIcon: "inbox", itemLabel: "Frame",
       countLabel: "Frames clasificados",
       binPrefix: "",
       okTitle: M6_OK,
       wrongTitle: M6_RETRY,
       bins: [
-        { id: "mgmt", label: "Administración", caption: "Gestiona el enlace", icon: "⚙️" },
-        { id: "ctrl", label: "Control", caption: "Coordina el medio", icon: "🚦" },
-        { id: "data", label: "Datos", caption: "Transporta tráfico", icon: "📦" }
+        { id: "mgmt", label: "Administración", caption: "Gestiona el enlace", icon: "settings" },
+        { id: "ctrl", label: "Control", caption: "Coordina el medio", icon: "traffic-cone" },
+        { id: "data", label: "Datos", caption: "Transporta tráfico", icon: "package" }
       ],
       items: [
-        { id: "x1", icon: "📡", text: "Beacon anunciando «Campus_WiFi» en el canal 6.", bin: "mgmt", explain: "El beacon es un frame de administración: anuncia la red.", hint: "¿Anuncia, coordina o transporta?" },
-        { id: "x2", icon: "👋", text: "Deauthentication entre un cliente y el AP.", bin: "mgmt", explain: "La desautenticación gestiona el fin del enlace: administración.", hint: "Cerrar una sesión, ¿qué familia es?" },
-        { id: "x3", icon: "✅", text: "Acknowledgement (confirmación de recepción).", bin: "ctrl", explain: "Las confirmaciones coordinan el medio: son frames de control.", hint: "Confirmar recepción coordina el acceso al aire." },
-        { id: "x4", icon: "📦", text: "Trama de datos cifrada entre cliente y AP.", bin: "data", explain: "Transporta tráfico del usuario (cifrado): frame de datos.", hint: "¿Qué familia lleva el tráfico útil?" },
-        { id: "x5", icon: "❓", text: "Probe Request de un cliente buscando redes.", bin: "mgmt", explain: "El probe descubre redes: es de administración.", hint: "Buscar/descubrir redes gestiona el enlace." },
-        { id: "x6", icon: "🤝", text: "Association Request de un cliente hacia el AP.", bin: "mgmt", explain: "Unirse a la red es parte de la administración.", hint: "El proceso de unirse, ¿qué familia es?" }
+        { id: "x1", icon: "radio-tower", text: "Beacon anunciando «Campus_WiFi» en el canal 6.", bin: "mgmt", explain: "El beacon es un frame de administración: anuncia la red.", hint: "¿Anuncia, coordina o transporta?" },
+        { id: "x2", icon: "log-out", text: "Deauthentication entre un cliente y el AP.", bin: "mgmt", explain: "La desautenticación gestiona el fin del enlace: administración.", hint: "Cerrar una sesión, ¿qué familia es?" },
+        { id: "x3", icon: "circle-check", text: "Acknowledgement (confirmación de recepción).", bin: "ctrl", explain: "Las confirmaciones coordinan el medio: son frames de control.", hint: "Confirmar recepción coordina el acceso al aire." },
+        { id: "x4", icon: "package", text: "Trama de datos cifrada entre cliente y AP.", bin: "data", explain: "Transporta tráfico del usuario (cifrado): frame de datos.", hint: "¿Qué familia lleva el tráfico útil?" },
+        { id: "x5", icon: "circle-help", text: "Probe Request de un cliente buscando redes.", bin: "mgmt", explain: "El probe descubre redes: es de administración.", hint: "Buscar/descubrir redes gestiona el enlace." },
+        { id: "x6", icon: "handshake", text: "Association Request de un cliente hacia el AP.", bin: "mgmt", explain: "Unirse a la red es parte de la administración.", hint: "El proceso de unirse, ¿qué familia es?" }
       ],
       hints: { mgmt: "Anuncian, descubren, unen o terminan el enlace.", ctrl: "Breves: confirman recepción o coordinan el acceso.", data: "Llevan el tráfico útil del usuario." },
       success: "Clasificar frames (administración, control, datos) permite reconstruir qué ocurría. Cada frame es un dato observable; por sí solo no prueba intención ni identidad."
@@ -4622,10 +4622,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "mac", label: "🏷️ Dirección MAC", sublabel: "Origen y destino", detail: "Identifica la interfaz de red de cada extremo en el tramo local. En un frame se ven las direcciones de origen y destino: de quién a quién, dentro de la red local." },
-              { id: "ssid", label: "🔤 SSID", sublabel: "Nombre de la red", detail: "La etiqueta de texto de una red (p. ej. «Campus_WiFi»). Es pública y puede repetirse o imitarse: no es un identificador único." },
-              { id: "bssid", label: "📛 BSSID", sublabel: "Identidad del AP", detail: "La dirección que identifica al punto de acceso concreto de una red. Dos redes con el mismo SSID pero distinto BSSID son equipos distintos." },
-              { id: "pair", label: "🔗 Juntarlos", sublabel: "Más contexto", detail: "Relacionar SSID + BSSID + direcciones de los frames ayuda a entender qué equipo anunciaba qué red y quién hablaba con quién." }
+              { id: "mac", icon: "tag", label: "Dirección MAC", sublabel: "Origen y destino", detail: "Identifica la interfaz de red de cada extremo en el tramo local. En un frame se ven las direcciones de origen y destino: de quién a quién, dentro de la red local." },
+              { id: "ssid", icon: "type", label: "SSID", sublabel: "Nombre de la red", detail: "La etiqueta de texto de una red (p. ej. «Campus_WiFi»). Es pública y puede repetirse o imitarse: no es un identificador único." },
+              { id: "bssid", icon: "badge", label: "BSSID", sublabel: "Identidad del AP", detail: "La dirección que identifica al punto de acceso concreto de una red. Dos redes con el mismo SSID pero distinto BSSID son equipos distintos." },
+              { id: "pair", icon: "link", label: "Juntarlos", sublabel: "Más contexto", detail: "Relacionar SSID + BSSID + direcciones de los frames ayuda a entender qué equipo anunciaba qué red y quién hablaba con quién." }
             ]
           },
           check: {
@@ -4642,10 +4642,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "what", label: "🏭 Qué es el OUI", sublabel: "Organizationally Unique Identifier", detail: "La parte inicial de una dirección MAC asignada a un fabricante. Permite estimar quién hizo la tarjeta de red (p. ej. un fabricante de equipos de red o de teléfonos)." },
+              { id: "what", icon: "factory", label: "Qué es el OUI", sublabel: "Organizationally Unique Identifier", detail: "La parte inicial de una dirección MAC asignada a un fabricante. Permite estimar quién hizo la tarjeta de red (p. ej. un fabricante de equipos de red o de teléfonos)." },
               { id: "approx", label: "≈ Aproximado", sublabel: "Pista, no certeza", detail: "Da una idea del fabricante, no del modelo exacto ni del dueño. Es una pista de contexto, útil pero limitada." },
-              { id: "random", label: "🔀 OJO con la aleatorización", sublabel: "Puede no ser real", detail: "Cuando un dispositivo usa una MAC aleatorizada por privacidad, el OUI puede ser uno «local» que no corresponde a ningún fabricante real. Entonces el dato de fabricante no sirve." },
-              { id: "spoof", label: "🎭 Y con la suplantación", sublabel: "Se puede falsificar", detail: "Una MAC (y por tanto su OUI) puede falsificarse. Ver un fabricante «conocido» no garantiza que el equipo sea de ese fabricante." }
+              { id: "random", icon: "shuffle", label: "OJO con la aleatorización", sublabel: "Puede no ser real", detail: "Cuando un dispositivo usa una MAC aleatorizada por privacidad, el OUI puede ser uno «local» que no corresponde a ningún fabricante real. Entonces el dato de fabricante no sirve." },
+              { id: "spoof", icon: "venetian-mask", label: "Y con la suplantación", sublabel: "Se puede falsificar", detail: "Una MAC (y por tanto su OUI) puede falsificarse. Ver un fabricante «conocido» no garantiza que el equipo sea de ese fabricante." }
             ]
           },
           check: {
@@ -4660,13 +4660,13 @@ Object.assign(lessons, {
           explanation: "Con los datos disponibles a veces se distingue el rol, pero nunca la identidad real. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "📡 Punto de acceso (AP)", rows: [
+            left: { icon: "radio-tower", title: "Punto de acceso (AP)", rows: [
               { label: "Suele enviar", value: "Beacons periódicos; responde probes" },
               { label: "Su dirección", value: "Aparece como BSSID de la red" },
               { label: "Papel", value: "Ofrece la red y coordina a los clientes" },
               { label: "Pista en la captura", value: "Patrón de anuncios regulares" }
             ] },
-            right: { title: "💻 Cliente", rows: [
+            right: { icon: "laptop", title: "Cliente", rows: [
               { label: "Suele enviar", value: "Probe requests; se asocia a un AP" },
               { label: "Su dirección", value: "MAC de origen en sus frames (puede estar aleatorizada)" },
               { label: "Papel", value: "Se conecta a la red que ofrece el AP" },
@@ -4693,11 +4693,11 @@ Object.assign(lessons, {
         { id: "buena", label: "Buena práctica" }
       ],
       items: [
-        { id: "d1", icon: "📛", name: "Mismo SSID y distinto BSSID → son dos equipos distintos", clues: ["BSSID difiere"], answer: "valida", explain: "El BSSID identifica el equipo: si difiere, son APs distintos. Conclusión válida.", hint: "¿Qué identifica al equipo concreto?" },
-        { id: "d2", icon: "🙍", name: "Esta MAC es de la marca X, así que el dueño es el estudiante Juan", clues: ["Salta a la persona"], answer: "excesiva", explain: "El OUI sugiere fabricante, no dueño; además puede estar aleatorizada o falsificada.", hint: "¿El fabricante dice quién es la persona?" },
-        { id: "d3", icon: "🔀", name: "Esta MAC tiene un OUI «local»: probablemente esté aleatorizada", clues: ["Marca de aleatorización"], answer: "valida", explain: "Un OUI local es una señal típica de MAC aleatorizada: lectura correcta.", hint: "¿Qué sugiere un OUI que no es de fabricante real?" },
-        { id: "d4", icon: "🔗", name: "Relacionar SSID, BSSID y direcciones para entender quién hablaba con quién", clues: ["Correlación"], answer: "buena", explain: "Cruzar identificadores da contexto: buena práctica de análisis.", hint: "¿Juntar datos ayuda a interpretar?" },
-        { id: "d5", icon: "🎭", name: "La MAC es de marca conocida, así que seguro no está falsificada", clues: ["Confianza ciega"], answer: "excesiva", explain: "Un OUI conocido no garantiza autenticidad: una MAC puede falsificarse.", hint: "¿Un fabricante conocido impide la suplantación?" }
+        { id: "d1", icon: "badge", name: "Mismo SSID y distinto BSSID → son dos equipos distintos", clues: ["BSSID difiere"], answer: "valida", explain: "El BSSID identifica el equipo: si difiere, son APs distintos. Conclusión válida.", hint: "¿Qué identifica al equipo concreto?" },
+        { id: "d2", icon: "user-round", name: "Esta MAC es de la marca X, así que el dueño es el estudiante Juan", clues: ["Salta a la persona"], answer: "excesiva", explain: "El OUI sugiere fabricante, no dueño; además puede estar aleatorizada o falsificada.", hint: "¿El fabricante dice quién es la persona?" },
+        { id: "d3", icon: "shuffle", name: "Esta MAC tiene un OUI «local»: probablemente esté aleatorizada", clues: ["Marca de aleatorización"], answer: "valida", explain: "Un OUI local es una señal típica de MAC aleatorizada: lectura correcta.", hint: "¿Qué sugiere un OUI que no es de fabricante real?" },
+        { id: "d4", icon: "link", name: "Relacionar SSID, BSSID y direcciones para entender quién hablaba con quién", clues: ["Correlación"], answer: "buena", explain: "Cruzar identificadores da contexto: buena práctica de análisis.", hint: "¿Juntar datos ayuda a interpretar?" },
+        { id: "d5", icon: "venetian-mask", name: "La MAC es de marca conocida, así que seguro no está falsificada", clues: ["Confianza ciega"], answer: "excesiva", explain: "Un OUI conocido no garantiza autenticidad: una MAC puede falsificarse.", hint: "¿Un fabricante conocido impide la suplantación?" }
       ],
       success: "SSID, BSSID y OUI dan contexto observable, pero con límites: el nombre se imita, el OUI es aproximado y una MAC puede aleatorizarse o falsificarse. Una dirección nunca identifica a una persona por sí sola."
     },
@@ -4731,10 +4731,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "anom", label: "📈 Qué es una anomalía", sublabel: "Desviación de lo esperado", detail: "Un patrón en el tráfico que no encaja con el comportamiento habitual de esa red: más eventos de lo normal, a horas raras, de orígenes inesperados o con una forma inusual." },
-              { id: "base", label: "📊 Línea base", sublabel: "El «normal» de referencia", detail: "Un registro de cómo se comporta la red en condiciones normales (volumen, horarios, dispositivos habituales). Sin ella, no se puede saber qué es realmente anómalo." },
-              { id: "context", label: "🧭 Contexto", sublabel: "Lo raro depende del lugar", detail: "Lo que es anómalo en una red puede ser normal en otra. Mucho tráfico a medianoche puede ser raro en una oficina y normal en un centro de datos." },
-              { id: "start", label: "🚦 Punto de partida", sublabel: "No es una conclusión", detail: "Una anomalía abre una investigación: es el inicio, no el final. Lo que sigue es confirmar, descartar o explicar." }
+              { id: "anom", icon: "trending-up", label: "Qué es una anomalía", sublabel: "Desviación de lo esperado", detail: "Un patrón en el tráfico que no encaja con el comportamiento habitual de esa red: más eventos de lo normal, a horas raras, de orígenes inesperados o con una forma inusual." },
+              { id: "base", icon: "chart-column", label: "Línea base", sublabel: "El «normal» de referencia", detail: "Un registro de cómo se comporta la red en condiciones normales (volumen, horarios, dispositivos habituales). Sin ella, no se puede saber qué es realmente anómalo." },
+              { id: "context", icon: "compass", label: "Contexto", sublabel: "Lo raro depende del lugar", detail: "Lo que es anómalo en una red puede ser normal en otra. Mucho tráfico a medianoche puede ser raro en una oficina y normal en un centro de datos." },
+              { id: "start", icon: "traffic-cone", label: "Punto de partida", sublabel: "No es una conclusión", detail: "Una anomalía abre una investigación: es el inicio, no el final. Lo que sigue es confirmar, descartar o explicar." }
             ]
           },
           check: {
@@ -4751,17 +4751,17 @@ Object.assign(lessons, {
             type: "bt-compare",
             prompt: "Toca cada categoría.",
             options: [
-              { id: "unusual", icon: "👀", label: "Actividad inusual", tag: "Llama la atención", tone: "info", rows: [
+              { id: "unusual", icon: "eye", label: "Actividad inusual", tag: "Llama la atención", tone: "info", rows: [
                 { k: "Qué es", v: "Algo que se sale de la línea base." },
                 { k: "Significa", v: "Que vale la pena mirarlo con más detalle." },
                 { k: "Conclusión", v: "Ninguna todavía: solo justifica revisar." }
               ] },
-              { id: "fp", icon: "🟡", label: "Falso positivo", tag: "Alarma sin causa", tone: "warn", rows: [
+              { id: "fp", icon: "circle-alert", label: "Falso positivo", tag: "Alarma sin causa", tone: "warn", rows: [
                 { k: "Qué es", v: "Una alerta que, al revisarla, tenía una explicación legítima." },
                 { k: "Significa", v: "Que lo inusual era, en realidad, benigno." },
                 { k: "Conclusión", v: "Se descarta y se documenta por qué." }
               ] },
-              { id: "incident", icon: "🔴", label: "Incidente confirmado", tag: "Sostenido por evidencia", tone: "bad", rows: [
+              { id: "incident", icon: "octagon-alert", label: "Incidente confirmado", tag: "Sostenido por evidencia", tone: "bad", rows: [
                 { k: "Qué es", v: "Un evento de seguridad respaldado por evidencia suficiente." },
                 { k: "Significa", v: "Que hay que responder y documentar en detalle." },
                 { k: "Conclusión", v: "Se afirma solo tras correlacionar y verificar." }
@@ -4783,11 +4783,11 @@ Object.assign(lessons, {
             type: "list-select",
             prompt: "Toca cada patrón.",
             items: [
-              { id: "a1", label: "🔁 Eventos repetidos de desautenticación sin causa aparente", note: "Justifica revisar; por sí solo no confirma un ataque (recuerda el Módulo 4)." },
-              { id: "a2", label: "📡 Un punto de acceso desconocido que no está en el inventario", note: "Posible Rogue AP: se verifica su origen antes de concluir." },
-              { id: "a3", label: "📉 Un cambio brusco en el volumen o el horario del tráfico", note: "Se compara con la línea base: puede tener causas normales o no." },
-              { id: "a4", label: "🧩 Correlacionar con otras fuentes (registros, inventario, horarios)", note: "Buena práctica: una conclusión se sostiene cruzando varias fuentes, no con un solo indicio." },
-              { id: "a5", label: "⏸️ Esperar más evidencia antes de afirmar «es un ataque»", note: "Prudencia: evita falsos positivos y acusaciones infundadas." }
+              { id: "a1", icon: "repeat", label: "Eventos repetidos de desautenticación sin causa aparente", note: "Justifica revisar; por sí solo no confirma un ataque (recuerda el Módulo 4)." },
+              { id: "a2", icon: "radio-tower", label: "Un punto de acceso desconocido que no está en el inventario", note: "Posible Rogue AP: se verifica su origen antes de concluir." },
+              { id: "a3", icon: "trending-down", label: "Un cambio brusco en el volumen o el horario del tráfico", note: "Se compara con la línea base: puede tener causas normales o no." },
+              { id: "a4", icon: "puzzle", label: "Correlacionar con otras fuentes (registros, inventario, horarios)", note: "Buena práctica: una conclusión se sostiene cruzando varias fuentes, no con un solo indicio." },
+              { id: "a5", icon: "pause", label: "Esperar más evidencia antes de afirmar «es un ataque»", note: "Prudencia: evita falsos positivos y acusaciones infundadas." }
             ]
           },
           check: {
@@ -4810,11 +4810,11 @@ Object.assign(lessons, {
         { id: "anom", label: "Anomalía a investigar" }
       ],
       items: [
-        { id: "an1", icon: "📊", name: "Pico de tráfico cada día a las 8:00, cuando llega el personal", clues: ["Coincide con el horario", "Se repite siempre"], answer: "normal", explain: "Encaja con la línea base: actividad esperable.", hint: "¿Esto ocurre siempre a la misma hora conocida?" },
-        { id: "an2", icon: "🟡", name: "Alerta por «muchos probes»… eran los equipos nuevos configurándose, según TI", clues: ["Tenía explicación", "Confirmada con otra fuente"], answer: "fp", explain: "Se revisó y tenía causa legítima: falso positivo documentado.", hint: "¿Se encontró una explicación legítima?" },
-        { id: "an3", icon: "🔁", name: "Ráfagas repetidas de desautenticación de madrugada, sin mantenimiento previsto", clues: ["Sin causa conocida", "Patrón repetido"], answer: "anom", explain: "No encaja con la línea base ni tiene causa: anomalía que hay que investigar (todavía no es prueba de ataque).", hint: "¿Hay causa conocida? ¿Se repite sin explicación?" },
-        { id: "an4", icon: "📡", name: "Un AP desconocido, con nombre parecido al oficial, no registrado", clues: ["Fuera del inventario"], answer: "anom", explain: "Posible Rogue AP/Evil Twin: anomalía a verificar.", hint: "¿Está en el inventario de APs autorizados?" },
-        { id: "an5", icon: "🔄", name: "Un teléfono con MAC distinta en cada red, un solo equipo", clues: ["Aleatorización", "Función normal"], answer: "normal", explain: "Aleatorización de MAC por privacidad: comportamiento normal.", hint: "¿Es una función de privacidad habitual?" }
+        { id: "an1", icon: "chart-column", name: "Pico de tráfico cada día a las 8:00, cuando llega el personal", clues: ["Coincide con el horario", "Se repite siempre"], answer: "normal", explain: "Encaja con la línea base: actividad esperable.", hint: "¿Esto ocurre siempre a la misma hora conocida?" },
+        { id: "an2", icon: "circle-alert", name: "Alerta por «muchos probes»… eran los equipos nuevos configurándose, según TI", clues: ["Tenía explicación", "Confirmada con otra fuente"], answer: "fp", explain: "Se revisó y tenía causa legítima: falso positivo documentado.", hint: "¿Se encontró una explicación legítima?" },
+        { id: "an3", icon: "repeat", name: "Ráfagas repetidas de desautenticación de madrugada, sin mantenimiento previsto", clues: ["Sin causa conocida", "Patrón repetido"], answer: "anom", explain: "No encaja con la línea base ni tiene causa: anomalía que hay que investigar (todavía no es prueba de ataque).", hint: "¿Hay causa conocida? ¿Se repite sin explicación?" },
+        { id: "an4", icon: "radio-tower", name: "Un AP desconocido, con nombre parecido al oficial, no registrado", clues: ["Fuera del inventario"], answer: "anom", explain: "Posible Rogue AP/Evil Twin: anomalía a verificar.", hint: "¿Está en el inventario de APs autorizados?" },
+        { id: "an5", icon: "refresh-cw", name: "Un teléfono con MAC distinta en cada red, un solo equipo", clues: ["Aleatorización", "Función normal"], answer: "normal", explain: "Aleatorización de MAC por privacidad: comportamiento normal.", hint: "¿Es una función de privacidad habitual?" }
       ],
       success: "La detección de anomalías compara con una línea base y separa lo inusual, los falsos positivos y los incidentes. Un indicio abre una hipótesis; la conclusión necesita correlación y evidencia."
     },
@@ -4848,10 +4848,10 @@ Object.assign(lessons, {
             type: "node-cluster",
             note: "Toca cada tarjeta.",
             nodes: [
-              { id: "scope", label: "🎯 Alcance", sublabel: "Qué, cuándo, dónde", detail: "Delimitar la pregunta: qué se reportó, en qué ventana de tiempo y sobre qué parte de la red. Un alcance claro evita perderse en datos irrelevantes." },
-              { id: "order", label: "🗂️ Método ordenado", sublabel: "De lo general a lo específico", detail: "Primero una visión general (qué protocolos, qué volumen), luego el foco en lo relevante. Documentar cada paso para poder rehacerlo." },
-              { id: "copy", label: "📁 Trabajar sobre copias", sublabel: "Preservar el original", detail: "Se analiza una copia y se conserva la evidencia original intacta, con su integridad verificada (como viste en el tema de capturas)." },
-              { id: "repro", label: "🔁 Reproducible", sublabel: "Que otro pueda seguirlo", detail: "Un buen análisis puede ser repetido por otra persona con los mismos datos y pasos, llegando a las mismas observaciones." }
+              { id: "scope", icon: "target", label: "Alcance", sublabel: "Qué, cuándo, dónde", detail: "Delimitar la pregunta: qué se reportó, en qué ventana de tiempo y sobre qué parte de la red. Un alcance claro evita perderse en datos irrelevantes." },
+              { id: "order", icon: "folder-tree", label: "Método ordenado", sublabel: "De lo general a lo específico", detail: "Primero una visión general (qué protocolos, qué volumen), luego el foco en lo relevante. Documentar cada paso para poder rehacerlo." },
+              { id: "copy", icon: "folder", label: "Trabajar sobre copias", sublabel: "Preservar el original", detail: "Se analiza una copia y se conserva la evidencia original intacta, con su integridad verificada (como viste en el tema de capturas)." },
+              { id: "repro", icon: "repeat", label: "Reproducible", sublabel: "Que otro pueda seguirlo", detail: "Un buen análisis puede ser repetido por otra persona con los mismos datos y pasos, llegando a las mismas observaciones." }
             ]
           },
           check: {
@@ -4886,12 +4886,12 @@ Object.assign(lessons, {
           explanation: "La clave de un informe serio es no mezclar estos tres niveles. Pulsa «Resaltar diferencias».",
           visual: {
             type: "compare-pair",
-            left: { title: "🧱 Evidencia", rows: [
+            left: { icon: "brick-wall", title: "Evidencia", rows: [
               { label: "Qué es", value: "Lo que se observa directamente en la captura" },
               { label: "Ejemplo", value: "«A las 20:03 hay un beacon con SSID X y BSSID Y no registrado»" },
               { label: "En el informe", value: "Se cita con su respaldo (paquete, tiempo)" }
             ] },
-            right: { title: "💡 Hipótesis / Conclusión", rows: [
+            right: { icon: "lightbulb", title: "Hipótesis / Conclusión", rows: [
               { label: "Qué es", value: "Hipótesis: explicación posible, aún por confirmar. Conclusión: lo que la evidencia permite sostener" },
               { label: "Ejemplo", value: "Hipótesis: «podría ser un AP no autorizado». Conclusión: solo si la evidencia la sostiene" },
               { label: "En el informe", value: "Se marcan como tales y se anotan las limitaciones" }
@@ -4913,7 +4913,7 @@ Object.assign(lessons, {
       scenario: {
         title: "Escenario: incidente reportado en el laboratorio (ficticio)",
         text: "Se reporta que, ayer por la tarde, varios equipos del laboratorio «perdían el Wi-Fi» repetidamente. Te entregan una captura de práctica de esa franja horaria para analizarla.",
-        devices: ["📁 Captura de práctica", "📡 AP legítimo (BSSID conocido)", "💻 Equipos del laboratorio", "❓ Un AP desconocido"]
+        devices: [{ icon: "folder", label: "Captura de práctica" }, { icon: "radio-tower", label: "AP legítimo (BSSID conocido)" }, { icon: "laptop", label: "Equipos del laboratorio" }, { icon: "circle-help", label: "Un AP desconocido" }]
       },
       decisions: [
         {
@@ -4970,10 +4970,10 @@ lessons[M6_MISSION_ID] = {
   subtitle: "Misión integradora del Módulo 6",
   doneTitle: "MISIÓN COMPLETADA",
   claim: "Analizaste una captura de práctica de principio a fin: reconociste frames, interpretaste identificadores, detectaste indicios, construiste una línea temporal y separaste evidencia, hipótesis y conclusión, con recomendaciones defensivas.",
-  badge: { icon: "🔬", name: "Analista de Evidencias" },
+  badge: { icon: "microscope", name: "Analista de Evidencias" },
   brief: {
     file: "Expediente · Módulo 6",
-    heading: "🔬 Expediente: La Tarde del Laboratorio",
+    headingIcon: "microscope", heading: "Expediente: La Tarde del Laboratorio",
     text: "Caso ficticio y autorizado. Te entregan un resumen de una captura de práctica tomada en el laboratorio «CEDES-Lab» entre las 20:00 y las 20:12. Se reportó que varios equipos «perdían el Wi-Fi». Analiza el resumen, distingue evidencia de hipótesis y emite un informe defensivo. No hay que abrir ninguna captura binaria: trabajas con los datos preparados de abajo."
   },
   scan: {
@@ -5217,6 +5217,34 @@ const div = (props, children) => h("div", props, children);
 const span = (props, children) => h("span", props, children);
 const button = (props, children) => h("button", props, children);
 
+// Ícono de línea (trazos de Lucide en icons.js). Toma el color y el tamaño del
+// texto que lo rodea. Cada llamada crea un nodo nuevo: no guardar el resultado
+// para reutilizarlo en varios lugares (un nodo solo puede estar en uno).
+function icon(name) {
+  if (!hasIcon(name)) {
+    if (typeof ICON_PATHS === "object") console.warn(`Ícono desconocido: ${name}`);
+    return null;
+  }
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", `ico ico-${name}`);
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  svg.innerHTML = ICON_PATHS[name];
+  return svg;
+}
+
+// Si icons.js no cargó (p. ej. un servidor viejo que no lo sirve), la app
+// sigue funcionando, solo que sin íconos.
+function hasIcon(name) {
+  return typeof ICON_PATHS === "object" && Boolean(ICON_PATHS[name]);
+}
+
+// Texto con su ícono delante, si el dato trae uno.
+function withIcon(name, text) {
+  return name ? [icon(name), " ", text] : text;
+}
+
 // El logo ya trae el wordmark "WISPR" dibujado, así que reemplaza el cuadro
 // con la "W" + el texto "WISPR"/subtítulo gris que había antes.
 function brandLogo(extraClass = "") {
@@ -5243,7 +5271,7 @@ function applyTheme(theme) {
 function initThemeToggle() {
   let theme = getStoredTheme();
   applyTheme(theme);
-  const icon = t => (t === "dark" ? "🌙" : "☀️");
+  const themeIcon = t => icon(t === "dark" ? "moon" : "sun");
   const label = t => (t === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
   const toggle = button({
     class: "theme-toggle",
@@ -5253,11 +5281,11 @@ function initThemeToggle() {
     onclick: () => {
       theme = theme === "dark" ? "light" : "dark";
       applyTheme(theme);
-      toggle.textContent = icon(theme);
+      toggle.replaceChildren(themeIcon(theme));
       toggle.title = label(theme);
       toggle.setAttribute("aria-label", label(theme));
     }
-  }, icon(theme));
+  }, themeIcon(theme));
   document.body.appendChild(toggle);
 }
 
@@ -6414,7 +6442,7 @@ function markStoryReady(card, story, duration) {
   card.disabled = false;
   card.setAttribute("aria-label", `Ver la historia de ${story.name}`);
   const status = card.querySelector(".story-status");
-  if (status) status.textContent = `▶ Ver historia${duration ? ` · ${formatDuration(duration)}` : ""}`;
+  if (status) status.replaceChildren(icon("play"), ` Ver historia${duration ? ` · ${formatDuration(duration)}` : ""}`);
 }
 
 function storyCard(story, index) {
@@ -6438,7 +6466,7 @@ function storyCard(story, index) {
       fallback,
       poster,
       span({ class: "story-scan", "aria-hidden": "true" }, ""),
-      span({ class: "story-play", "aria-hidden": "true" }, "▶"),
+      span({ class: "story-play", "aria-hidden": "true" }, icon("play")),
       span({ class: "story-index" }, `HISTORIA ${String(index + 1).padStart(2, "0")}`),
       span({ class: "story-tag" }, story.tag)
     ]),
@@ -6446,7 +6474,7 @@ function storyCard(story, index) {
       h("strong", { class: "story-name" }, story.name),
       h("span", { class: "story-role" }, story.role),
       h("p", { class: "story-tagline" }, story.tagline),
-      span({ class: "story-status" }, known?.ready ? `▶ Ver historia${known.duration ? ` · ${formatDuration(known.duration)}` : ""}` : "")
+      span({ class: "story-status" }, known?.ready ? [icon("play"), ` Ver historia${known.duration ? ` · ${formatDuration(known.duration)}` : ""}`] : "")
     ])
   ]);
   // Sonda invisible: solo pide los metadatos. Si el archivo existe, la tarjeta
@@ -6493,7 +6521,7 @@ function openStoryPlayer(story) {
     div({ class: "story-player" }, [
       div({ class: "story-player-head" }, [
         div({}, [span({ class: "story-index" }, story.tag), h("strong", {}, story.name)]),
-        button({ class: "ghost-action compact", type: "button", onclick: closeStoryPlayer, "aria-label": "Cerrar video" }, "✕ Cerrar")
+        button({ class: "ghost-action compact", type: "button", onclick: closeStoryPlayer, "aria-label": "Cerrar video" }, [icon("x"), " Cerrar"])
       ]),
       h("video", { class: "story-video", src: `./img/historias/${story.slug}.mp4`, controls: true, autoplay: true, playsinline: true }, []),
       h("span", { class: "story-role" }, story.role),
@@ -6602,7 +6630,7 @@ function landingServicesSection() {
 }
 
 function landingBenefitRow(benefit) {
-  return div({ class: "benefit-row" }, [span({ class: "benefit-check", "aria-hidden": "true" }, "✓"), div({}, [h("h3", {}, benefit.title), h("p", {}, benefit.detail)])]);
+  return div({ class: "benefit-row" }, [span({ class: "benefit-check", "aria-hidden": "true" }, icon("check")), div({}, [h("h3", {}, benefit.title), h("p", {}, benefit.detail)])]);
 }
 
 function landingBenefitsSection() {
@@ -6683,14 +6711,14 @@ function loginView() {
         registering ? h("label", {}, [
           "Correo",
           div({ class: "field-shell" }, [
-            span({ class: "field-icon" }, "✉"),
+            span({ class: "field-icon" }, icon("mail")),
             emailInput = h("input", { name: "email", type: "email", placeholder: "tu.correo@ejemplo.com", autocomplete: "email", oninput: () => updateRoleHint(emailInput, roleHint) }, [])
           ]),
           roleHint = h("p", { class: "role-hint muted tight" }, "")
         ]) : null,
         h("label", {}, ["Usuario u operador", div({ class: "field-shell" }, [span({ class: "field-icon" }, "@"), h("input", { name: "user", placeholder: "ester", autocomplete: "username" }, [])])]),
         registering ? h("label", {}, ["Género", h("select", { name: "gender" }, [h("option", { value: "" }, "Selecciona…"), h("option", { value: "femenino" }, "Femenino"), h("option", { value: "masculino" }, "Masculino"), h("option", { value: "otro" }, "Otro / prefiero no decirlo")])]) : null,
-        h("label", {}, ["Contraseña de acceso", div({ class: "field-shell" }, [span({ class: "field-icon" }, "#"), password = h("input", { name: "password", type: "password", placeholder: "••••••••", autocomplete: registering ? "new-password" : "current-password" }, []), button({ class: "field-toggle", type: "button", onclick: () => { password.type = password.type === "password" ? "text" : "password"; } }, "ver")])]),
+        h("label", {}, ["Contraseña de acceso", div({ class: "field-shell" }, [span({ class: "field-icon" }, icon("lock")), password = h("input", { name: "password", type: "password", placeholder: "••••••••", autocomplete: registering ? "new-password" : "current-password" }, []), button({ class: "field-toggle", type: "button", onclick: () => { password.type = password.type === "password" ? "text" : "password"; } }, "ver")])]),
         button({ class: "primary-action login-action", type: "submit" }, "Enviar código de verificación")
       ]),
       h("p", { class: "auth-note" }, registering ? "Con un correo institucional se detecta si eres estudiante o profesor; cualquier otro correo entra como estudiante. Te enviamos un código de verificación." : "Cada inicio de sesión pide un código de verificación enviado a tu correo (MFA).")
@@ -6709,7 +6737,7 @@ function verifyView() {
         h("p", {}, ["Enviamos un código de 6 dígitos a ", h("strong", {}, maskEmail(pendingAuth.email)), "."])
       ]),
       h("form", { class: "login-form", onsubmit: submitVerification }, [
-        h("label", {}, ["Código de verificación", div({ class: "field-shell" }, [span({ class: "field-icon" }, "#"), h("input", { name: "code", inputmode: "numeric", pattern: "[0-9]{6}", maxlength: "6", placeholder: "000000", autocomplete: "one-time-code", autofocus: true }, [])])]),
+        h("label", {}, ["Código de verificación", div({ class: "field-shell" }, [span({ class: "field-icon" }, icon("hash")), h("input", { name: "code", inputmode: "numeric", pattern: "[0-9]{6}", maxlength: "6", placeholder: "000000", autocomplete: "one-time-code", autofocus: true }, [])])]),
         button({ class: "primary-action login-action", type: "submit" }, "Verificar y entrar")
       ]),
       div({ class: "verify-actions" }, [
@@ -6830,7 +6858,7 @@ function dashboardView() {
           span({ class: "dash-lab-dot", "aria-hidden": "true" }, ""),
           span({}, `Laboratorio: ${lab.label}`),
           span({ class: "dash-lab-detail" }, lab.detail),
-          button({ class: "dash-lab-refresh", type: "button", title: "Comprobar de nuevo", "aria-label": "Comprobar de nuevo el laboratorio", onclick: hydratePlatform }, "⟳")
+          button({ class: "dash-lab-refresh", type: "button", title: "Comprobar de nuevo", "aria-label": "Comprobar de nuevo el laboratorio", onclick: hydratePlatform }, icon("refresh-cw"))
         ])
       ]),
       div({ class: "mission-ring", style: { "--progress": `${progress * 3.6}deg` }, role: "img", "aria-label": `${progress}% de los retos completados` }, [span({}, `${progress}%`), h("small", {}, "completado")])
@@ -6860,20 +6888,26 @@ function challengeRow(challenge, onclick) {
 // Tarjeta de cifra de los paneles de admin y profesor.
 function metric(label, value, detail, action) {
   const icons = {
-    "Puntos": "★",
-    "Solves": "✓",
-    "Pistas": "⚑",
-    "Laboratorio": "◉"
+    "Puntos": "star",
+    "Solves": "check",
+    "Pistas": "lightbulb",
+    "Laboratorio": "flask-conical",
+    "Cuentas": "users",
+    "Estudiantes": "graduation-cap",
+    "Grupos": "school",
+    "Intentos": "target",
+    "Miembro desde": "calendar",
+    "Nuevas": "user-plus"
   };
 
   return div({ class: "metric-card" }, [
-    div({ class: "metric-icon" }, icons[label] || "•"),
+    div({ class: "metric-icon" }, icons[label] ? icon(icons[label]) : "•"),
     div({ class: "metric-content" }, [
       span({ class: "muted" }, label),
       h("strong", {}, String(value)),
       h("small", {}, detail)
     ]),
-    action ? button({ class: "metric-action", title: action.title, "aria-label": action.title, onclick: action.onclick }, "⟳") : null
+    action ? button({ class: "metric-action", title: action.title, "aria-label": action.title, onclick: action.onclick }, icon("refresh-cw")) : null
   ]);
 }
 
@@ -7001,7 +7035,7 @@ function practiceWorth(options) {
   const text = points === 0
     ? "Este tipo y nivel ya no suma puntos para ti: sirve para practicar. Prueba otro tipo o un nivel más alto."
     : points < full ? `Valdrá ${points} pts (ya pediste este tipo y nivel; el primero valía ${full}).` : `Valdrá ${points} pts.`;
-  return h("p", { class: `generator-worth ${points === 0 ? "none" : points < full ? "reduced" : ""}` }, [span({ "aria-hidden": "true" }, points === 0 ? "○ " : "★ "), text]);
+  return h("p", { class: `generator-worth ${points === 0 ? "none" : points < full ? "reduced" : ""}` }, [icon(points === 0 ? "circle" : "star"), " ", text]);
 }
 
 // Cuántos espacios le quedan al estudiante para pedir retos (el backend frena igual).
@@ -7068,7 +7102,7 @@ function challengeCard(challenge) {
   return div({ class: `challenge-card ${solved ? "completed" : ""}`, onclick: () => { app.selectedId = challenge.id; switchTab("reto"); } }, [
     div({ class: "card-topline" }, [span({ class: "badge", style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), h("p", { class: "eyebrow card-category" }, challenge.category)]),
     div({}, [h("h3", {}, challenge.title), h("p", { class: "muted card-desc" }, challenge.description)]),
-    div({ class: "card-footer" }, [div({ class: solved ? "solve solved" : "solve" }, solved ? "✓ resuelto" : challenge.points ? `${challenge.points} pts` : "práctica"), span({ class: "open-link" }, "Ver reto →")])
+    div({ class: "card-footer" }, [div({ class: solved ? "solve solved" : "solve" }, solved ? [icon("check"), " resuelto"] : challenge.points ? `${challenge.points} pts` : "práctica"), span({ class: "open-link" }, "Ver reto →")])
   ]);
 }
 
@@ -7178,7 +7212,7 @@ function speedWindowPct(estimate) {
 function challengeResult(solved) {
   const seconds = solved.breakdown?.speed?.seconds;
   return div({ class: "wclock-solo" }, [
-    div({ class: "wclock-ring done", "aria-label": "Reto resuelto" }, [h("strong", { class: "wclock-time" }, seconds != null ? formatClock(seconds * 1000) : "✓"), h("small", {}, "resuelto")])
+    div({ class: "wclock-ring done", "aria-label": "Reto resuelto" }, [h("strong", { class: "wclock-time" }, seconds != null ? formatClock(seconds * 1000) : icon("check")), h("small", {}, "resuelto")])
   ]);
 }
 
@@ -7220,7 +7254,7 @@ function challengeDetail(challenge) {
   const unlocked = app.hints[challenge.id] || [];
   let input;
   return h("section", { class: "detail detail-page" }, [
-    div({ class: "detail-hero" }, [div({ class: "detail-hero-text" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, "✓ Resuelto") : null])]), challengeClock(challenge)]),
+    div({ class: "detail-hero" }, [div({ class: "detail-hero-text" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, [icon("check"), " Resuelto"]) : null])]), challengeClock(challenge)]),
     div({ class: "panel" }, [h("h3", {}, "Objetivo"), h("p", {}, challenge.objective), challenge.tools.length ? div({ class: "tool-grid" }, [span({ class: "tool-label" }, "Herramientas"), ...challenge.tools.map(tool => span({ class: "tool" }, tool))]) : null]),
     div({ class: "panel" }, [h("h3", {}, "Archivos"), ...challenge.files.map(file => div({ class: "file-row" }, [div({}, [h("strong", {}, file.name), h("p", { class: "muted tight" }, file.desc)]), button({ class: "ghost-action", onclick: () => downloadFile(file, challenge) }, "Descargar")])), h("p", { class: "muted tight scope-note" }, "Evidencia sintética. Kali corre aislada, sin acceso a tu equipo ni a internet.")]),
     div({ class: "panel" }, [h("h3", {}, "Pistas"), ...challenge.hints.map((hint, index) => ({ hint, index, open: unlocked.includes(index) && Boolean(hint) })).map(({ hint, index, open }) => div({ class: "hint-row" }, [open ? h("p", {}, hint) : h("p", { class: "muted" }, `Pista ${index + 1} bloqueada`), !open ? button({ class: "ghost-action", onclick: () => unlockHint(challenge.id, index) }, hintButtonLabel(challenge)) : null]))]),
@@ -7531,7 +7565,7 @@ function taskRow(group, task, editable) {
     allDone = task.done;
   } else {
     allDone = task.done;
-    statusEl = span({ class: `task-status ${task.done ? "done" : ""}` }, task.done ? "✓" : "○");
+    statusEl = span({ class: `task-status ${task.done ? "done" : ""}` }, task.done ? icon("check") : icon("circle"));
   }
   return div({ class: `task-row ${allDone ? "task-done" : ""}` }, [
     statusEl,
@@ -7929,7 +7963,7 @@ function adminView() {
     ]),
     div({ class: "panel admin-toolbar" }, [
       div({ class: "field-shell admin-search" }, [
-        span({ class: "field-icon" }, "⌕"),
+        span({ class: "field-icon" }, icon("search")),
         h("input", {
           type: "search",
           placeholder: "Buscar por nombre, usuario o correo…",
@@ -7984,7 +8018,7 @@ function adminPlayerRow(player) {
     player.isAdmin ? span({ class: "role-tag role-admin" }, "Admin") : (player.role ? span({ class: `role-tag role-${player.role}` }, roleLabel(player.role)) : span({ class: "muted" }, "—")),
     player.locked
       ? span({ class: "role-tag role-admin", title: player.lockReason || "Bloqueada por un administrador" }, "Bloqueada")
-      : (player.lockedUntil ? span({ class: "muted", title: "Bloqueo temporal por intentos fallidos" }, "⏳ temporal") : span({ class: "admin-cell muted" }, player.joined ? new Date(player.joined).toLocaleDateString() : "—")),
+      : (player.lockedUntil ? span({ class: "muted", title: "Bloqueo temporal por intentos fallidos" }, [icon("hourglass"), " temporal"]) : span({ class: "admin-cell muted" }, player.joined ? new Date(player.joined).toLocaleDateString() : "—")),
     span({ class: "admin-cell muted" }, `${solves} solve${solves === 1 ? "" : "s"}`),
     div({ class: "admin-row-actions" }, [
       button({
@@ -8038,7 +8072,7 @@ function theoryTopicRow(topic) {
   return button({ class: "theory-topic theory-topic-lesson", onclick: () => startLesson(lessonId) }, [
     span({ class: "topic-dot", "aria-hidden": "true" }, ""),
     span({}, topic),
-    done ? span({ class: "lesson-done-badge" }, "✓ Completado") : span({ class: "lesson-cta" }, "Lección interactiva →")
+    done ? span({ class: "lesson-done-badge" }, [icon("check"), " Completado"]) : span({ class: "lesson-cta" }, "Lección interactiva →")
   ]);
 }
 
@@ -8141,8 +8175,8 @@ function lessonStepper(stage) {
   return div({ class: "lesson-stepper" }, [
     div({ class: "lesson-steps" }, steps.map((step, index) => {
       const isLast = index === steps.length - 1;
-      const icon = isLast ? (stage === "done" ? "✓" : "🏆") : index < current ? "✓" : String(index + 1).padStart(2, "0");
-      return div({ class: `lesson-step ${index < current ? "done" : index === current ? "active" : ""}` }, [span({ class: "lesson-step-index" }, icon), span({}, step.label)]);
+      const marker = isLast ? icon(stage === "done" ? "check" : "trophy") : index < current ? icon("check") : String(index + 1).padStart(2, "0");
+      return div({ class: `lesson-step ${index < current ? "done" : index === current ? "active" : ""}` }, [span({ class: "lesson-step-index" }, marker), span({}, step.label)]);
     })),
     div({ class: "lesson-progress-track" }, [div({ class: "lesson-progress-bar", style: { width: `${percent}%` } }, [])])
   ]);
@@ -8157,7 +8191,7 @@ function lessonLearnStage(lesson, state) {
 
 function lessonLearnVideoStage(lesson, state) {
   return div({ class: "lesson-stage lesson-learn" }, [
-    h("p", { class: "eyebrow" }, "🎬 Aprender"),
+    h("p", { class: "eyebrow" }, [icon("clapperboard"), " Aprender"]),
     div({ class: "lesson-video-frame" }, [
       h("video", {
         id: "lesson-video", class: "lesson-video", src: lesson.videoSrc, controls: true, playsinline: true, preload: "metadata",
@@ -8210,13 +8244,13 @@ function lessonLearnStepsStage(lesson, state) {
   const isLast = index === steps.length - 1;
   const percent = Math.round(((index + 1) / steps.length) * 100);
   return div({ class: "lesson-stage lesson-learn lesson-learn-steps" }, [
-    h("p", { class: "eyebrow" }, "🎬 Aprender"),
+    h("p", { class: "eyebrow" }, [icon("clapperboard"), " Aprender"]),
     div({ class: "learn-step-progress" }, [
       span({ class: "muted tight" }, `Paso ${index + 1} de ${steps.length}`),
       div({ class: "learn-step-track" }, [div({ class: "learn-step-bar", style: { width: `${percent}%` } }, [])])
     ]),
     div({ class: "learn-step-card panel" }, [
-      step.link ? div({ class: "m3-link" }, [span({ class: "m3-link-icon", "aria-hidden": "true" }, "🔗"), span({}, step.link)]) : null,
+      step.link ? div({ class: "m3-link" }, [span({ class: "m3-link-icon", "aria-hidden": "true" }, icon("link")), span({}, step.link)]) : null,
       h("h3", { class: "learn-step-concept" }, step.concept),
       h("p", { class: "learn-step-explanation" }, step.explanation),
       step.visual ? div({ class: "learn-step-visual" }, [renderLearnVisual(step.visual, state, index)]) : null,
@@ -8364,7 +8398,7 @@ function renderListSelect(visual, state, stepIndex) {
       class: `lv-list-item ${selectedId === item.id ? "active" : ""}`,
       type: "button",
       onclick: () => { app.lesson.stepSelections[stepIndex] = item.id; render(); }
-    }, item.label))),
+    }, withIcon(item.icon, item.label)))),
     selectedItem ? div({ class: "lv-note" }, [h("p", {}, selectedItem.note)]) : null
   ]);
 }
@@ -8386,7 +8420,7 @@ function renderNodeCluster(visual, state, stepIndex) {
           render();
         }
       }, [
-        h("strong", {}, node.label),
+        h("strong", {}, withIcon(node.icon, node.label)),
         node.sublabel ? h("small", {}, node.sublabel) : null,
         isOpen && node.detail ? h("p", { class: "lv-node-detail" }, node.detail) : null
       ]);
@@ -8414,7 +8448,7 @@ function renderComparePair(visual, state, stepIndex) {
 
 function compareColumn(column, other, highlighted) {
   return div({ class: "lv-compare-col" }, [
-    h("strong", {}, column.title),
+    h("strong", {}, withIcon(column.icon, column.title)),
     div({}, column.rows.map((row, index) => div({
       class: `lv-compare-row ${highlighted && other.rows[index] && other.rows[index].value !== row.value ? "diff" : ""}`
     }, [span({ class: "muted tight" }, row.label), span({}, row.value)])))
@@ -8425,7 +8459,7 @@ function compareColumn(column, other, highlighted) {
 // interacción — pensada para el último paso de cada lección a modo de recap.
 function renderIconRow(visual) {
   return div({ class: "lv-icon-row" }, visual.items.map(item => div({ class: "lv-icon-item" }, [
-    span({ class: "lv-icon", "aria-hidden": "true" }, item.icon),
+    span({ class: "lv-icon", "aria-hidden": "true" }, icon(item.icon)),
     h("strong", {}, item.label),
     h("small", {}, item.caption)
   ])));
@@ -8452,7 +8486,7 @@ function lessonPracticeOrderStage(lesson, state) {
   const practice = lesson.practice;
   const cardsById = Object.fromEntries(practice.cards.map(card => [card.id, card]));
   return div({ class: "lesson-stage lesson-practice" }, [
-    h("p", { class: "eyebrow" }, "🧩 Practicar"),
+    h("p", { class: "eyebrow" }, [icon("puzzle"), " Practicar"]),
     h("h3", {}, practice.prompt),
     h("p", { class: "muted" }, practice.instructions),
     div({ class: "practice-cards" }, state.order.map((cardId, index) => practiceCard(cardsById[cardId], index, state.order.length, state))),
@@ -8462,7 +8496,7 @@ function lessonPracticeOrderStage(lesson, state) {
         ? button({ class: "primary-action", onclick: () => { app.lesson.stage = "quiz"; render(); } }, "Continuar al quiz →")
         : button({ class: "primary-action", onclick: checkPractice }, "Comprobar")
     ]),
-    state.practiceFeedback === "correct" ? div({ class: "practice-feedback ok" }, [h("strong", {}, "✓ ¡Correcto!"), h("p", {}, practice.success)]) : null,
+    state.practiceFeedback === "correct" ? div({ class: "practice-feedback ok" }, [h("strong", {}, [icon("check"), " ¡Correcto!"]), h("p", {}, practice.success)]) : null,
     state.practiceFeedback === "wrong" ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi…"), h("p", {}, practice.hint)]) : null
   ]);
 }
@@ -8505,7 +8539,7 @@ function lessonPracticeMatchStage(lesson, state) {
   const practice = lesson.practice;
   const pairsById = Object.fromEntries(practice.pairs.map(pair => [pair.id, pair]));
   return div({ class: "lesson-stage lesson-practice" }, [
-    h("p", { class: "eyebrow" }, "🧩 Practicar"),
+    h("p", { class: "eyebrow" }, [icon("puzzle"), " Practicar"]),
     h("h3", {}, practice.prompt),
     h("p", { class: "muted" }, practice.instructions),
     div({ class: "match-board" }, [
@@ -8516,7 +8550,7 @@ function lessonPracticeMatchStage(lesson, state) {
       span({ class: "practice-attempts" }, `Intentos: ${state.attempts}`),
       state.practiceSolved ? button({ class: "primary-action", onclick: () => { app.lesson.stage = "quiz"; render(); } }, "Continuar al quiz →") : null
     ]),
-    state.practiceFeedback === "correct" ? div({ class: "practice-feedback ok" }, [h("strong", {}, "✓ ¡Correcto!"), h("p", {}, practice.success)]) : null,
+    state.practiceFeedback === "correct" ? div({ class: "practice-feedback ok" }, [h("strong", {}, [icon("check"), " ¡Correcto!"]), h("p", {}, practice.success)]) : null,
     state.practiceFeedback === "wrong" ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi…"), h("p", {}, practice.hint)]) : null
   ]);
 }
@@ -8569,7 +8603,7 @@ function lessonPracticeBuildNetworkStage(lesson, state) {
   const placedIds = new Set(Object.keys(state.placements));
   const pending = practice.devices.filter(device => !placedIds.has(device.id));
   return div({ class: "lesson-stage lesson-practice" }, [
-    h("p", { class: "eyebrow" }, "🧩 Practicar"),
+    h("p", { class: "eyebrow" }, [icon("puzzle"), " Practicar"]),
     h("h3", {}, practice.prompt),
     h("p", { class: "muted" }, practice.instructions),
     div({ class: "build-devices" }, pending.length
@@ -8577,17 +8611,17 @@ function lessonPracticeBuildNetworkStage(lesson, state) {
           class: `build-device ${state.activeDevice === device.id ? "selected" : ""}`,
           type: "button",
           onclick: () => { app.lesson.activeDevice = app.lesson.activeDevice === device.id ? null : device.id; app.lesson.practiceFeedback = null; render(); }
-        }, [span({ class: "build-device-icon", "aria-hidden": "true" }, device.icon || "📶"), span({}, device.label)]))
+        }, [span({ class: "build-device-icon", "aria-hidden": "true" }, icon(device.icon || "wifi")), span({}, device.label)]))
       : [h("p", { class: "muted tight" }, "Todos los dispositivos están ubicados.")]),
     div({ class: "build-zones" }, practice.zones.map(zone => div({ class: "build-zone", onclick: () => handleBuildZoneClick(zone.id) }, [
       h("strong", {}, zone.label),
-      div({ class: "build-zone-items" }, practice.devices.filter(device => state.placements[device.id] === zone.id).map(device => span({ class: "build-zone-chip" }, [device.icon || "📶", " ", device.label])))
+      div({ class: "build-zone-items" }, practice.devices.filter(device => state.placements[device.id] === zone.id).map(device => span({ class: "build-zone-chip" }, [icon(device.icon || "wifi"), " ", device.label])))
     ]))),
     div({ class: "practice-footer" }, [
       span({ class: "practice-attempts" }, `Intentos: ${state.attempts}`),
       state.practiceSolved ? button({ class: "primary-action", onclick: () => { app.lesson.stage = "quiz"; render(); } }, "Continuar al quiz →") : null
     ]),
-    state.practiceFeedback === "correct" ? div({ class: "practice-feedback ok" }, [h("strong", {}, "✓ ¡Red construida!"), h("p", {}, practice.success)]) : null,
+    state.practiceFeedback === "correct" ? div({ class: "practice-feedback ok" }, [h("strong", {}, [icon("check"), " ¡Red construida!"]), h("p", {}, practice.success)]) : null,
     state.practiceFeedback === "wrong" ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi…"), h("p", {}, practice.hint)]) : null
   ]);
 }
@@ -8624,13 +8658,13 @@ function lessonPracticeClassifyStage(lesson, state) {
   const practice = lesson.practice;
   const solvedCount = Object.values(state.classified).filter(entry => entry.correct).length;
   return div({ class: "lesson-stage lesson-practice" }, [
-    h("p", { class: "eyebrow" }, "🧩 Practicar"),
+    h("p", { class: "eyebrow" }, [icon("puzzle"), " Practicar"]),
     h("h3", {}, practice.prompt),
     h("p", { class: "muted" }, practice.instructions),
     h("p", { class: "muted tight" }, `Clasificadas correctamente: ${solvedCount}/${practice.items.length}`),
     div({ class: "classify-list" }, practice.items.map(item => classifyItemRow(practice, item, state))),
     state.practiceSolved ? div({ class: "practice-footer" }, [button({ class: "primary-action", onclick: () => { app.lesson.stage = "quiz"; render(); } }, "Continuar al quiz →")]) : null,
-    state.practiceSolved ? div({ class: "practice-feedback ok" }, [h("strong", {}, "✓ ¡Todo clasificado!"), h("p", {}, practice.success)]) : null
+    state.practiceSolved ? div({ class: "practice-feedback ok" }, [h("strong", {}, [icon("check"), " ¡Todo clasificado!"]), h("p", {}, practice.success)]) : null
   ]);
 }
 
@@ -8687,7 +8721,7 @@ function lessonPracticeChannelAssignStage(lesson, state) {
   const practice = lesson.practice;
   const overlaps = overlapCount(state.assignments, practice.aps, practice.overlapThreshold);
   return div({ class: "lesson-stage lesson-practice" }, [
-    h("p", { class: "eyebrow" }, "🧩 Practicar"),
+    h("p", { class: "eyebrow" }, [icon("puzzle"), " Practicar"]),
     h("h3", {}, practice.prompt),
     h("p", { class: "muted" }, practice.instructions),
     div({ class: "channel-assign-list" }, practice.aps.map(ap => div({ class: "channel-assign-row" }, [
@@ -8704,12 +8738,12 @@ function lessonPracticeChannelAssignStage(lesson, state) {
       const widthPct = (practice.overlapThreshold / (Math.max(...practice.axis) - Math.min(...practice.axis) + 1)) * 100;
       return div({ class: "lv-spectrum-band static", style: { left: `${Math.max(0, leftPct)}%`, width: `${widthPct}%` } }, ap.label);
     })),
-    div({ class: `channel-overlap-status ${overlaps === 0 ? "ok" : "bad"}` }, overlaps === 0 ? "✓ Sin solapamientos en esta distribución." : `⚠ ${overlaps} par${overlaps === 1 ? "" : "es"} de canales se solapan.`),
+    div({ class: `channel-overlap-status ${overlaps === 0 ? "ok" : "bad"}` }, overlaps === 0 ? [icon("check"), " Sin solapamientos en esta distribución."] : [icon("triangle-alert"), ` ${overlaps} par${overlaps === 1 ? "" : "es"} de canales se solapan.`]),
     h("p", { class: "muted tight" }, `Configuraciones probadas: ${state.triedConfigs.length}`),
     div({ class: "practice-footer" }, [
       state.practiceSolved ? button({ class: "primary-action", onclick: () => { app.lesson.stage = "quiz"; render(); } }, "Continuar al quiz →") : null
     ]),
-    state.practiceSolved ? div({ class: "practice-feedback ok" }, [h("strong", {}, "✓ ¡Buena distribución!"), h("p", {}, practice.success)]) : null
+    state.practiceSolved ? div({ class: "practice-feedback ok" }, [h("strong", {}, [icon("check"), " ¡Buena distribución!"]), h("p", {}, practice.success)]) : null
   ]);
 }
 
@@ -8731,7 +8765,7 @@ function lessonQuizStage(lesson, state) {
   const answered = state.quizChecked[question.id];
   const selected = state.quizAnswers[question.id];
   return div({ class: "lesson-stage lesson-quiz" }, [
-    h("p", { class: "eyebrow" }, "🧠 Comprobar"),
+    h("p", { class: "eyebrow" }, [icon("brain"), " Comprobar"]),
     lesson.quizTitle ? h("p", { class: "m3-quiz-title" }, lesson.quizTitle) : null,
     h("p", { class: "muted quiz-count" }, `Pregunta ${state.quizIndex + 1} de ${lesson.quiz.length}`),
     h("h3", {}, question.prompt),
@@ -8742,7 +8776,7 @@ function lessonQuizStage(lesson, state) {
       return button({ class: `quiz-option ${cls}`, disabled: Boolean(answered), onclick: () => answerQuiz(question, index) }, option);
     })),
     answered ? div({ class: `quiz-feedback ${selected === question.correct ? "ok" : "bad"}` }, [
-      h("strong", {}, selected === question.correct ? (lesson.quizOkTitle || "✓ ¡Correcto!") : (lesson.quizWrongTitle || "✗ No es correcto")),
+      h("strong", {}, selected === question.correct ? [icon("check"), " ", lesson.quizOkTitle || "¡Correcto!"] : [icon("x"), " ", lesson.quizWrongTitle || "No es correcto"]),
       h("p", {}, question.feedback[selected === question.correct ? 0 : 1])
     ]) : null,
     answered ? div({ class: "lesson-actions" }, [
@@ -8762,21 +8796,34 @@ function nextQuizQuestion() {
   render();
 }
 
+// Nota mínima del quiz para completar una lección (3 de 4). Con menos, la
+// lección no se guarda y hay que repetirla; el backend aplica la misma regla.
+const LESSON_PASS_PERCENT = 75;
+
 function lessonQuizResults(lesson, state) {
   const total = lesson.quiz.length;
   const correctCount = lesson.quiz.filter(question => state.quizAnswers[question.id] === question.correct).length;
   const percent = Math.round((correctCount / total) * 100);
+  const passed = percent >= LESSON_PASS_PERCENT;
+  const needed = Math.ceil((total * LESSON_PASS_PERCENT) / 100);
   const reviewConcepts = [...new Set(lesson.quiz.filter(question => state.quizAnswers[question.id] !== question.correct).map(question => question.concept))];
   return div({ class: "lesson-stage lesson-quiz-results" }, [
-    h("p", { class: "eyebrow" }, "🧠 Comprobar"),
+    h("p", { class: "eyebrow" }, [icon("brain"), " Comprobar"]),
     h("h3", {}, `Resultado: ${correctCount}/${total}`),
     h("p", { class: "quiz-percent" }, `${percent}%`),
+    passed ? null : div({ class: "practice-feedback bad" }, [
+      h("strong", {}, [icon("rotate-ccw"), " Todavía no: repite la lección"]),
+      h("p", {}, `Necesitas al menos ${needed} de ${total} respuestas correctas (${LESSON_PASS_PERCENT} %) para completarla. Vuelve a repasar el contenido y la práctica, y luego intenta el quiz otra vez.`)
+    ]),
     reviewConcepts.length
       ? div({ class: "quiz-review" }, [h("p", { class: "muted" }, "Conceptos que deberías repasar:"), div({ class: "concept-row" }, reviewConcepts.map(concept => span({ class: "concept-chip small" }, concept)))])
       : h("p", { class: "muted" }, "¡Dominaste todos los conceptos de esta lección!"),
-    div({ class: "lesson-actions" }, [
+    div({ class: "lesson-actions" }, passed ? [
       button({ class: "ghost-action", onclick: retryQuiz }, "Reintentar quiz"),
       button({ class: "primary-action", onclick: () => finishLesson(lesson, percent) }, "Continuar")
+    ] : [
+      button({ class: "ghost-action", onclick: backToTheory }, "Volver a Teoría"),
+      button({ class: "primary-action", onclick: () => startLesson(lesson.id) }, "Repetir lección")
     ])
   ]);
 }
@@ -8802,13 +8849,13 @@ function finishLesson(lesson, percent) {
 function lessonCompleteStage(lesson, state) {
   if (moduleMissions[lesson.moduleId]) return m3LessonCompleteStage(lesson, state);
   return div({ class: "lesson-stage lesson-complete panel" }, [
-    span({ class: "lesson-complete-badge", "aria-hidden": "true" }, "🎉"),
+    span({ class: "lesson-complete-badge", "aria-hidden": "true" }, icon("party-popper")),
     h("h2", {}, "¡Módulo completado!"),
     h("p", { class: "muted" }, lesson.title),
     div({ class: "lesson-checklist" }, [
-      div({}, [span({}, "✓"), span({}, "Aprendizaje completado")]),
-      div({}, [span({}, "✓"), span({}, `Práctica completada (${state.attempts} intento${state.attempts === 1 ? "" : "s"})`)]),
-      div({}, [span({}, "✓"), span({}, "Evaluación completada")])
+      div({}, [span({}, icon("check")), span({}, "Aprendizaje completado")]),
+      div({}, [span({}, icon("check")), span({}, `Práctica completada (${state.attempts} intento${state.attempts === 1 ? "" : "s"})`)]),
+      div({}, [span({}, icon("check")), span({}, "Evaluación completada")])
     ]),
     h("p", { class: "lesson-score" }, `Puntuación: ${state.percent}%`),
     span({ class: "xp-badge" }, `+${state.xp} XP`),
@@ -8873,7 +8920,7 @@ function m3Chip(label, tone, extraClass = "") {
 
 function m3Device(kind) {
   return div({ class: `m3-dev m3-dev-${kind}` }, [
-    span({ class: "m3-dev-icon", "aria-hidden": "true" }, kind === "ap" ? "📡" : "💻"),
+    span({ class: "m3-dev-icon", "aria-hidden": "true" }, kind === "ap" ? icon("radio-tower") : icon("laptop")),
     h("strong", {}, kind === "ap" ? "AP" : "Cliente")
   ]);
 }
@@ -8943,7 +8990,7 @@ function masteryInfo(percent) {
 function masteryStars(percent) {
   const info = masteryInfo(percent);
   return span({ class: "m3-mastery", title: info.label }, [
-    span({ class: "m3-stars", "aria-hidden": "true" }, [1, 2, 3].map(n => span({ class: n <= info.stars ? "on" : "off" }, "★"))),
+    span({ class: "m3-stars", "aria-hidden": "true" }, [1, 2, 3].map(n => span({ class: n <= info.stars ? "on" : "off" }, icon("star")))),
     span({}, info.label)
   ]);
 }
@@ -8972,10 +9019,10 @@ function moduleMissionRow(moduleId) {
     title: info.unlocked ? "" : "Completa todas las lecciones del módulo para desbloquearla",
     onclick: () => startLesson(info.config.missionId)
   }, [
-    span({ class: "m3-mission-icon", "aria-hidden": "true" }, info.unlocked ? "🎯" : "🔒"),
+    span({ class: "m3-mission-icon", "aria-hidden": "true" }, info.unlocked ? icon("target") : icon("lock")),
     span({}, [h("strong", {}, mission.title), h("small", { class: "muted" }, " · misión final")]),
     info.missionDone
-      ? span({ class: "lesson-done-badge" }, `${badge.icon} ${badge.name}`)
+      ? span({ class: "lesson-done-badge" }, [icon(badge.icon), ` ${badge.name}`])
       : info.unlocked
         ? span({ class: "lesson-cta" }, "Iniciar misión →")
         : span({ class: "m3-locked-label" }, `Completa las ${info.total} lecciones (${info.doneCount}/${info.total})`)
@@ -8983,7 +9030,7 @@ function moduleMissionRow(moduleId) {
 }
 
 // Mini-mapa del módulo en la cabecera de cada lección: lecciones numeradas
-// (✓ si están completas) + la misión final. Permite saltar entre temas.
+// (con check si están completas) + la misión final. Permite saltar entre temas.
 function moduleTrack(lesson) {
   const info = moduleSequenceInfo(lesson.moduleId);
   const missionId = info.config.missionId;
@@ -8997,7 +9044,7 @@ function moduleTrack(lesson) {
         title: `${index + 1}. ${lessons[id].title}${done ? " (completada)" : ""}`,
         disabled: current,
         onclick: () => startLesson(id)
-      }, [span({ class: "m3-track-num" }, done && !current ? "✓" : String(index + 1)), span({ class: "m3-track-name" }, lessons[id].title)]);
+      }, [span({ class: "m3-track-num" }, done && !current ? icon("check") : String(index + 1)), span({ class: "m3-track-name" }, lessons[id].title)]);
     }),
     button({
       class: `m3-track-dot mission ${info.missionDone ? "done" : ""} ${lesson.id === missionId ? "current" : ""}`,
@@ -9005,7 +9052,7 @@ function moduleTrack(lesson) {
       title: info.unlocked ? lessons[missionId].title : "Misión bloqueada: completa las lecciones",
       disabled: !info.unlocked || lesson.id === missionId,
       onclick: () => startLesson(missionId)
-    }, [span({ class: "m3-track-num" }, info.unlocked ? "🎯" : "🔒"), span({ class: "m3-track-name" }, "Misión")])
+    }, [span({ class: "m3-track-num" }, info.unlocked ? icon("target") : icon("lock")), span({ class: "m3-track-name" }, "Misión")])
   ]);
 }
 
@@ -9020,22 +9067,22 @@ function m3LessonCompleteStage(lesson, state) {
   const pending = sequence.filter(id => !app.lessonProgress[id]?.completed);
   let nextButton;
   if (nextId) nextButton = button({ class: "primary-action", type: "button", onclick: () => startLesson(nextId) }, `Siguiente: ${lessons[nextId].title} →`);
-  else if (info.unlocked) nextButton = button({ class: "primary-action", type: "button", onclick: () => startLesson(info.config.missionId) }, `🎯 ${lessons[info.config.missionId].title} →`);
+  else if (info.unlocked) nextButton = button({ class: "primary-action", type: "button", onclick: () => startLesson(info.config.missionId) }, [icon("target"), ` ${lessons[info.config.missionId].title} →`]);
   else nextButton = button({ class: "primary-action", type: "button", onclick: () => startLesson(pending[0]) }, `Te falta: ${lessons[pending[0]].title} →`);
   return div({ class: "lesson-stage lesson-complete panel m3-complete" }, [
-    span({ class: "lesson-complete-badge", "aria-hidden": "true" }, "🔓"),
+    span({ class: "lesson-complete-badge", "aria-hidden": "true" }, icon("lock-open")),
     h("h2", {}, "¡Lección completada!"),
     h("p", { class: "muted" }, `${lesson.title}${lesson.subtitle ? ` — ${lesson.subtitle}` : ""}`),
     div({ class: "lesson-checklist" }, [
-      div({}, [span({}, "✓"), span({}, "Aprendizaje completado")]),
-      div({}, [span({}, "✓"), span({}, `Práctica completada (${state.attempts} intento${state.attempts === 1 ? "" : "s"})`)]),
-      div({}, [span({}, "✓"), span({}, "Quiz completado")])
+      div({}, [span({}, icon("check")), span({}, "Aprendizaje completado")]),
+      div({}, [span({}, icon("check")), span({}, `Práctica completada (${state.attempts} intento${state.attempts === 1 ? "" : "s"})`)]),
+      div({}, [span({}, icon("check")), span({}, "Quiz completado")])
     ]),
     h("p", { class: "lesson-score" }, `Puntuación: ${state.percent}%`),
     div({ class: "m3-complete-row" }, [span({ class: "xp-badge" }, `+${state.xp} XP`), masteryStars(state.percent)]),
     h("p", { class: "muted tight" }, `Módulo ${lesson.moduleId}: ${info.doneCount}/${info.total} lecciones completadas`),
-    lesson.ctf ? div({ class: "m3-ctf" }, [h("strong", {}, "🎯 Por qué importa en los retos"), h("p", {}, lesson.ctf)]) : null,
-    lesson.bridge ? div({ class: "m3-bridge" }, [span({ class: "m3-bridge-label" }, "🔗 Siguiente conexión"), h("p", {}, lesson.bridge), nextButton]) : nextButton,
+    lesson.ctf ? div({ class: "m3-ctf" }, [h("strong", {}, [icon("target"), " Por qué importa en los retos"]), h("p", {}, lesson.ctf)]) : null,
+    lesson.bridge ? div({ class: "m3-bridge" }, [span({ class: "m3-bridge-label" }, [icon("link"), " Siguiente conexión"]), h("p", {}, lesson.bridge), nextButton]) : nextButton,
     div({ class: "lesson-actions" }, [
       button({ class: "ghost-action", type: "button", onclick: () => startLesson(lesson.id) }, "Repetir lección"),
       button({ class: "ghost-action", type: "button", onclick: backToTheory }, "Volver a Teoría")
@@ -9054,11 +9101,11 @@ function renderConnectReveal(visual, state, stepIndex) {
   const animate = connected && m3Flashing(`connect-${stepIndex}`);
   return div({ class: "m3-lab m3-connect" }, [
     div({ class: "m3-wifi-panel" }, [
-      span({ class: "m3-wifi-title" }, "📶 Redes Wi-Fi"),
+      span({ class: "m3-wifi-title" }, [icon("wifi"), " Redes Wi-Fi"]),
       div({ class: "m3-wifi-row" }, [
-        span({ class: "m3-wifi-ssid" }, ["🔒 ", visual.ssid]),
+        span({ class: "m3-wifi-ssid" }, [[icon("lock"), " "], visual.ssid]),
         connected
-          ? span({ class: `m3-wifi-status ${animate ? "anim" : ""}` }, "Conectado ✓")
+          ? span({ class: `m3-wifi-status ${animate ? "anim" : ""}` }, ["Conectado ", icon("check")])
           : button({ class: "primary-action compact", type: "button", onclick: () => { app.lesson.stepSelections[stepIndex] = "done"; m3Play(`connect-${stepIndex}`); render(); } }, "Conectar")
       ])
     ]),
@@ -9093,7 +9140,7 @@ function renderHsExplorer(visual, state, stepIndex) {
           h("p", {}, active.detail)
         ])
       : h("p", { class: "m3-caption" }, visual.note || "Toca un mensaje para inspeccionarlo."),
-    allSeen && visual.summary ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Inspeccionados: ${sel.seen.length}/${visual.messages.length}`)
+    allSeen && visual.summary ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Inspeccionados: ${sel.seen.length}/${visual.messages.length}`)
   ]);
 }
 
@@ -9118,12 +9165,12 @@ function renderM3Video(visual, state, stepIndex) {
     if (video.duration && video.currentTime / video.duration >= 0.97) reveal();
   };
   return div({ class: "m3-video" }, [
-    h("p", { class: "m3-video-cue" }, ["▶ ", visual.before]),
+    h("p", { class: "m3-video-cue" }, [[icon("play"), " "], visual.before]),
     div({ class: "lesson-video-frame" }, [
       h("video", { id: "lesson-video", class: "lesson-video", src: visual.src, controls: true, playsinline: true, preload: "metadata", ontimeupdate: onTime, onended: reveal }, [])
     ]),
     div({ class: "lesson-video-progress" }, [div({ id: "lesson-video-bar", class: "lesson-video-bar", style: { width: watched ? "100%" : "0%" } }, [])]),
-    h("p", { id: "m3-video-after", class: "m3-video-cue after", hidden: !watched }, ["✓ ", visual.after, " Continúa al siguiente paso →"])
+    h("p", { id: "m3-video-after", class: "m3-video-cue after", hidden: !watched }, [[icon("check"), " "], visual.after, " Continúa al siguiente paso →"])
   ]);
 }
 
@@ -9148,14 +9195,14 @@ function renderHsRecall(visual, state, stepIndex) {
       class: `m3-timeline-node ${sel.done.includes(item.n) ? "done" : ""} ${sel.sel === item.n ? "active" : ""}`,
       type: "button",
       onclick: () => { update({ sel: item.n, wrong: null }); render(); }
-    }, [span({ class: "m3-timeline-num" }, sel.done.includes(item.n) ? "✓" : String(item.n)), span({ class: "m3-timeline-label" }, `Mensaje ${item.n}`)]))),
+    }, [span({ class: "m3-timeline-num" }, sel.done.includes(item.n) ? icon("check") : String(item.n)), span({ class: "m3-timeline-label" }, `Mensaje ${item.n}`)]))),
     active && !sel.done.includes(active.n) ? div({ class: "m3-recall-ask" }, [
       h("p", { class: "m3-note-title" }, `¿Quién envía el mensaje ${active.n}?`),
       div({ class: "m3-recall-options" }, [
-        button({ class: "m3-option", type: "button", onclick: () => answer("ap") }, "📡 El AP"),
-        button({ class: "m3-option", type: "button", onclick: () => answer("client") }, "💻 El cliente")
+        button({ class: "m3-option", type: "button", onclick: () => answer("ap") }, [icon("radio-tower"), " El AP"]),
+        button({ class: "m3-option", type: "button", onclick: () => answer("client") }, [icon("laptop"), " El cliente"])
       ]),
-      sel.wrong === active.n ? h("p", { class: "m3-hint" }, ["💡 ", active.hint]) : null
+      sel.wrong === active.n ? h("p", { class: "m3-hint" }, [[icon("lightbulb"), " "], active.hint]) : null
     ]) : null,
     active && sel.done.includes(active.n) ? m3Note(`Mensaje ${active.n} · ${active.sender === "ap" ? "AP → Cliente" : "Cliente → AP"}`, active.explain) : null,
     !active ? h("p", { class: "m3-caption" }, "Elige un punto de la línea de tiempo.") : null,
@@ -9182,7 +9229,7 @@ function renderFlowChain(visual, state, stepIndex) {
       }, [h("small", {}, node.sub), h("strong", {}, node.label)])
     ])),
     active ? m3Note(active.label, active.detail) : h("p", { class: "m3-caption" }, "Toca cada etapa de la cadena."),
-    allSeen && visual.final ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.final)]) : null
+    allSeen && visual.final ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.final)]) : null
   ]);
 }
 
@@ -9246,17 +9293,17 @@ function renderGroupNet(visual, state, stepIndex) {
   return div({ class: "m3-lab m3-group" }, [
     div({ class: "m3-group-ap" }, [m3Device("ap"), div({ class: "m3-group-keys" }, [...visual.clients.map((_, index) => m3Chip(`PTK-${index + 1}`, "key", "mini")), m3Chip("GTK", "key", "mini")])]),
     div({ class: `m3-group-beams ${animate ? "anim" : ""}` }, visual.clients.map((_, index) => div({ class: `m3-beam ${receives(index) ? "on" : ""}` }, [
-      receives(index) ? span({ class: "m3-packet" }, sel.mode === "broadcast" ? "🔒 GTK" : `🔒 PTK-${target + 1}`) : null
+      receives(index) ? span({ class: "m3-packet" }, sel.mode === "broadcast" ? [icon("lock"), " GTK"] : [icon("lock"), ` PTK-${target + 1}`]) : null
     ]))),
     div({ class: "m3-group-clients" }, visual.clients.map((client, index) => div({ class: `m3-group-client ${sel.mode ? (receives(index) ? "can" : "cannot") : ""}` }, [
-      span({ class: "m3-dev-icon", "aria-hidden": "true" }, "💻"),
+      span({ class: "m3-dev-icon", "aria-hidden": "true" }, icon("laptop")),
       h("strong", {}, client),
       div({ class: "m3-group-keys" }, [m3Chip(`PTK-${index + 1}`, "key", "mini"), m3Chip("GTK", "key", "mini")]),
-      sel.mode ? span({ class: "m3-group-status" }, receives(index) ? "✓ Puede leerlo" : "✕ No puede leerlo") : null
+      sel.mode ? span({ class: "m3-group-status" }, receives(index) ? [icon("check"), " Puede leerlo"] : [icon("x"), " No puede leerlo"]) : null
     ]))),
     div({ class: "m3-actions" }, [
-      button({ class: `m3-option ${sel.mode === "unicast" ? "active" : ""}`, type: "button", onclick: () => send("unicast") }, `👤 Enviar solo a ${visual.clients[target]}`),
-      button({ class: `m3-option ${sel.mode === "broadcast" ? "active" : ""}`, type: "button", onclick: () => send("broadcast") }, "👥 Enviar a todos (broadcast)")
+      button({ class: `m3-option ${sel.mode === "unicast" ? "active" : ""}`, type: "button", onclick: () => send("unicast") }, [icon("user"), ` Enviar solo a ${visual.clients[target]}`]),
+      button({ class: `m3-option ${sel.mode === "broadcast" ? "active" : ""}`, type: "button", onclick: () => send("broadcast") }, [icon("users"), " Enviar a todos (broadcast)"])
     ]),
     sel.mode === "unicast" ? m3Note("Tráfico individual → PTK", `El AP cifra con la PTK de ${visual.clients[target]}: solo ese cliente la tiene, solo él puede leerlo.`) : null,
     sel.mode === "broadcast" ? m3Note("Tráfico de grupo → GTK", "El AP cifra una sola vez con la GTK: todos los clientes la tienen, todos pueden leerlo.", "ok") : null,
@@ -9278,7 +9325,7 @@ function renderNonceGen(visual, state, stepIndex) {
     const animate = m3Flashing(`nonce-${stepIndex}-${side}`);
     return div({ class: "m3-nonce-col" }, [
       m3Device(device),
-      button({ class: "m3-option", type: "button", onclick: () => generate(side) }, `🎲 Generar ${label}`),
+      button({ class: "m3-option", type: "button", onclick: () => generate(side) }, [icon("dices"), ` Generar ${label}`]),
       div({ class: "m3-nonce-list" }, sel[side].length
         ? sel[side].map((value, index) => div({ class: `m3-nonce-value ${index === 0 ? "latest" : "old"} ${index === 0 && animate ? "anim" : ""}` }, [span({ class: "m3-nonce-tag" }, index === 0 ? label : "usado"), h("code", {}, value)]))
         : [h("p", { class: "m3-caption small" }, "Sin valores todavía.")])
@@ -9287,7 +9334,7 @@ function renderNonceGen(visual, state, stepIndex) {
   const total = sel.a.length + sel.s.length;
   return div({ class: "m3-lab m3-noncegen" }, [
     div({ class: "m3-nonce-grid" }, [column("a", "ap", "ANonce"), column("s", "client", "SNonce")]),
-    total >= 3 ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, "Ningún valor se repite: cada handshake usa nonces nuevos.")]) : h("p", { class: "m3-caption small" }, "Genera al menos tres valores en total."),
+    total >= 3 ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, "Ningún valor se repite: cada handshake usa nonces nuevos.")]) : h("p", { class: "m3-caption small" }, "Genera al menos tres valores en total."),
     h("p", { class: "m3-caption small" }, "Valores ilustrativos generados al azar en tu navegador (un nonce real mide 32 bytes).")
   ]);
 }
@@ -9313,20 +9360,20 @@ function renderMicSim(visual, state, stepIndex) {
       ]),
       div({ class: `m3-mic-channel ${animate ? "anim" : ""} ${sel.mode === "bad" ? "tampered" : ""}` }, [
         span({ class: "m3-air" }, "aire"),
-        sel.mode ? span({ class: "m3-packet" }, "✉ mensaje + MIC") : span({ class: "m3-caption small" }, "—"),
-        sel.mode === "bad" ? span({ class: "m3-tamper" }, "⚠ alguien cambia un campo") : null
+        sel.mode ? span({ class: "m3-packet" }, [icon("mail"), " mensaje + MIC"]) : span({ class: "m3-caption small" }, "—"),
+        sel.mode === "bad" ? span({ class: "m3-tamper" }, [icon("triangle-alert"), " alguien cambia un campo"]) : null
       ]),
       div({ class: `m3-mic-card receiver ${sel.mode ? (ok ? "ok" : "bad") : ""}` }, [
         span({ class: "m3-behind-label" }, "Receptor"),
         sel.mode ? div({ class: "m3-mic-lines" }, received.map((line, index) => h("code", { class: line !== M3_MIC_MESSAGE[index] ? "altered" : "" }, line))) : h("p", { class: "m3-caption small" }, "Esperando mensaje…"),
         sel.mode ? div({ class: "m3-mic-value" }, [span({ class: "m3-caption small" }, "Recibido"), h("code", {}, sentMic)]) : null,
         sel.mode ? div({ class: "m3-mic-value" }, [span({ class: "m3-caption small" }, "Recalculado"), h("code", {}, recalculated)]) : null,
-        sel.mode ? span({ class: `m3-verdict ${ok ? "ok" : "bad"} ${animate ? "anim" : ""}` }, ok ? "✓ Verificación correcta" : "✕ Verificación fallida") : null
+        sel.mode ? span({ class: `m3-verdict ${ok ? "ok" : "bad"} ${animate ? "anim" : ""}` }, ok ? [icon("check"), " Verificación correcta"] : [icon("x"), " Verificación fallida"]) : null
       ])
     ]),
     div({ class: "m3-actions" }, [
-      button({ class: `m3-option ${sel.mode === "ok" ? "active" : ""}`, type: "button", onclick: () => send("ok") }, "✉ Enviar intacto"),
-      button({ class: `m3-option ${sel.mode === "bad" ? "active" : ""}`, type: "button", onclick: () => send("bad") }, "⚠ Alterar en el camino")
+      button({ class: `m3-option ${sel.mode === "ok" ? "active" : ""}`, type: "button", onclick: () => send("ok") }, [icon("mail"), " Enviar intacto"]),
+      button({ class: `m3-option ${sel.mode === "bad" ? "active" : ""}`, type: "button", onclick: () => send("bad") }, [icon("triangle-alert"), " Alterar en el camino"])
     ]),
     sel.mode === "ok" ? m3Note("Los MIC coinciden", "El contenido llegó igual y el emisor tenía la clave correcta: el mensaje se acepta.", "ok") : null,
     sel.mode === "bad" ? m3Note("Los MIC no coinciden", "Bastó cambiar un número para que el MIC recalculado fuera otro. El receptor descarta el mensaje. Fíjate: el contenido nunca estuvo oculto; el MIC no cifra, verifica.", "bad") : null,
@@ -9353,7 +9400,7 @@ const m3LearnVisuals = {
 // ---------------------------------------------------------------------------
 function m3PracticeShell(practice, body, footer) {
   return div({ class: "lesson-stage lesson-practice" }, [
-    h("p", { class: "eyebrow" }, "🧩 Practicar"),
+    h("p", { class: "eyebrow" }, [icon("puzzle"), " Practicar"]),
     h("h3", {}, practice.prompt),
     practice.instructions ? h("p", { class: "muted" }, practice.instructions) : null,
     body,
@@ -9369,8 +9416,8 @@ function m3PracticeFooter(state, extra = null) {
   ]);
 }
 
-function m3Success(text, title = "✓ ¡Correcto!") {
-  return div({ class: "practice-feedback ok" }, [h("strong", {}, title), h("p", {}, text)]);
+function m3Success(text, title = "¡Correcto!") {
+  return div({ class: "practice-feedback ok" }, [h("strong", {}, [icon("check"), " ", title]), h("p", {}, text)]);
 }
 
 // --- hs-builder: Reconstruye el Handshake --------------------------------
@@ -9448,7 +9495,7 @@ function hsReplay(animate) {
     span({ class: "m3-behind-label" }, "Handshake completo"),
     div({ class: "m3-lane-head" }, [m3Device("ap"), span({ class: "m3-air" }, "aire"), m3Device("client")]),
     div({ class: "m3-lane" }, [1, 2, 3, 4].map(n => div({ class: "m3-lane-row", style: { animationDelay: `${n * 0.5}s` } }, [m3Arrow(n, `${n}. ${HS_SHORT[n]}`)]))),
-    div({ class: "m3-replay-end", style: { animationDelay: "2.6s" } }, "🔒 Claves instaladas · comunicación protegida")
+    div({ class: "m3-replay-end", style: { animationDelay: "2.6s" } }, [icon("lock"), " Claves instaladas · comunicación protegida"])
   ]);
 }
 
@@ -9466,7 +9513,7 @@ function hsBuilderStage(lesson, state) {
       onclick: () => { if (state.pick && state.pick.kind === wanted) hsBuilderPlace(wanted, state.pick.id, slot); },
       ...m3DropProps((kind, id) => { if (kind === wanted) hsBuilderPlace(kind, id, slot); })
     }, content
-      ? [content, locked ? span({ class: "m3-lock", "aria-label": "Correcto" }, "✓") : button({ class: "m3-remove", type: "button", "aria-label": "Quitar", onclick: event => { event.stopPropagation(); hsBuilderUnplace(slot, field); } }, "✕")]
+      ? [content, locked ? span({ class: "m3-lock", "aria-label": "Correcto" }, icon("check")) : button({ class: "m3-remove", type: "button", "aria-label": "Quitar", onclick: event => { event.stopPropagation(); hsBuilderUnplace(slot, field); } }, icon("x"))]
       : [span({ class: "m3-drop-placeholder" }, placeholder)]);
   };
   const body = div({ class: "m3-lab m3-builder" }, [
@@ -9488,8 +9535,8 @@ function hsBuilderStage(lesson, state) {
         div({ class: "m3-slot-head" }, [
           h("strong", {}, `Mensaje ${slot}`),
           div({ class: `m3-sender ${state.checked[slot]?.sender === "bad" ? "bad" : ""}` }, [
-            button({ class: `m3-sender-btn ${entry.sender === "ap" ? "active" : ""}`, type: "button", disabled: senderLocked, onclick: () => setSender("ap") }, "📡 AP → 💻"),
-            button({ class: `m3-sender-btn ${entry.sender === "client" ? "active" : ""}`, type: "button", disabled: senderLocked, onclick: () => setSender("client") }, "💻 → 📡 AP")
+            button({ class: `m3-sender-btn ${entry.sender === "ap" ? "active" : ""}`, type: "button", disabled: senderLocked, onclick: () => setSender("ap") }, [icon("radio-tower"), " AP → ", icon("laptop")]),
+            button({ class: `m3-sender-btn ${entry.sender === "client" ? "active" : ""}`, type: "button", disabled: senderLocked, onclick: () => setSender("client") }, [icon("laptop"), " → ", icon("radio-tower"), " AP"])
           ])
         ]),
         dropArea(slot, "card", entry.card ? span({ class: "m3-fcard-text" }, cardsById[entry.card].text) : null, "Suelta o toca para colocar una función"),
@@ -9500,11 +9547,11 @@ function hsBuilderStage(lesson, state) {
   const solvedAnim = state.practiceSolved && m3Flashing("hs-replay");
   return m3PracticeShell(practice, [
     body,
-    state.hints.length ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi… revisa estas pistas"), ...state.hints.map(hint => h("p", {}, ["💡 ", hint]))]) : null,
+    state.hints.length ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi… revisa estas pistas"), ...state.hints.map(hint => h("p", {}, [[icon("lightbulb"), " "], hint]))]) : null,
     state.practiceSolved ? hsReplay(solvedAnim) : null,
     state.practiceSolved ? m3Success(practice.success) : null
   ], m3PracticeFooter(state, state.practiceSolved
-    ? button({ class: "ghost-action compact", type: "button", onclick: () => { m3Play("hs-replay"); render(); } }, "↻ Ver animación")
+    ? button({ class: "ghost-action compact", type: "button", onclick: () => { m3Play("hs-replay"); render(); } }, [icon("rotate-ccw"), " Ver animación"])
     : button({ class: "primary-action", type: "button", disabled: !allFilled, title: allFilled ? "" : "Completa función, emisor y elemento en los 4 mensajes", onclick: () => hsBuilderCheck(practice) }, "Comprobar")));
 }
 
@@ -9543,7 +9590,7 @@ function identifyMatchStage(lesson, state) {
   if (state.phase === "identify") {
     const board = identify.layout === "capture"
       ? div({ class: "m3-lab m3-capture" }, [
-          div({ class: "m3-capture-title" }, [span({ "aria-hidden": "true" }, "◉ "), identify.captureTitle]),
+          div({ class: "m3-capture-title" }, [span({ "aria-hidden": "true" }, [icon("circle-dot"), " "]), identify.captureTitle]),
           div({ class: "m3-capture-rows" }, identify.items.map(item => button({ class: `m3-capture-row ${itemClass(item)}`, type: "button", disabled: state.idSolved, onclick: () => pickItem(item) }, [span({ class: "m3-capture-key" }, item.label), h("code", {}, item.value)])))
         ])
       : div({ class: "m3-lab m3-idgrid" }, identify.items.map(item => button({ class: `m3-idcard ${itemClass(item)}`, type: "button", disabled: state.idSolved, onclick: () => pickItem(item) }, [
@@ -9554,8 +9601,8 @@ function identifyMatchStage(lesson, state) {
     return m3PracticeShell(practice, [
       h("p", { class: "m3-phase" }, ["Fase 1 de 2 · ", identify.prompt]),
       board,
-      lastWrong && !state.idSolved ? div({ class: "practice-feedback bad" }, [h("strong", {}, "No es ese"), h("p", {}, ["💡 ", lastWrong.hint])]) : null,
-      state.idSolved ? m3Success(identify.success, "✓ ¡Encontrado!") : null,
+      lastWrong && !state.idSolved ? div({ class: "practice-feedback bad" }, [h("strong", {}, "No es ese"), h("p", {}, [[icon("lightbulb"), " "], lastWrong.hint])]) : null,
+      state.idSolved ? m3Success(identify.success, "¡Encontrado!") : null,
       state.idSolved && followUp ? div({ class: "lv-check" }, [
         h("p", { class: "lv-check-prompt" }, followUp.prompt),
         div({ class: "lv-check-options" }, followUp.options.map((option, index) => button({
@@ -9607,7 +9654,7 @@ function identifyMatchStage(lesson, state) {
       ]);
     })),
     h("p", { class: "m3-caption small m3-caption-themed" }, state.selectedLeft ? "Ahora toca la descripción que le corresponde." : "Toca un término (izquierda) y después su descripción (derecha)."),
-    state.matchWrong ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi…"), h("p", {}, ["💡 ", practice.match.hint])]) : null,
+    state.matchWrong ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Casi…"), h("p", {}, [[icon("lightbulb"), " "], practice.match.hint])]) : null,
     state.practiceSolved ? m3Success(practice.success) : null
   ], m3PracticeFooter(state));
 }
@@ -9673,15 +9720,15 @@ function slotBuilderStage(lesson, state) {
         ])
       ]),
       div({ class: `m3-discard ${state.pick ? "ready" : ""}`, ...target("discard") }, [
-        span({}, "🗑 No participa en la PTK"),
+        span({}, [icon("trash-2"), " No participa en la PTK"]),
         state.discarded.length ? div({ class: "m3-pool-items" }, state.discarded.map(id => m3Chip(tilesById[id].label, "plain", "struck"))) : null
       ]),
       h("p", { class: "m3-caption small" }, state.pick ? "Ahora toca una casilla del esquema o la papelera." : "Arrastra una pieza, o tócala y luego toca su destino.")
     ]),
-    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Así no"), h("p", {}, ["💡 ", state.hint])]) : null,
+    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Así no"), h("p", {}, [[icon("lightbulb"), " "], state.hint])]) : null,
     state.okNote && !state.practiceSolved ? div({ class: "practice-feedback ok" }, [h("p", {}, state.okNote)]) : null,
     allPlaced && !state.practiceSolved ? h("p", { class: "muted tight" }, "Esquema completo. Descarta las piezas que no participan para terminar.") : null,
-    state.practiceSolved ? m3Success(practice.success, "✓ ¡PTK construida!") : null
+    state.practiceSolved ? m3Success(practice.success, "¡PTK construida!") : null
   ], m3PracticeFooter(state));
 }
 
@@ -9720,11 +9767,11 @@ function packetSortStage(lesson, state) {
         div({ class: "lesson-progress-track" }, [div({ class: "lesson-progress-bar", style: { width: `${(state.sorted.length / practice.items.length) * 100}%` } }, [])])
       ]),
       current ? div({ class: `m3-packet-card ${state.hint ? "shake" : ""}`, ...m3DragProps("packet", current.id) }, [
-        span({ class: "m3-behind-label" }, `${practice.itemLabel || "📦 Paquete"} ${number}`),
-        current.icon ? span({ class: "bt-sort-icon", "aria-hidden": "true" }, current.icon) : null,
+        span({ class: "m3-behind-label" }, [icon(practice.itemIcon || "package"), " ", `${practice.itemLabel || "Paquete"} ${number}`]),
+        current.icon ? span({ class: "bt-sort-icon", "aria-hidden": "true" }, icon(current.icon)) : null,
         h("p", {}, current.text),
         span({ class: "m3-caption small" }, "Arrástralo o toca un compartimento.")
-      ]) : div({ class: "m3-packet-card done" }, [h("p", {}, "✓ Todos los paquetes clasificados.")]),
+      ]) : div({ class: "m3-packet-card done" }, [h("p", {}, [icon("check"), " Todos los paquetes clasificados."])]),
       div({ class: "m3-bins" }, practice.bins.map(bin => button({
         class: `m3-bin bin-${bin.id} ${m3Flashing(`pkt-${bin.id}`) ? "anim" : ""}`,
         type: "button",
@@ -9732,15 +9779,15 @@ function packetSortStage(lesson, state) {
         onclick: () => packetSortDrop(practice, bin.id),
         ...m3DropProps(kind => { if (kind === "packet") packetSortDrop(practice, bin.id); })
       }, [
-        span({ class: "m3-bin-icon", "aria-hidden": "true" }, bin.icon),
-        h("strong", {}, [practice.binPrefix ?? "🔒 ", bin.label]),
+        span({ class: "m3-bin-icon", "aria-hidden": "true" }, icon(bin.icon)),
+        h("strong", {}, [practice.binPrefix ?? [icon("lock"), " "], bin.label]),
         h("small", {}, bin.caption),
         span({ class: "m3-bin-count" }, String(state.sorted.filter(entry => entry.bin === bin.id).length))
       ])))
     ]),
-    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, practice.wrongTitle || "Esa no es la clave"), h("p", {}, ["💡 ", state.hint])]) : null,
-    state.okNote && !state.practiceSolved ? div({ class: "practice-feedback ok" }, [practice.okTitle ? h("strong", {}, practice.okTitle) : null, h("p", {}, [practice.okTitle ? "" : "✓ ", state.okNote])]) : null,
-    state.practiceSolved ? m3Success(practice.success, "✓ ¡Clasificación completa!") : null
+    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, practice.wrongTitle ? [icon("x"), " ", practice.wrongTitle] : "Esa no es la clave"), h("p", {}, [[icon("lightbulb"), " "], state.hint])]) : null,
+    state.okNote && !state.practiceSolved ? div({ class: "practice-feedback ok" }, [practice.okTitle ? h("strong", {}, [icon("check"), " ", practice.okTitle]) : null, h("p", {}, [practice.okTitle ? null : [icon("check"), " "], state.okNote])]) : null,
+    state.practiceSolved ? m3Success(practice.success, "¡Clasificación completa!") : null
   ], m3PracticeFooter(state));
 }
 
@@ -9795,14 +9842,14 @@ function nonceHuntStage(lesson, state) {
             current.fieldResult = null;
             render();
           }
-        }, [span({ class: "m3-field-check", "aria-hidden": "true" }, marked ? "◉" : "○"), span({ class: "m3-capture-key" }, item.label), h("code", {}, item.value)]);
+        }, [span({ class: "m3-field-check", "aria-hidden": "true" }, marked ? icon("circle-dot") : icon("circle")), span({ class: "m3-capture-key" }, item.label), h("code", {}, item.value)]);
       })),
       result && !state.fieldsSolved ? div({ class: "practice-feedback bad" }, [
         h("strong", {}, "Revisa tu selección"),
-        ...result.falsePositives.map(id => h("p", {}, ["💡 ", practice.fields.items.find(item => item.id === id).hint])),
-        result.missing ? h("p", {}, `💡 Te falta ${result.missing === 1 ? "un nonce" : `${result.missing} nonces`}: busca los valores aleatorios que aporta cada lado.`) : null
+        ...result.falsePositives.map(id => h("p", {}, [[icon("lightbulb"), " "], practice.fields.items.find(item => item.id === id).hint])),
+        result.missing ? h("p", {}, [icon("lightbulb"), ` Te falta ${result.missing === 1 ? "un nonce" : `${result.missing} nonces`}: busca los valores aleatorios que aporta cada lado.`]) : null
       ]) : null,
-      state.fieldsSolved ? m3Success("Exacto: ANonce y SNonce son los únicos valores aleatorios de un solo uso. El resto identifica, cuenta, verifica o es una clave.", "✓ ¡Nonces encontrados!") : null
+      state.fieldsSolved ? m3Success("Exacto: ANonce y SNonce son los únicos valores aleatorios de un solo uso. El resto identifica, cuenta, verifica o es una clave.", "¡Nonces encontrados!") : null
     ], m3PracticeFooter(state, state.fieldsSolved
       ? button({ class: "primary-action", type: "button", onclick: () => { app.lesson.phase = "place"; render(); } }, "Fase 2: colocarlos →")
       : button({ class: "primary-action", type: "button", disabled: !state.marked.length, onclick: () => nonceHuntCheck(practice) }, "Comprobar")));
@@ -9818,7 +9865,7 @@ function nonceHuntStage(lesson, state) {
         type: "button",
         onclick: () => { app.lesson.pick = app.lesson.pick === token.id ? null : token.id; render(); },
         ...m3DragProps("nonce", token.id)
-      }, token.label)) : [h("p", { class: "m3-caption small" }, "✓ Nonces colocados.")]),
+      }, token.label)) : [h("p", { class: "m3-caption small" }, [icon("check"), " Nonces colocados."])]),
       div({ class: "m3-lane-head" }, [m3Device("ap"), span({ class: "m3-air" }, "aire"), m3Device("client")]),
       div({ class: "m3-lane" }, [1, 2, 3, 4].map(n => {
         const here = tokens.filter(token => state.placed[token.id] === n);
@@ -9830,7 +9877,7 @@ function nonceHuntStage(lesson, state) {
       })),
       h("p", { class: "m3-caption small" }, state.pick ? "Ahora toca el mensaje donde viaja." : "Arrastra un nonce al mensaje, o tócalo y luego toca el mensaje.")
     ]),
-    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Ese no es su mensaje"), h("p", {}, ["💡 ", state.hint])]) : null,
+    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Ese no es su mensaje"), h("p", {}, [[icon("lightbulb"), " "], state.hint])]) : null,
     state.practiceSolved ? m3Success(practice.success) : null
   ], m3PracticeFooter(state));
 }
@@ -9858,17 +9905,17 @@ function micVerifyStage(lesson, state) {
       const valid = values.received === values.recalculated;
       const correctReason = valid ? 0 : 1;
       return div({ class: `m3-micmsg ${entry.reasonOk ? (valid ? "solved ok" : "solved bad") : ""}` }, [
-        div({ class: "m3-micmsg-head" }, [h("strong", {}, message.title), entry.reasonOk ? span({ class: `m3-verdict ${valid ? "ok" : "bad"}` }, valid ? "✓ Íntegro" : "✕ Rechazado") : null]),
+        div({ class: "m3-micmsg-head" }, [h("strong", {}, message.title), entry.reasonOk ? span({ class: `m3-verdict ${valid ? "ok" : "bad"}` }, valid ? [icon("check"), " Íntegro"] : [icon("x"), " Rechazado"]) : null]),
         div({ class: "m3-mic-lines" }, message.lines.map(line => h("code", {}, line))),
         div({ class: "m3-mic-value" }, [span({ class: "m3-caption small" }, "MIC recibido"), h("code", {}, values.received)]),
         entry.recalc
           ? div({ class: "m3-mic-value" }, [span({ class: "m3-caption small" }, "MIC recalculado"), h("code", {}, values.recalculated)])
-          : button({ class: "m3-option", type: "button", onclick: () => { update(message.id, { recalc: true }); render(); } }, "🔁 Recalcular MIC con mi clave"),
+          : button({ class: "m3-option", type: "button", onclick: () => { update(message.id, { recalc: true }); render(); } }, [icon("repeat"), " Recalcular MIC con mi clave"]),
         entry.recalc && !entry.verdictOk ? div({ class: "m3-actions" }, [
-          button({ class: "m3-option", type: "button", onclick: () => { app.lesson.attempts += 1; update(message.id, { verdict: "ok", verdictOk: valid }); render(); } }, "✓ Íntegro"),
-          button({ class: "m3-option", type: "button", onclick: () => { app.lesson.attempts += 1; update(message.id, { verdict: "bad", verdictOk: !valid }); render(); } }, "✕ No coincide")
+          button({ class: "m3-option", type: "button", onclick: () => { app.lesson.attempts += 1; update(message.id, { verdict: "ok", verdictOk: valid }); render(); } }, [icon("check"), " Íntegro"]),
+          button({ class: "m3-option", type: "button", onclick: () => { app.lesson.attempts += 1; update(message.id, { verdict: "bad", verdictOk: !valid }); render(); } }, [icon("x"), " No coincide"])
         ]) : null,
-        entry.verdict && !entry.verdictOk ? h("p", { class: "m3-hint" }, "💡 Compara bloque por bloque el MIC recibido con el recalculado: ¿son exactamente iguales?") : null,
+        entry.verdict && !entry.verdictOk ? h("p", { class: "m3-hint" }, [icon("lightbulb"), " Compara bloque por bloque el MIC recibido con el recalculado: ¿son exactamente iguales?"]) : null,
         entry.verdictOk && !entry.reasonOk ? div({ class: "m3-reasons" }, [
           h("p", { class: "m3-note-title" }, "¿Por qué?"),
           ...practice.reasons.map((reason, index) => button({
@@ -9876,13 +9923,13 @@ function micVerifyStage(lesson, state) {
             type: "button",
             onclick: () => { app.lesson.attempts += 1; update(message.id, { reason: index, reasonOk: index === correctReason }); checkSolved(); render(); }
           }, reason)),
-          entry.reason !== null ? h("p", { class: "m3-hint" }, entry.reason === 2 ? "💡 El MIC no tiene que ver con el cifrado: el contenido se ve en claro y aun así se puede verificar." : "💡 Fíjate en tu veredicto: ¿los dos MIC coincidían o no?") : null
+          entry.reason !== null ? h("p", { class: "m3-hint" }, entry.reason === 2 ? [icon("lightbulb"), " El MIC no tiene que ver con el cifrado: el contenido se ve en claro y aun así se puede verificar."] : [icon("lightbulb"), " Fíjate en tu veredicto: ¿los dos MIC coincidían o no?"]) : null
         ]) : null,
         entry.reasonOk ? h("p", { class: `m3-explain ${valid ? "ok" : "bad"}` }, valid ? practice.reasons[0] : `${practice.reasons[1]} ${message.tamperNote || ""}`) : null
       ]);
     })),
     h("p", { class: "m3-caption small m3-caption-themed" }, "Valores ficticios calculados con una función de ejemplo, no con el algoritmo real del MIC."),
-    state.practiceSolved ? m3Success(practice.success, "✓ ¡Verificación completa!") : null
+    state.practiceSolved ? m3Success(practice.success, "¡Verificación completa!") : null
   ], m3PracticeFooter(state));
 }
 
@@ -9943,7 +9990,7 @@ function missionLockedView(lesson) {
   if (info.unlocked) return null;
   const pending = info.config.sequence.filter(id => !app.lessonProgress[id]?.completed);
   return div({ class: "lesson-stage m3-mission" }, [
-    h("p", { class: "eyebrow" }, "🔒 Misión bloqueada"),
+    h("p", { class: "eyebrow" }, [icon("lock"), " Misión bloqueada"]),
     h("p", {}, `Completa las ${info.total} lecciones del módulo para desbloquear esta misión.`),
     div({ class: "concept-row" }, pending.map(id => button({ class: "ghost-action compact", type: "button", onclick: () => startLesson(id) }, lessons[id].title)))
   ]);
@@ -9961,14 +10008,14 @@ function missionView(lesson, state) {
 const M3_MISSION_PHASES = [{ id: "lab", label: "Fase 1 · Laboratorio" }, { id: "chain", label: "Fase 2 · Cadena" }, { id: "done", label: "Informe" }];
 function missionPhaseBar(phase, phases = M3_MISSION_PHASES) {
   const order = Object.fromEntries(phases.map((item, index) => [item.id, index]));
-  return div({ class: "lesson-steps m3-mission-phases" }, phases.map((item, index) => div({ class: `lesson-step ${index < order[phase] ? "done" : index === order[phase] ? "active" : ""}` }, [span({ class: "lesson-step-index" }, index < order[phase] ? "✓" : String(index + 1)), span({}, item.label)])));
+  return div({ class: "lesson-steps m3-mission-phases" }, phases.map((item, index) => div({ class: `lesson-step ${index < order[phase] ? "done" : index === order[phase] ? "active" : ""}` }, [span({ class: "lesson-step-index" }, index < order[phase] ? icon("check") : String(index + 1)), span({}, item.label)])));
 }
 
 function missionBrief(lesson) {
   return div({ class: "lesson-stage m3-mission" }, [
     div({ class: "m3-lab m3-brief" }, [
       span({ class: "m3-behind-label" }, "Expediente · Módulo 3"),
-      h("h3", {}, "🎯 Operación: Autenticación"),
+      h("h3", {}, [icon("target"), " Operación: Autenticación"]),
       h("p", {}, "Un cliente acaba de conectarse a «Café_Central_WiFi». Desde fuera solo se ve «Conectado». Tu misión: reconstruir lo que ocurrió detrás de esa conexión."),
       div({ class: "m3-brief-objectives" }, [
         div({}, [span({ class: "m3-brief-num" }, "1"), span({}, "Coloca las 8 piezas en el diagrama AP ↔ Cliente.")]),
@@ -10007,7 +10054,7 @@ function missionLab(lesson, state) {
         type: "button",
         onclick: () => { app.lesson.pick = app.lesson.pick === token.id ? null : token.id; render(); },
         ...m3DragProps("mtoken", token.id)
-      }, token.label)) : [h("p", { class: "m3-caption small" }, "✓ Todas las piezas colocadas.")]),
+      }, token.label)) : [h("p", { class: "m3-caption small" }, [icon("check"), " Todas las piezas colocadas."])]),
       span({ class: "m3-behind-label" }, "Antes de la conversación"),
       div({ class: "m3-mrow two" }, [slot("pmk"), slot("pmkid")]),
       span({ class: "m3-behind-label" }, "La conversación"),
@@ -10015,15 +10062,15 @@ function missionLab(lesson, state) {
       div({ class: "m3-lane-head" }, [m3Device("ap"), span({ class: "m3-air" }, "aire"), m3Device("client")]),
       div({ class: "m3-mlane" }, [
         div({ class: "m3-mstep" }, [m3Arrow(1, "Mensaje 1"), slot("anonce")]),
-        div({ class: "m3-mstep both" }, [span({ class: "m3-mstep-label" }, "⚙ Ambos lados derivan, sin enviarla:"), slot("ptk")]),
+        div({ class: "m3-mstep both" }, [span({ class: "m3-mstep-label" }, [icon("settings"), " Ambos lados derivan, sin enviarla:"]), slot("ptk")]),
         div({ class: "m3-mstep" }, [m3Arrow(2, "Mensaje 2"), div({ class: "m3-mrow two" }, [slot("snonce"), slot("mic")])]),
         div({ class: "m3-mstep" }, [m3Arrow(3, `Mensaje 3 · instalar claves${micPlaced ? " + MIC" : ""}`), slot("gtk")]),
         div({ class: "m3-mstep" }, [m3Arrow(4, `Mensaje 4 · confirmación${micPlaced ? " + MIC" : ""}`)])
       ]),
       h("p", { class: "m3-caption small" }, state.pick ? "Ahora toca la casilla donde va." : "Arrastra cada pieza a su casilla, o tócala y luego toca la casilla.")
     ]),
-    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Esa pieza no va ahí"), h("p", {}, ["💡 ", state.hint])]) : null,
-    complete ? m3Success("Diagrama completo: cada pieza está donde actúa.", "✓ Laboratorio resuelto") : null,
+    state.hint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Esa pieza no va ahí"), h("p", {}, [[icon("lightbulb"), " "], state.hint])]) : null,
+    complete ? m3Success("Diagrama completo: cada pieza está donde actúa.", "Laboratorio resuelto") : null,
     div({ class: "practice-footer" }, [
       span({ class: "practice-attempts" }, `Piezas: ${placedTokens.size}/${lab.tokens.length} · Errores: ${state.errors}`),
       complete ? button({ class: "primary-action", type: "button", onclick: () => { app.lesson.phase = "chain"; render(); } }, "Fase 2: la cadena →") : null
@@ -10058,7 +10105,7 @@ function missionChain(lesson, state) {
         ]);
       }))
     ]),
-    state.chainHint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Todavía no"), h("p", {}, ["💡 ", state.chainHint])]) : null,
+    state.chainHint ? div({ class: "practice-feedback bad" }, [h("strong", {}, "Todavía no"), h("p", {}, [[icon("lightbulb"), " "], state.chainHint])]) : null,
     complete ? div({ class: "lv-check" }, [
       h("p", { class: "lv-check-prompt" }, question.prompt),
       div({ class: "lv-check-options" }, question.options.map((option, index) => button({
@@ -10095,10 +10142,10 @@ function missionConceptReview(lesson, state) {
   const mastered = lesson.steps.filter(step => !errors[step.id]);
   const review = lesson.steps.filter(step => errors[step.id]);
   return div({ class: "m3-concepts" }, [
-    div({ class: "m3-concept-col ok" }, [h("strong", {}, "✓ Conceptos dominados"), mastered.length
+    div({ class: "m3-concept-col ok" }, [h("strong", {}, [icon("check"), " Conceptos dominados"]), mastered.length
       ? h("ul", {}, mastered.map(step => h("li", {}, step.lesson)))
       : h("p", { class: "muted tight" }, "Repite la misión para afianzarlos.")]),
-    div({ class: "m3-concept-col bad" }, [h("strong", {}, "↻ Conviene repasar"), review.length
+    div({ class: "m3-concept-col bad" }, [h("strong", {}, [icon("rotate-ccw"), " Conviene repasar"]), review.length
       ? h("ul", {}, review.map(step => h("li", {}, `${step.lesson} (${errors[step.id]} error${errors[step.id] === 1 ? "" : "es"})`)))
       : h("p", { class: "muted tight" }, "Nada: resolviste cada etapa sin errores.")])
   ]);
@@ -10110,7 +10157,7 @@ function missionComplete(lesson, state) {
   const ctfLinks = lesson.ctfLinks || [];
   return div({ class: "lesson-stage lesson-complete panel m3-complete m3-module-done" }, [
     missionPhaseBar("done", lesson.phases),
-    div({ class: `m3-badge ${animate ? "anim" : ""}` }, [span({ class: "m3-badge-icon", "aria-hidden": "true" }, lesson.badge.icon), h("strong", {}, lesson.badge.name), h("small", {}, "Insignia desbloqueada")]),
+    div({ class: `m3-badge ${animate ? "anim" : ""}` }, [span({ class: "m3-badge-icon", "aria-hidden": "true" }, icon(lesson.badge.icon)), h("strong", {}, lesson.badge.name), h("small", {}, "Insignia desbloqueada")]),
     h("h2", {}, lesson.doneTitle || `¡Módulo ${lesson.moduleId} completado!`),
     h("p", { class: "m3-module-claim" }, lesson.claim),
     div({ class: "m3-complete-row" }, [span({ class: "xp-badge" }, `+${state.xp} XP misión`), span({ class: "m3-xp-total" }, `${info.xp} XP en el módulo`), masteryStars(state.percent)]),
@@ -10120,7 +10167,7 @@ function missionComplete(lesson, state) {
       return div({ class: "m3-mastery-row" }, [span({}, lessons[id].title), span({ class: "muted tight" }, `${progress.percent ?? 0}%`), masteryStars(progress.percent || 0)]);
     })),
     div({ class: "m3-ctf" }, [
-      h("strong", {}, "🎯 Lo que te llevas a los retos"),
+      h("strong", {}, [icon("target"), " Lo que te llevas a los retos"]),
       h("ul", {}, ctfLinks.map(([term, text]) => h("li", {}, [h("strong", {}, term), ` → ${text}`])))
     ]),
     div({ class: "lesson-actions" }, [
@@ -10140,9 +10187,9 @@ function missionComplete(lesson, state) {
 // ===========================================================================
 
 function btFeedback(ok, text) {
-  // Una lección puede pedir otros títulos (el Módulo 2 usa "✗ Inténtalo de nuevo").
+  // Una lección puede pedir otros títulos (el Módulo 2 usa "Inténtalo de nuevo").
   const titles = (app.lesson && lessons[app.lesson.id]?.feedbackTitles) || [BT_OK, BT_REVIEW];
-  return div({ class: `bt-fb ${ok ? "ok" : "bad"}`, role: "status" }, [h("strong", {}, ok ? titles[0] : titles[1]), h("p", {}, text)]);
+  return div({ class: `bt-fb ${ok ? "ok" : "bad"}`, role: "status" }, [h("strong", {}, [icon(ok ? "check" : "x"), " ", ok ? titles[0] : titles[1]]), h("p", {}, text)]);
 }
 
 function btSignalBars(level) {
@@ -10162,7 +10209,7 @@ function renderBtCompare(visual, state, stepIndex) {
       "aria-pressed": sel.sel === option.id ? "true" : "false",
       onclick: () => { app.lesson.stepSelections[stepIndex] = { sel: option.id, seen: m3Toggle(sel.seen, option.id) }; m3Play(`btc-${option.id}`); render(); }
     }, [
-      span({ class: "bt-tech-icon", "aria-hidden": "true" }, option.icon),
+      span({ class: "bt-tech-icon", "aria-hidden": "true" }, icon(option.icon)),
       h("strong", {}, option.label),
       span({ class: "m3-chip tone-plain mini" }, option.tag),
       // Medidor opcional: el Módulo 2 no lo usa (un "porcentaje de seguridad" inventado sería engañoso).
@@ -10170,9 +10217,9 @@ function renderBtCompare(visual, state, stepIndex) {
     ]))),
     active ? div({ class: `bt-tech-detail ${m3Flashing(`btc-${active.id}`) ? "anim-pop" : ""}` }, [
       div({ class: "bt-rows" }, active.rows.map(row => div({ class: "bt-row" }, [span({ class: "m3-capture-key" }, row.k), span({}, row.v)]))),
-      active.devices?.length ? div({ class: "bt-device-chips" }, active.devices.map(device => span({ class: "m3-chip tone-plain" }, device))) : null
+      active.devices?.length ? div({ class: "bt-device-chips" }, active.devices.map(device => span({ class: "m3-chip tone-plain" }, withIcon(device.icon, device.label)))) : null
     ]) : h("p", { class: "m3-caption" }, visual.prompt || "Toca cada dispositivo."),
-    allSeen ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Explorados: ${sel.seen.length}/${visual.options.length}`)
+    allSeen ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Explorados: ${sel.seen.length}/${visual.options.length}`)
   ]);
 }
 
@@ -10190,10 +10237,10 @@ function renderBtSignal(visual, state, stepIndex) {
       div({ class: "bt-lane-track", "aria-hidden": "true" }, lane.mode === "stream"
         ? Array.from({ length: 14 }, (_, i) => span({ class: "bt-pulse", style: { animationDelay: `${i * 0.18}s` } }, ""))
         : [0, 1, 2].map(i => span({ class: "bt-burst", style: { left: `${10 + i * 32}%`, animationDelay: `${i * 0.9}s` } }, ""))),
-      span({ class: "bt-lane-state" }, lane.mode === "stream" ? "radio activa" : "💤 duerme entre ráfagas")
+      span({ class: "bt-lane-state" }, lane.mode === "stream" ? "radio activa" : [icon("moon"), " duerme entre ráfagas"])
     ])),
     active ? m3Note(active.label, active.detail) : h("p", { class: "m3-caption" }, "Toca cada carril."),
-    sel.seen.length === visual.lanes.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, "Menos tiempo con la radio encendida = menos consumo.")]) : null
+    sel.seen.length === visual.lanes.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, "Menos tiempo con la radio encendida = menos consumo.")]) : null
   ]);
 }
 
@@ -10212,35 +10259,35 @@ function renderBtRadar(visual, state, stepIndex) {
         span({ class: "bt-ring r2", "aria-hidden": "true" }, ""),
         span({ class: "bt-ring r3", "aria-hidden": "true" }, ""),
         sel.scanned ? span({ class: "bt-sweep", "aria-hidden": "true" }, "") : null,
-        div({ class: "bt-radar-center" }, [span({ "aria-hidden": "true" }, "💻"), h("small", {}, "Tú")]),
+        div({ class: "bt-radar-center" }, [span({ "aria-hidden": "true" }, icon("laptop")), h("small", {}, "Tú")]),
         ...(sel.scanned ? visual.devices.map((device, index) => button({
           class: `bt-blip ${device.state} ${sel.sel === device.id ? "active" : ""}`,
           type: "button",
           style: { left: `${device.x}%`, top: `${device.y}%`, animationDelay: `${0.25 + index * 0.18}s` },
           title: `${device.name} — ${stateLabel[device.state]}`,
           onclick: () => pick(device.id)
-        }, [span({ "aria-hidden": "true" }, device.state === "found" ? device.icon : "·"), h("small", {}, device.state === "found" ? device.name : "?")])) : [])
+        }, [span({ "aria-hidden": "true" }, device.state === "found" ? icon(device.icon) : "·"), h("small", {}, device.state === "found" ? device.name : "?")])) : [])
       ]),
       div({ class: "bt-scan-panel" }, [
-        button({ class: "primary-action compact", type: "button", onclick: () => { app.lesson.stepSelections[stepIndex] = { ...sel, scanned: true }; m3Play(`radar-${stepIndex}`); render(); } }, sel.scanned ? "📡 Escanear de nuevo" : "📡 Escanear"),
+        button({ class: "primary-action compact", type: "button", onclick: () => { app.lesson.stepSelections[stepIndex] = { ...sel, scanned: true }; m3Play(`radar-${stepIndex}`); render(); } }, sel.scanned ? [icon("radio-tower"), " Escanear de nuevo"] : [icon("radio-tower"), " Escanear"]),
         span({ class: "m3-behind-label" }, sel.scanned ? `Resultados: ${found.length} dispositivos` : "Sin resultados"),
         div({ class: "bt-scan-list" }, sel.scanned ? found.map(device => button({ class: `bt-scan-row ${sel.sel === device.id ? "active" : ""}`, type: "button", onclick: () => pick(device.id) }, [
-          span({ "aria-hidden": "true" }, device.icon), h("strong", {}, device.name), h("code", {}, device.addr)
+          span({ "aria-hidden": "true" }, icon(device.icon)), h("strong", {}, device.name), h("code", {}, device.addr)
         ])) : [h("p", { class: "m3-caption small" }, "Pulsa «Escanear» para buscar dispositivos.")]),
         sel.scanned ? h("p", { class: "m3-caption small" }, "Los puntos «?» del radar existen, pero no aparecen en los resultados. Tócalos.") : null
       ])
     ]),
-    active ? m3Note(`${active.icon} ${active.name} · ${stateLabel[active.state]}`, active.detail, active.state === "found" ? "" : "bad") : null,
-    sel.scanned && sel.seen.length >= 4 ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, "Antes de conectarse, un dispositivo necesita saber qué otros puede encontrar. No todo lo cercano aparece.")]) : null
+    active ? m3Note([icon(active.icon), ` ${active.name} · ${stateLabel[active.state]}`], active.detail, active.state === "found" ? "" : "bad") : null,
+    sel.scanned && sel.seen.length >= 4 ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, "Antes de conectarse, un dispositivo necesita saber qué otros puede encontrar. No todo lo cercano aparece.")]) : null
   ]);
 }
 
 // --- bt-pairing: del descubrimiento a la conexión, etapa por etapa -------
 function btPairingDiagram(stage, animate) {
   return div({ class: `bt-pair-diagram link-${stage.link} ${animate ? "anim" : ""}` }, [
-    div({ class: "bt-pair-dev" }, [span({ class: "bt-pair-icon", "aria-hidden": "true" }, "📱"), h("strong", {}, "Teléfono"), stage.code ? span({ class: "bt-code" }, stage.code) : null]),
-    div({ class: "bt-pair-link" }, [span({ class: "bt-pair-line" }, ""), span({ class: "bt-pair-badge" }, `${stage.icon} ${stage.label}`)]),
-    div({ class: "bt-pair-dev" }, [span({ class: "bt-pair-icon", "aria-hidden": "true" }, "🎧"), h("strong", {}, "Audífonos"), stage.code ? span({ class: "bt-code" }, stage.code) : null])
+    div({ class: "bt-pair-dev" }, [span({ class: "bt-pair-icon", "aria-hidden": "true" }, icon("smartphone")), h("strong", {}, "Teléfono"), stage.code ? span({ class: "bt-code" }, stage.code) : null]),
+    div({ class: "bt-pair-link" }, [span({ class: "bt-pair-line" }, ""), span({ class: "bt-pair-badge" }, [icon(stage.icon), ` ${stage.label}`])]),
+    div({ class: "bt-pair-dev" }, [span({ class: "bt-pair-icon", "aria-hidden": "true" }, icon("headphones")), h("strong", {}, "Audífonos"), stage.code ? span({ class: "bt-code" }, stage.code) : null])
   ]);
 }
 
@@ -10256,16 +10303,16 @@ function renderBtPairing(visual, state, stepIndex) {
       type: "button",
       disabled: index > max + 1,
       onclick: () => go(index)
-    }, [span({ class: "bt-stage-icon", "aria-hidden": "true" }, index < idx ? "✓" : item.icon), h("small", {}, item.label)]))),
+    }, [span({ class: "bt-stage-icon", "aria-hidden": "true" }, index < idx ? icon("check") : icon(item.icon)), h("small", {}, item.label)]))),
     btPairingDiagram(stage, animate),
     m3Note(`${idx + 1}/${visual.stages.length} · ${stage.label}`, stage.detail, idx === visual.stages.length - 1 ? "ok" : ""),
     div({ class: "m3-actions" }, [
-      button({ class: "m3-option", type: "button", disabled: idx === 0, onclick: () => go(idx - 1) }, "◀ Etapa anterior"),
+      button({ class: "m3-option", type: "button", disabled: idx === 0, onclick: () => go(idx - 1) }, [icon("chevron-left"), " Etapa anterior"]),
       idx < visual.stages.length - 1
-        ? button({ class: "m3-option active", type: "button", onclick: () => go(idx + 1) }, "Avanzar ▶")
-        : button({ class: "m3-option", type: "button", onclick: () => go(0) }, "↺ Repetir")
+        ? button({ class: "m3-option active", type: "button", onclick: () => go(idx + 1) }, ["Avanzar ", icon("play")])
+        : button({ class: "m3-option", type: "button", onclick: () => go(0) }, [icon("rotate-ccw"), " Repetir"])
     ]),
-    max === visual.stages.length - 1 ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : null
+    max === visual.stages.length - 1 ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.summary)]) : null
   ]);
 }
 
@@ -10278,7 +10325,7 @@ function renderBtLayers(visual, state, stepIndex) {
       div({ class: "bt-shield-ring tone-authn" }, [
         div({ class: "bt-shield-ring tone-authz" }, [
           div({ class: "bt-shield-ring tone-crypto" }, [
-            div({ class: "bt-shield-core" }, [span({}, "📱 A"), span({ class: "bt-shield-link", "aria-hidden": "true" }, "⟷"), span({}, "B 🎧")])
+            div({ class: "bt-shield-core" }, [span({}, [icon("smartphone"), " A"]), span({ class: "bt-shield-link", "aria-hidden": "true" }, icon("arrow-left-right")), span({}, ["B ", icon("headphones")])])
           ])
         ])
       ])
@@ -10288,9 +10335,9 @@ function renderBtLayers(visual, state, stepIndex) {
       type: "button",
       "aria-pressed": sel.sel === layer.id ? "true" : "false",
       onclick: () => { app.lesson.stepSelections[stepIndex] = { sel: layer.id, seen: m3Toggle(sel.seen, layer.id) }; render(); }
-    }, [span({ "aria-hidden": "true" }, layer.icon), h("strong", {}, layer.label), h("small", {}, layer.question)]))),
-    active ? div({ class: `bt-layer-example tone-${active.tone}` }, [h("strong", {}, `${active.icon} ${active.label} — «${active.question}»`), h("p", {}, ["Ejemplo: ", active.example])]) : h("p", { class: "m3-caption" }, "Toca cada capa."),
-    sel.seen.length === visual.layers.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : null
+    }, [span({ class: "ico-chip", "aria-hidden": "true" }, icon(layer.icon)), h("strong", {}, layer.label), h("small", {}, layer.question)]))),
+    active ? div({ class: `bt-layer-example tone-${active.tone}` }, [h("strong", {}, [icon(active.icon), ` ${active.label} — «${active.question}»`]), h("p", {}, ["Ejemplo: ", active.example])]) : h("p", { class: "m3-caption" }, "Toca cada capa."),
+    sel.seen.length === visual.layers.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.summary)]) : null
   ]);
 }
 
@@ -10304,12 +10351,12 @@ function renderThreatCards(visual, state, stepIndex) {
       type: "button",
       "aria-pressed": sel.sel === threat.id ? "true" : "false",
       onclick: () => { app.lesson.stepSelections[stepIndex] = { sel: threat.id, seen: m3Toggle(sel.seen, threat.id) }; m3Play(`threat-${threat.id}`); render(); }
-    }, [span({ class: "bt-threat-icon", "aria-hidden": "true" }, threat.icon), h("strong", {}, threat.title), sel.seen.includes(threat.id) ? span({ class: "bt-threat-check", "aria-hidden": "true" }, "✓") : null]))),
+    }, [span({ class: "bt-threat-icon", "aria-hidden": "true" }, icon(threat.icon)), h("strong", {}, threat.title), sel.seen.includes(threat.id) ? span({ class: "bt-threat-check", "aria-hidden": "true" }, icon("check")) : null]))),
     active ? div({ class: `bt-threat-detail ${m3Flashing(`threat-${active.id}`) ? "anim-pop" : ""}` }, [
-      div({ class: "bt-threat-row" }, [span({ class: "bt-threat-key" }, "⚠ Amenaza"), span({}, active.title)]),
+      div({ class: "bt-threat-row" }, [span({ class: "bt-threat-key" }, [icon("triangle-alert"), " Amenaza"]), span({}, active.title)]),
       div({ class: "bt-threat-row" }, [span({ class: "bt-threat-key" }, "Qué significa"), span({}, active.meaning)]),
       div({ class: "bt-threat-row" }, [span({ class: "bt-threat-key" }, "Qué podría afectar"), span({}, active.impact)]),
-      div({ class: "bt-threat-row defense" }, [span({ class: "bt-threat-key" }, "🛡 Cómo reducir el riesgo"), span({}, active.defense)])
+      div({ class: "bt-threat-row defense" }, [span({ class: "bt-threat-key" }, [icon("shield"), " Cómo reducir el riesgo"]), span({}, active.defense)])
     ]) : h("p", { class: "m3-caption" }, "Toca una amenaza."),
     h("p", { class: "m3-caption small" }, `Revisadas: ${sel.seen.length}/${visual.threats.length}`)
   ]);
@@ -10336,13 +10383,13 @@ function scanClassifyStage(lesson, state) {
   const solvedCount = practice.items.filter(item => state.answers[item.id] === item.answer).length;
   return m3PracticeShell(practice, [
     div({ class: "m3-lab bt-scanner" }, [
-      div({ class: "m3-capture-title" }, [`◉ ${practice.panelTitle || "Escáner WISPR (simulado)"} · `, `${solvedCount}/${practice.items.length} clasificados`]),
+      div({ class: "m3-capture-title" }, [[icon("circle-dot"), ` ${practice.panelTitle || "Escáner WISPR (simulado)"} · `], `${solvedCount}/${practice.items.length} clasificados`]),
       ...practice.items.map(item => {
         const answer = state.answers[item.id];
         const ok = answer === item.answer;
         return div({ class: `bt-scan-item ${answer ? (ok ? "ok" : "bad") : ""}` }, [
           div({ class: "bt-scan-item-head" }, [
-            span({ class: "bt-scan-icon", "aria-hidden": "true" }, item.icon),
+            span({ class: "bt-scan-icon", "aria-hidden": "true" }, icon(item.icon)),
             div({}, [h("strong", {}, item.name), div({ class: "bt-clues" }, item.clues.map(clue => span({ class: "m3-chip tone-plain mini" }, clue)))]),
             item.bars === undefined ? null : btSignalBars(item.bars)
           ]),
@@ -10356,7 +10403,7 @@ function scanClassifyStage(lesson, state) {
         ]);
       })
     ]),
-    state.practiceSolved ? m3Success(practice.success, "✓ ¡Escaneo analizado!") : null
+    state.practiceSolved ? m3Success(practice.success, "¡Escaneo analizado!") : null
   ], m3PracticeFooter(state));
 }
 
@@ -10389,12 +10436,12 @@ function sequenceBuildStage(lesson, state) {
         type: "button",
         onclick: () => sequencePick(practice, id),
         ...m3DragProps("seq", id)
-      }, `${byId[id].icon} ${byId[id].label}`))),
+      }, [icon(byId[id].icon), ` ${byId[id].label}`]))),
       div({ class: "bt-seq-list", ...m3DropProps((kind, id) => { if (kind === "seq") sequencePick(practice, id); }) }, practice.steps.map((step, index) => {
         const filled = index < state.done.length;
         return div({ class: `bt-seq-slot ${filled ? "filled" : ""} ${index === state.done.length ? "next" : ""}` }, [
           span({ class: "m3-chain-num" }, String(index + 1)),
-          filled ? h("strong", {}, `${byId[state.done[index]].icon} ${byId[state.done[index]].label}`) : span({ class: "m3-drop-placeholder" }, index === state.done.length ? "Siguiente paso…" : "?")
+          filled ? h("strong", {}, [icon(byId[state.done[index]].icon), ` ${byId[state.done[index]].label}`]) : span({ class: "m3-drop-placeholder" }, index === state.done.length ? "Siguiente paso…" : "?")
         ]);
       })),
       h("p", { class: "m3-caption small" }, "Toca los pasos en orden o arrástralos a la lista.")
@@ -10402,11 +10449,11 @@ function sequenceBuildStage(lesson, state) {
     state.hint ? btFeedback(false, state.hint) : null,
     state.practiceSolved ? div({ class: `m3-lab bt-seq-replay ${replay ? "anim" : ""}` }, [
       span({ class: "m3-behind-label" }, "Proceso completo"),
-      div({ class: "bt-replay-track" }, practice.steps.map((step, index) => span({ class: "bt-replay-step", style: { animationDelay: `${index * 0.45}s` } }, [span({ "aria-hidden": "true" }, step.icon), h("small", {}, step.label)]))),
-      div({ class: "bt-replay-end", style: { animationDelay: `${practice.steps.length * 0.45}s` } }, "📱 ⟷🔒⟷ 🎧 Conectados de forma segura")
+      div({ class: "bt-replay-track" }, practice.steps.map((step, index) => span({ class: "bt-replay-step", style: { animationDelay: `${index * 0.45}s` } }, [span({ "aria-hidden": "true" }, icon(step.icon)), h("small", {}, step.label)]))),
+      div({ class: "bt-replay-end", style: { animationDelay: `${practice.steps.length * 0.45}s` } }, [icon("smartphone"), " ", icon("arrow-left-right"), icon("lock"), icon("arrow-left-right"), " ", icon("headphones"), " Conectados de forma segura"])
     ]) : null,
     state.practiceSolved ? m3Success(practice.success) : null
-  ], m3PracticeFooter(state, state.practiceSolved ? button({ class: "ghost-action compact", type: "button", onclick: () => { m3Play("seq-replay"); render(); } }, "↻ Ver animación") : null));
+  ], m3PracticeFooter(state, state.practiceSolved ? button({ class: "ghost-action compact", type: "button", onclick: () => { m3Play("seq-replay"); render(); } }, [icon("rotate-ccw"), " Ver animación"]) : null));
 }
 
 // --- bt-environment: mapa de la estación con inspector -------------------
@@ -10427,27 +10474,27 @@ function btEnvironmentStage(lesson, state) {
   return m3PracticeShell(practice, [
     div({ class: "m3-lab bt-env" }, [
       div({ class: "bt-env-map" }, [
-        div({ class: "bt-env-station" }, [span({ "aria-hidden": "true" }, "🖥️"), h("small", {}, "Estación de trabajo")]),
+        div({ class: "bt-env-station" }, [span({ "aria-hidden": "true" }, icon("monitor")), h("small", {}, "Estación de trabajo")]),
         ...practice.devices.map(device => button({
           class: `bt-env-node ${state.sel === device.id ? "active" : ""} ${state.decisions[device.id] ? (correct(device.id) ? (device.answer === "safe" ? "safe" : "risk") : "wrong") : ""}`,
           type: "button",
           style: { left: `${device.x}%`, top: `${device.y}%` },
           onclick: () => { app.lesson.sel = device.id; render(); }
-        }, [span({ "aria-hidden": "true" }, device.icon), h("small", {}, device.name), correct(device.id) ? span({ class: "bt-env-mark" }, device.answer === "safe" ? "✓" : "⚠") : null]))
+        }, [span({ class: "ico-chip", "aria-hidden": "true" }, icon(device.icon)), h("small", {}, device.name), correct(device.id) ? span({ class: "bt-env-mark" }, device.answer === "safe" ? icon("check") : icon("triangle-alert")) : null]))
       ]),
       active ? div({ class: "bt-inspector" }, [
         span({ class: "m3-behind-label" }, "Ficha del dispositivo"),
-        h("strong", {}, `${active.icon} ${active.name}`),
+        h("strong", {}, [icon(active.icon), ` ${active.name}`]),
         h("ul", {}, active.facts.map(fact => h("li", {}, fact))),
         div({ class: "m3-actions" }, [
-          button({ class: `m3-option ${decision === "safe" ? (correct(active.id) ? "active" : "wrong") : ""}`, type: "button", disabled: correct(active.id), onclick: () => decide("safe") }, "✓ Seguro"),
-          button({ class: `m3-option ${decision === "risk" ? (correct(active.id) ? "active" : "wrong") : ""}`, type: "button", disabled: correct(active.id), onclick: () => decide("risk") }, "⚠ Requiere atención")
+          button({ class: `m3-option ${decision === "safe" ? (correct(active.id) ? "active" : "wrong") : ""}`, type: "button", disabled: correct(active.id), onclick: () => decide("safe") }, [icon("check"), " Seguro"]),
+          button({ class: `m3-option ${decision === "risk" ? (correct(active.id) ? "active" : "wrong") : ""}`, type: "button", disabled: correct(active.id), onclick: () => decide("risk") }, [icon("triangle-alert"), " Requiere atención"])
         ]),
         decision ? btFeedback(correct(active.id), correct(active.id) ? active.explain : (active.answer === "risk" ? "Hay una señal de alerta en la ficha: revisa quién inició la conexión, la visibilidad o los permisos." : "Nada en la ficha indica un problema: está aprobado, actualizado y sin exposición innecesaria.")) : null
       ]) : h("p", { class: "m3-caption" }, "Toca un dispositivo del mapa para inspeccionarlo."),
       h("p", { class: "m3-caption small" }, `Analizados correctamente: ${done}/${practice.devices.length}`)
     ]),
-    state.practiceSolved ? m3Success(practice.success, "✓ ¡Entorno analizado!") : null
+    state.practiceSolved ? m3Success(practice.success, "¡Entorno analizado!") : null
   ], m3PracticeFooter(state));
 }
 
@@ -10490,13 +10537,13 @@ function btMultiSelect(items, selKey, checkedKey, isTarget, labelOf, explainOf) 
       "aria-pressed": marked ? "true" : "false",
       disabled: checked && allRight,
       onclick: () => { state[selKey] = marked ? sel.filter(id => id !== item.id) : [...sel, item.id]; state[checkedKey] = false; render(); }
-    }, [span({ class: "m3-field-check", "aria-hidden": "true" }, marked ? "◉" : "○"), div({}, [labelOf(item), checked && explainOf ? h("small", { class: right ? "bt-ok-text" : "bt-bad-text" }, `${right ? "✓" : "✗"} ${explainOf(item)}`) : null])]);
+    }, [span({ class: "m3-field-check", "aria-hidden": "true" }, marked ? icon("circle-dot") : icon("circle")), div({}, [labelOf(item), checked && explainOf ? h("small", { class: right ? "bt-ok-text" : "bt-bad-text" }, [icon(right ? "check" : "x"), " ", explainOf(item)]) : null])]);
   }));
 }
 
 function btMissionDeviceCard(device, controls) {
   return div({ class: "bt-mdev" }, [
-    div({ class: "bt-mdev-head" }, [span({ class: "bt-scan-icon", "aria-hidden": "true" }, device.icon), h("strong", {}, device.name)]),
+    div({ class: "bt-mdev-head" }, [span({ class: "bt-scan-icon", "aria-hidden": "true" }, icon(device.icon)), h("strong", {}, device.name)]),
     h("ul", {}, device.clues.map(clue => h("li", {}, clue))),
     controls
   ]);
@@ -10510,10 +10557,10 @@ function btMissionView(lesson, state) {
     return div({ class: "lesson-stage m3-mission" }, [
       div({ class: "m3-lab m3-brief" }, [
         span({ class: "m3-behind-label" }, "Expediente · Módulo 5"),
-        h("h3", {}, "📶 Misión: Bluetooth"),
+        h("h3", {}, [icon("wifi"), " Misión: Bluetooth"]),
         h("p", {}, "El centro de operaciones detectó varios dispositivos Bluetooth alrededor de una estación de trabajo. Debes analizar el entorno y determinar qué dispositivos son relevantes, cómo se comunican y qué situaciones podrían representar un riesgo."),
         div({ class: "m3-brief-objectives" }, lesson.phases.filter(item => item.id !== "done").map((item, index) => div({}, [span({ class: "m3-brief-num" }, String(index + 1)), span({}, item.label.replace(/^\d · /, ""))]))),
-        div({ class: "bt-brief-devices" }, lesson.devices.map(device => span({ class: "m3-chip tone-plain" }, `${device.icon} ${device.name}`))),
+        div({ class: "bt-brief-devices" }, lesson.devices.map(device => span({ class: "m3-chip tone-plain" }, [icon(device.icon), ` ${device.name}`]))),
         h("p", { class: "m3-caption small" }, `Recompensa: XP según tus aciertos + insignia «${lesson.badge.name}».`)
       ]),
       div({ class: "lesson-actions" }, [button({ class: "primary-action", type: "button", onclick: () => btMissionNext("s1") }, "Iniciar misión →")])
@@ -10558,7 +10605,7 @@ function btMissionView(lesson, state) {
         : button({ class: "primary-action", type: "button", disabled: !state[selKey].length, onclick: () => { if (!allRight) app.lesson.errors += 1; app.lesson[checkedKey] = true; render(); } }, "Comprobar")
     ]));
   };
-  const deviceLabel = device => div({}, [h("strong", {}, `${device.icon} ${device.name}`), h("small", { class: "bt-multi-clue" }, device.clues[1])]);
+  const deviceLabel = device => div({}, [h("strong", {}, [icon(device.icon), ` ${device.name}`]), h("small", { class: "bt-multi-clue" }, device.clues[1])]);
 
   if (state.phase === "s2") {
     return multiStep("Paso 2 · ¿Cuáles están siendo descubiertos ahora (aparecen en el escaneo)?", "discSel", "discChecked", devices, device => device.discovered, deviceLabel,
@@ -10569,19 +10616,19 @@ function btMissionView(lesson, state) {
       device => device.paired ? "Guardó claves al emparejarse: hay confianza establecida." : "Solo fue encontrado: no hay claves compartidas.", "s4", "Paso 4 →");
   }
   if (state.phase === "s4") {
-    const options = [["authn", "🪪 Autenticación"], ["authz", "🛂 Autorización"], ["crypto", "🔐 Cifrado"]];
+    const options = [["authn", "id-card", "Autenticación"], ["authz", "user-check", "Autorización"], ["crypto", "lock-keyhole", "Cifrado"]];
     const done = lesson.events.every(event => state.events[event.id] === event.answer);
     return shell("Paso 4 · Registro de eventos: ¿qué mecanismo de seguridad interviene en cada uno?", div({ class: "m3-lab bt-events" }, lesson.events.map(event => {
       const answer = state.events[event.id];
       const ok = answer === event.answer;
       return div({ class: `bt-event ${answer ? (ok ? "ok" : "bad") : ""}` }, [
         h("code", {}, `[evento] ${event.text}`),
-        div({ class: "bt-choice-row" }, options.map(([id, label]) => button({
+        div({ class: "bt-choice-row" }, options.map(([id, iconName, label]) => button({
           class: `m3-option bt-choice ${answer === id ? (ok ? "active" : "wrong") : ""}`,
           type: "button",
           disabled: ok,
           onclick: () => { if (id !== event.answer) app.lesson.errors += 1; app.lesson.events[event.id] = id; render(); }
-        }, label))),
+        }, withIcon(iconName, label)))),
         answer ? btFeedback(ok, ok ? { authn: "Verificar identidad → autenticación.", authz: "Decidir qué se permite → autorización.", crypto: "Información ilegible para terceros → cifrado." }[event.answer] : "Pregúntate: ¿trata de identidad, de permisos o de proteger el contenido?") : null
       ]);
     })), footer(done, "s5", "Paso 5 →"));
@@ -10631,7 +10678,7 @@ function stepsMissionNext(lesson, index) {
 function scanPanel(scan) {
   if (scan.columns) {
     return div({ class: "m3-lab sm-scan" }, [
-      div({ class: "m3-capture-title" }, ["◉ ", scan.title]),
+      div({ class: "m3-capture-title" }, [[icon("circle-dot"), " "], scan.title]),
       div({ class: "sm-table-wrap" }, [
         h("table", { class: "sm-table" }, [
           h("thead", {}, [h("tr", {}, scan.columns.map(column => h("th", {}, column.label)))]),
@@ -10641,7 +10688,7 @@ function scanPanel(scan) {
     ]);
   }
   return div({ class: "m3-lab sm-scan" }, [
-    div({ class: "m3-capture-title" }, ["◉ ", scan.title]),
+    div({ class: "m3-capture-title" }, [[icon("circle-dot"), " "], scan.title]),
     div({ class: "sm-table-wrap" }, [
       h("table", { class: "sm-table" }, [
         h("thead", {}, [h("tr", {}, ["BSSID", "SSID", "Canal", "Banda", "Estándar"].map(label => h("th", {}, label)))]),
@@ -10717,7 +10764,7 @@ function stepsMissionView(lesson, state) {
     return div({ class: "lesson-stage m3-mission" }, [
       div({ class: "m3-lab m3-brief" }, [
         span({ class: "m3-behind-label" }, lesson.brief.file),
-        h("h3", {}, lesson.brief.heading),
+        h("h3", {}, withIcon(lesson.brief.headingIcon, lesson.brief.heading)),
         h("p", {}, lesson.brief.text),
         div({ class: "m3-brief-objectives" }, lesson.steps.map((step, index) => div({}, [span({ class: "m3-brief-num" }, String(index + 1)), span({}, `Aplica «${step.lesson}»`)]))),
         h("p", { class: "m3-caption small" }, `Recompensa: XP según tus aciertos + insignia «${lesson.badge.name}».`)
@@ -10748,10 +10795,11 @@ missionViews["steps-mission"] = stepsMissionView;
 // MÓDULO 2 — componentes (Seguridad Wi-Fi)
 // Se registran en los mismos registros del motor que los módulos 3 y 5
 // (m3LearnVisuals, m3PracticeStages, m3PracticeInits). Cada estado se
-// comunica con texto e icono además del color (✓ / ⚠ / ✗).
+// comunica con texto e icono además del color (check / alerta / x).
 // ===========================================================================
 
-const M2_TONE_ICON = { ok: "✓", warn: "⚠", bad: "✗", info: "ℹ", plain: "·" };
+const M2_TONE_ICON = { ok: "check", warn: "triangle-alert", bad: "x", info: "info" };
+const m2ToneIcon = tone => (M2_TONE_ICON[tone] ? icon(M2_TONE_ICON[tone]) : "·");
 
 // --- m2-flow: diagrama de comunicación con modos alternables -------------
 // Cada modo define sus nodos, los enlaces entre ellos (con un paquete que
@@ -10771,15 +10819,15 @@ function renderM2Flow(visual, state, stepIndex) {
         disabled: !node.detail,
         "aria-pressed": sel.node === index ? "true" : "false",
         onclick: () => pickNode(index)
-      }, [span({ class: "m2-node-icon", "aria-hidden": "true" }, node.icon), h("small", {}, node.label)]);
+      }, [span({ class: "m2-node-icon", "aria-hidden": "true" }, icon(node.icon)), h("small", {}, node.label)]);
       const link = mode.links[index];
       if (!link) return [nodeEl];
       const tone = link.tone || mode.tone;
       const packet = link.packet ?? mode.packet;
       return [nodeEl, div({ class: `m2-link tone-${tone}` }, [
         span({ class: "m2-link-line", "aria-hidden": "true" }, ""),
-        packet && tone !== "plain" ? span({ class: "m2-packet", "aria-hidden": "true", style: { animationDelay: `${index * 0.6}s` } }, packet) : null,
-        h("small", { class: "m2-link-label" }, [span({ "aria-hidden": "true" }, `${M2_TONE_ICON[tone] || ""} `), link.label])
+        packet && tone !== "plain" ? span({ class: "m2-packet", "aria-hidden": "true", style: { animationDelay: `${index * 0.6}s` } }, hasIcon(packet) ? icon(packet) : packet) : null,
+        h("small", { class: "m2-link-label" }, [span({ "aria-hidden": "true" }, [m2ToneIcon(tone), " "]), withIcon(link.icon, link.label)])
       ])];
     })) : null;
   return div({ class: "m3-lab m2-flow-lab" }, [
@@ -10788,15 +10836,15 @@ function renderM2Flow(visual, state, stepIndex) {
       type: "button",
       "aria-pressed": sel.mode === item.id ? "true" : "false",
       onclick: () => pickMode(item.id)
-    }, [span({ "aria-hidden": "true" }, item.icon), span({}, item.label)]))),
+    }, [span({ "aria-hidden": "true" }, icon(item.icon)), span({}, item.label)]))),
     diagram || h("p", { class: "m3-caption" }, visual.prompt || "Elige un modo."),
-    mode && sel.node !== null && mode.nodes[sel.node]?.detail ? m3Note(`${mode.nodes[sel.node].icon} ${mode.nodes[sel.node].label}`, mode.nodes[sel.node].detail) : null,
+    mode && sel.node !== null && mode.nodes[sel.node]?.detail ? m3Note([icon(mode.nodes[sel.node].icon), ` ${mode.nodes[sel.node].label}`], mode.nodes[sel.node].detail) : null,
     mode?.observer ? div({ class: `m2-observer tone-${mode.tone}` }, [
-      span({ class: "m3-behind-label" }, `👀 ${mode.observer.title}`),
+      span({ class: "m3-behind-label" }, [icon("eye"), ` ${mode.observer.title}`]),
       h("code", {}, mode.observer.text)
     ]) : null,
-    mode ? m3Note(`${M2_TONE_ICON[mode.tone] || ""} ${mode.label}`, mode.detail, mode.tone === "ok" ? "ok" : mode.tone === "bad" ? "bad" : "") : null,
-    allSeen ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Modos explorados: ${sel.seen.length}/${visual.modes.length}`)
+    mode ? m3Note([m2ToneIcon(mode.tone), " ", mode.label], mode.detail, mode.tone === "ok" ? "ok" : mode.tone === "bad" ? "bad" : "") : null,
+    allSeen ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Modos explorados: ${sel.seen.length}/${visual.modes.length}`)
   ]);
 }
 
@@ -10815,25 +10863,25 @@ function renderM2Cipher(visual, state, stepIndex) {
   const encrypted = sel.seen.includes("encrypt");
   const act = action => { app.lesson.stepSelections[stepIndex] = { action, seen: m3Toggle(sel.seen, action) }; m3Play(`m2c-${stepIndex}-${action}`); render(); };
   const views = {
-    encrypt: { cipher, result: "—", tone: "", title: "🔒 Cifrado", text: "La clave transformó el texto en claro en texto cifrado: alguien que lo capture solo ve esto." },
-    decrypt: { cipher, result: visual.plaintext, tone: "ok", title: "✓ Descifrado con la clave correcta", text: "El receptor, que tiene la misma clave de sesión, recupera el mensaje original." },
-    wrong: { cipher, result: m2Garble(visual.plaintext), tone: "bad", title: "✗ Descifrado con otra clave", text: "Sin la clave correcta sale basura: el texto cifrado no revela nada útil." },
-    tamper: { cipher: tampered, result: "⚠ Trama rechazada", tone: "bad", title: "⚠ Alguien alteró el texto cifrado", text: "Cambió un solo carácter y el control de integridad ya no coincide: el receptor descarta la trama (CCMP incluye esta comprobación)." }
+    encrypt: { cipher, result: "—", tone: "", title: [icon("lock"), " Cifrado"], text: "La clave transformó el texto en claro en texto cifrado: alguien que lo capture solo ve esto." },
+    decrypt: { cipher, result: visual.plaintext, tone: "ok", title: [icon("check"), " Descifrado con la clave correcta"], text: "El receptor, que tiene la misma clave de sesión, recupera el mensaje original." },
+    wrong: { cipher, result: m2Garble(visual.plaintext), tone: "bad", title: [icon("x"), " Descifrado con otra clave"], text: "Sin la clave correcta sale basura: el texto cifrado no revela nada útil." },
+    tamper: { cipher: tampered, result: [icon("triangle-alert"), " Trama rechazada"], tone: "bad", title: [icon("triangle-alert"), " Alguien alteró el texto cifrado"], text: "Cambió un solo carácter y el control de integridad ya no coincide: el receptor descarta la trama (CCMP incluye esta comprobación)." }
   };
   const view = views[sel.action] || { cipher: "—", result: "—", tone: "", title: null, text: null };
   const box = (label, value, extra = "") => div({ class: `m2-cbox ${extra}` }, [span({ class: "m3-behind-label" }, label), h("code", {}, value)]);
   const actions = [
-    ["encrypt", "🔒 Cifrar", false],
-    ["decrypt", "🔓 Descifrar (clave correcta)", !encrypted],
-    ["wrong", "🗝️ Descifrar con otra clave", !encrypted],
-    ["tamper", "✂️ Alterar el texto cifrado", !encrypted]
+    ["encrypt", [icon("lock"), " Cifrar"], false],
+    ["decrypt", [icon("lock-open"), " Descifrar (clave correcta)"], !encrypted],
+    ["wrong", [icon("key"), " Descifrar con otra clave"], !encrypted],
+    ["tamper", [icon("scissors"), " Alterar el texto cifrado"], !encrypted]
   ];
   return div({ class: "m3-lab m2-cipher" }, [
     div({ class: `m2-cipher-row ${m3Flashing(`m2c-${stepIndex}-${sel.action}`) ? "anim" : ""}` }, [
       box("Texto en claro", visual.plaintext),
-      span({ class: "m2-carrow", "aria-hidden": "true" }, "→ 🔑 →"),
+      span({ class: "m2-carrow", "aria-hidden": "true" }, ["→ ", icon("key-round"), " →"]),
       box("Texto cifrado", view.cipher, sel.action === "tamper" ? "bad" : ""),
-      span({ class: "m2-carrow", "aria-hidden": "true" }, "→ 🔑 →"),
+      span({ class: "m2-carrow", "aria-hidden": "true" }, ["→ ", icon("key-round"), " →"]),
       box("Resultado", view.result, view.tone)
     ]),
     div({ class: "m3-actions m2-cipher-actions" }, actions.map(([id, label, disabled]) => button({
@@ -10845,7 +10893,7 @@ function renderM2Cipher(visual, state, stepIndex) {
     }, label))),
     view.title ? m3Note(view.title, view.text, view.tone) : h("p", { class: "m3-caption" }, "Empieza por «Cifrar»."),
     h("dl", { class: "m2-terms" }, visual.terms.flatMap(([term, meaning]) => [h("dt", {}, term), h("dd", {}, meaning)])),
-    sel.seen.length === actions.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, "✓"), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Acciones probadas: ${sel.seen.length}/${actions.length}`)
+    sel.seen.length === actions.length ? div({ class: "m3-summary" }, [span({ "aria-hidden": "true" }, icon("check")), span({}, visual.summary)]) : h("p", { class: "m3-caption small" }, `Acciones probadas: ${sel.seen.length}/${actions.length}`)
   ]);
 }
 
@@ -10873,7 +10921,7 @@ function m2DecisionsStage(lesson, state) {
     div({ class: "m3-lab m2-scenario" }, [
       span({ class: "m3-behind-label" }, practice.scenario.title),
       h("p", {}, practice.scenario.text),
-      div({ class: "bt-device-chips" }, practice.scenario.devices.map(device => span({ class: "m3-chip tone-plain" }, device))),
+      div({ class: "bt-device-chips" }, practice.scenario.devices.map(device => span({ class: "m3-chip tone-plain" }, withIcon(device.icon, device.label)))),
       h("p", { class: "m3-caption small" }, `Decisiones resueltas: ${done}/${practice.decisions.length}`)
     ]),
     ...practice.decisions.map(decision => {
@@ -10888,12 +10936,12 @@ function m2DecisionsStage(lesson, state) {
           onclick: () => pick(decision, option)
         }, option.label))),
         chosen ? div({ class: `m2-effects ${m3Flashing(`m2d-${decision.id}`) ? "anim-pop" : ""}` }, chosen.effects.map(([label, tone]) => span({ class: `m2-effect tone-${tone}` }, [
-          span({ "aria-hidden": "true" }, M2_TONE_ICON[tone]), ` ${label}: `, h("strong", {}, { ok: "adecuada", warn: "con límites", bad: "insuficiente" }[tone])
+          span({ "aria-hidden": "true" }, m2ToneIcon(tone)), ` ${label}: `, h("strong", {}, { ok: "adecuada", warn: "con límites", bad: "insuficiente" }[tone])
         ]))) : null,
         chosen ? btFeedback(chosen.ok, chosen.text) : null
       ]);
     }),
-    state.practiceSolved ? m3Success(practice.success, "✓ ¡Red actualizada!") : null
+    state.practiceSolved ? m3Success(practice.success, "¡Red actualizada!") : null
   ], m3PracticeFooter(state));
 }
 

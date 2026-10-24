@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "check": "node --check server.js && node --check challenge-engine.js && node --check app.js && node --check theme-init.js"
+    "check": "node --check server.js && node --check challenge-engine.js && node --check app.js && node --check icons.js && node --check theme-init.js"
   },
   "engines": {
     "node": ">=20"

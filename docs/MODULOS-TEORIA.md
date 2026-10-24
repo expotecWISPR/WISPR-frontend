@@ -38,7 +38,11 @@ el progreso). Convención: `m4-…`, `m6-…`.
 }
 ```
 
-`MX_COMMON` (como `M2_COMMON`): `{ labTheme: true, feedbackTitles: ["✓ Correcto", "✗ …"], quizOkTitle: "✓ Correcto", quizWrongTitle: "✗ …" }`.
+`MX_COMMON` (como `M2_COMMON`): `{ labTheme: true, feedbackTitles: ["Correcto", "Inténtalo de nuevo"], quizOkTitle: "Correcto", quizWrongTitle: "Inténtalo de nuevo" }`.
+El ícono de acierto o error lo pone el motor: los títulos van sin ✓ ni ✗.
+
+> **Sin emojis.** Donde un dato lleva ícono, se escribe el **nombre** de un ícono de Lucide
+> (`icon: "shield"`), nunca un emoji. Ver §9.
 
 ## 3. Pasos de «Aprender»
 
@@ -49,13 +53,13 @@ Visuales disponibles (`visual.type`):
 
 | Tipo | Datos | Úsalo para |
 |---|---|---|
-| `node-cluster` | `note`, `nodes: [{ id, label, sublabel, detail }]` | Tarjetas que se abren al tocarlas |
-| `compare-pair` | `left`/`right: { title, rows: [{ label, value }] }` | Dos columnas; resalta las filas distintas |
-| `bt-compare` | `prompt`, `options: [{ id, icon, label, tag, tone, rows: [{ k, v }] }]`, `summary` | 2-3 tarjetas seleccionables (línea de tiempo, comparación) |
-| `list-select` | `prompt`, `items: [{ id, label, note }]` | Lista; tocar muestra una nota |
+| `node-cluster` | `note`, `nodes: [{ id, icon?, label, sublabel, detail }]` | Tarjetas que se abren al tocarlas |
+| `compare-pair` | `left`/`right: { icon?, title, rows: [{ label, value }] }` | Dos columnas; resalta las filas distintas |
+| `bt-compare` | `prompt`, `options: [{ id, icon, label, tag, tone, rows: [{ k, v }], devices?: [{ icon, label }] }]`, `summary` | 2-3 tarjetas seleccionables (línea de tiempo, comparación) |
+| `list-select` | `prompt`, `items: [{ id, icon?, label, note }]` | Lista; tocar muestra una nota |
 | `timeline` | `items: [{ id, era, title, detail }]` | Línea de tiempo simple |
 | `frame-fields` | `frameLabel`, `note`, `fields: [{ id, label, width, detail }]` | Barra de campos (una trama, columnas) |
-| `m2-flow` | `prompt`, `modes: [{ id, label, icon, tone, nodes: [{ icon, label, detail? }], links: [{ label, packet?, tone? }], observer?: { title, text }, detail }]`, `summary` | Diagrama de comunicación con modos alternables |
+| `m2-flow` | `prompt`, `modes: [{ id, label, icon, tone, nodes: [{ icon, label, detail? }], links: [{ icon?, label, packet?, tone? }], observer?: { title, text }, detail }]`, `summary` | Diagrama de comunicación con modos alternables. `packet` puede ser un nombre de ícono (`"lock"`) o un texto corto (`"9f3a…"`) |
 | `m2-cipher` | `plaintext`, `terms: [[término, definición]]`, `summary` | Simulación visual de cifrado (no es criptografía real) |
 | `icon-row` | `items: [{ icon, label, caption }]` | Resumen estático |
 
@@ -66,8 +70,8 @@ Visuales disponibles (`visual.type`):
 | `practice.type` | Datos | Mecánica |
 |---|---|---|
 | `scan-classify` | `prompt`, `instructions`, `panelTitle`, `categories: [{ id, label }]`, `items: [{ id, icon, name, clues: [..], answer, explain, hint }]`, `success` | Cada fila se clasifica en una categoría |
-| `packet-sort` | `prompt`, `instructions`, `itemLabel`, `countLabel`, `binPrefix: ""`, `okTitle`, `wrongTitle`, `bins: [{ id, label, caption, icon }]`, `items: [{ id, icon, text, bin, accept?, explain, hint }]`, `hints: { [binId]: texto }`, `success` | Arrastrar tarjetas a compartimentos |
-| `m2-decisions` | `prompt`, `instructions`, `scenario: { title, text, devices: [..] }`, `decisions: [{ id, title, context, options: [{ id, label, ok, effects: [[etiqueta, tone]], text }] }]`, `success` | Decisiones con consecuencias visibles |
+| `packet-sort` | `prompt`, `instructions`, `itemIcon`, `itemLabel`, `countLabel`, `binPrefix: ""`, `okTitle`, `wrongTitle`, `bins: [{ id, label, caption, icon }]`, `items: [{ id, icon, text, bin, accept?, explain, hint }]`, `hints: { [binId]: texto }`, `success` | Arrastrar tarjetas a compartimentos |
+| `m2-decisions` | `prompt`, `instructions`, `scenario: { title, text, devices: [{ icon, label }] }`, `decisions: [{ id, title, context, options: [{ id, label, ok, effects: [[etiqueta, tone]], text }] }]`, `success` | Decisiones con consecuencias visibles |
 | `sequence-build` | `prompt`, `instructions`, `steps: [{ id, label, icon, hint }]`, `success` | Ordenar pasos (ojo: su animación final dice un texto de Bluetooth fijo) |
 
 `accept: [a, b]` en `packet-sort` permite más de una respuesta válida (casos que dependen del contexto).
@@ -84,7 +88,7 @@ Visuales disponibles (`visual.type`):
 ## 6. Misión final (`missionType: "steps-mission"`)
 
 Ver `lessons[M2_MISSION_ID]`. Campos: `mission: true`, `title`, `subtitle`, `doneTitle`, `claim`,
-`badge: { icon, name }`, `brief: { file, heading, text }`, `scan` (tabla opcional:
+`badge: { icon, name }`, `brief: { file, headingIcon, heading, text }`, `scan` (tabla opcional:
 `{ title, columns: [{ key, label, code? }], rows: [{ key: valor }] }`), `phases` (una por etapa +
 `{ id: "done", label: "Informe" }`), `steps` y `ctfLinks: [[término, texto]]`.
 
@@ -107,3 +111,24 @@ Tipos de etapa (`steps[].kind`), cada una con `id`, `lesson` (nombre del concept
 - `npm run check` (sintaxis).
 - Abrir Teoría → el módulo: deben verse los temas como «Lección interactiva» y la misión bloqueada.
 - Completar cada tema y la misión una vez, y revisar el celular (≈390 px de ancho).
+- Consola del navegador (F12) sin avisos `Ícono desconocido: …`.
+
+## 9. Íconos
+
+La app no usa emojis: todos los íconos son de línea, de [Lucide](https://lucide.dev/icons), y
+están en `icons.js` (solo los que se usan). En los datos se escribe el **nombre** del ícono:
+
+```js
+{ id: "deauth", icon: "log-out", label: "Deauthentication", sublabel: "…", detail: "…" }
+```
+
+Los campos `icon` marcados con `?` en las tablas son opcionales: si no se ponen, la tarjeta sale
+solo con texto. Ejemplos de nombres que ya están: `shield`, `lock`, `lock-open`, `key-round`,
+`wifi`, `radio-tower` (punto de acceso o router), `laptop`, `smartphone`, `triangle-alert`,
+`circle-check`, `circle-x`, `eye`, `search`, `target`, `flag`. La lista completa son las claves de
+`ICON_PATHS` en `icons.js`.
+
+**Para un ícono que todavía no está:** buscarlo en <https://lucide.dev/icons>, copiar su SVG y
+agregar a `ICON_PATHS` una línea con el nombre como clave y lo que va entre `<svg …>` y `</svg>`
+como valor. Si el nombre no existe en `icons.js`, el ícono no aparece y la consola avisa
+`Ícono desconocido: nombre`.
