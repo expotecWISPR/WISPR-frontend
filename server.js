@@ -1606,7 +1606,7 @@ function publicStaticPath(pathname) {
   if (files[pathname]) return path.join(ROOT, files[pathname]);
   // Carpetas de medios editables: basta soltar el archivo (nombre en
   // minúsculas, sin rutas) para que se sirva, sin tocar este archivo.
-  const media = pathname.match(/^\/img\/(historias|team)\/([a-z0-9][a-z0-9-]{0,60}\.(?:mp4|jpg|png))$/);
+  const media = pathname.match(/^\/img\/(historias|team|avatars)\/([a-z0-9][a-z0-9-]{0,60}\.(?:mp4|jpg|png))$/);
   if (media) return path.join(ROOT, "img", media[1], media[2]);
   return null;
 }

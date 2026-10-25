@@ -7318,3 +7318,76 @@ button.chip-profile:hover strong,
 }
 .m3-badge-icon .ico,
 .lesson-complete-badge .ico { width: 1em; height: 1em; vertical-align: 0; stroke-width: 2.2; }
+
+/* --- Fotos de perfil (avatares de Wisp, img/avatars) --- */
+.avatar.has-img {
+  overflow: hidden;
+  padding: 0;
+}
+.avatar.has-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  transform: scale(1.15);
+}
+/* En tamaño chico (encabezado, ranking, listas) se acerca a la cara: el cuerpo
+   entero a 38 px no se distingue. */
+.avatar.has-img:not(.big) img {
+  transform: scale(1.75);
+  transform-origin: 46% 24%;
+}
+
+/* Perfil: el encabezado ocupa la columna izquierda; el selector va arriba a la
+   derecha y los envíos recientes debajo. En pantallas angostas se apila. */
+@media (min-width: 1041px) {
+  .profile-grid { align-content: start; }
+  .profile-grid > .profile-hero { grid-row: span 2; align-self: start; }
+}
+.avatar-picker { padding: 22px; }
+.avatar-picker h3 { margin-bottom: 4px; }
+.avatar-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.avatar-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(var(--surface-rgb), 0.55);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.avatar-option img,
+.avatar-option-initial {
+  width: 84px;
+  height: 84px;
+}
+.avatar-option img { object-fit: contain; }
+.avatar-option-initial {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 20%, var(--green), var(--blue-800) 72%);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 800;
+}
+.avatar-option:hover { transform: translateY(-2px); border-color: var(--orange); }
+.avatar-option.selected {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green), 0 8px 22px -10px rgba(164, 221, 0, 0.6);
+}
+.avatar-option:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .avatar-option { transition: none; }
+  .avatar-option:hover { transform: none; }
+}

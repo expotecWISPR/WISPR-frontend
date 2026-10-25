@@ -5245,6 +5245,28 @@ function withIcon(name, text) {
   return name ? [icon(name), " ", text] : text;
 }
 
+// Fotos de perfil (img/avatars/<id>.png). Los ids deben coincidir con
+// AVATARS de backend/app/services/avatars.py, que rechaza cualquier otro.
+const AVATARS = [
+  { id: "router", label: "Operador de red" },
+  { id: "corazon", label: "Con cariño" },
+  { id: "codigo", label: "Analista" },
+  { id: "escaner", label: "Escáner Wi-Fi" },
+  { id: "saludo", label: "Hola" },
+  { id: "laptop", label: "Hacker" },
+  { id: "escudo", label: "Defensor" }
+];
+const AVATAR_IDS = new Set(AVATARS.map(item => item.id));
+
+// Foto de perfil de una persona: su avatar si eligió uno, si no la inicial.
+function avatarEl(person, extraClass = "") {
+  const cls = `avatar ${extraClass}`.trim();
+  if (AVATAR_IDS.has(person?.avatar)) {
+    return div({ class: `${cls} has-img` }, [h("img", { src: `./img/avatars/${person.avatar}.png`, alt: "", loading: "lazy", decoding: "async" }, [])]);
+  }
+  return div({ class: cls }, (person?.name || "?").slice(0, 1).toUpperCase());
+}
+
 // El logo ya trae el wordmark "WISPR" dibujado, así que reemplaza el cuadro
 // con la "W" + el texto "WISPR"/subtítulo gris que había antes.
 function brandLogo(extraClass = "") {
@@ -5322,7 +5344,7 @@ function leaderboard() {
   if (!app.user) return [];
   if (rankingState.loaded && rankingState.rows.some(row => row.current)) return rankingState.rows;
   const current = stats();
-  return [...rankingState.rows.filter(row => !row.current), { name: app.user.name, handle: app.user.handle, score: current.score, solves: current.solves, streak: 0, current: true }]
+  return [...rankingState.rows.filter(row => !row.current), { name: app.user.name, handle: app.user.handle, avatar: app.user.avatar, score: current.score, solves: current.solves, streak: 0, current: true }]
     .sort((left, right) => right.score - left.score || right.solves - left.solves);
 }
 
@@ -5334,7 +5356,7 @@ function greeting() {
 }
 
 function applyServerProfile(player) {
-  app.user = { name: player.name, handle: player.handle, gender: player.gender, joined: player.joined, email: player.email, role: player.role };
+  app.user = { name: player.name, handle: player.handle, gender: player.gender, joined: player.joined, email: player.email, role: player.role, avatar: player.avatar || null };
   app.playerId = player.playerId;
   // Si el admin emitió una contraseña temporal, se obliga a cambiarla antes de
   // usar la plataforma (ver el gate en render()).
@@ -6803,7 +6825,7 @@ function header() {
         title: isManagementView ? null : "Ver mi progreso",
         onclick: isManagementView ? null : () => switchTab("perfil")
       }, [
-        div({ class: "avatar" }, app.user.name.slice(0, 1).toUpperCase()),
+        avatarEl(app.user),
         div({}, [h("strong", {}, app.user.name), span({}, isAdmin ? "Panel de administración" : isProfesor ? "Panel del profesor" : `${current.score} pts${playerRank() ? ` · puesto #${playerRank()}` : ""}`)])
       ]),
       app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null,
@@ -7284,10 +7306,54 @@ function terminalView() {
   ]);
 }
 
+// Elegir foto de perfil: se ve al instante y se guarda en el servidor; si
+// falla, vuelve a la anterior.
+async function chooseAvatar(avatar) {
+  const previous = app.user.avatar || null;
+  if (previous === avatar) return;
+  app.user.avatar = avatar;
+  render();
+  try {
+    const response = await apiFetch(API + "/api/players/avatar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ avatar })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo guardar tu foto de perfil.");
+    toast("Foto de perfil actualizada.", "success");
+  } catch (error) {
+    app.user.avatar = previous;
+    render();
+    toast(error.message || "No se pudo guardar tu foto de perfil.", "error");
+  }
+}
+
+function avatarPicker() {
+  const current = app.user.avatar || null;
+  const option = (id, label, content) => button({
+    class: `avatar-option ${current === id ? "selected" : ""}`,
+    type: "button",
+    title: label,
+    "aria-label": `Usar foto: ${label}`,
+    "aria-pressed": current === id ? "true" : "false",
+    onclick: () => chooseAvatar(id)
+  }, content);
+  return div({ class: "panel avatar-picker" }, [
+    h("h3", {}, "Tu foto de perfil"),
+    h("p", { class: "muted tight" }, "Elige tu Wisp. Así te verán en el ranking y en tus grupos."),
+    div({ class: "avatar-options" }, [
+      ...AVATARS.map(item => option(item.id, item.label, h("img", { src: `./img/avatars/${item.id}.png`, alt: "", loading: "lazy", decoding: "async" }, []))),
+      option(null, "Mi inicial", span({ class: "avatar-option-initial" }, (app.user.name || "?").slice(0, 1).toUpperCase()))
+    ])
+  ]);
+}
+
 function profileView() {
   const current = stats();
   return div({ class: "profile-grid" }, [
-    div({ class: "profile-hero" }, [div({ class: "avatar big" }, app.user.name.slice(0, 1).toUpperCase()), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} pts`), span({}, `${current.solves}/${current.total} retos`), span({}, `${current.hints} pistas usadas`)]), app.user.role === "estudiante" ? button({ class: "ghost-action wtour-replay", onclick: startTour }, "Ver el recorrido de Wisp") : null]),
+    div({ class: "profile-hero" }, [avatarEl(app.user, "big"), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} pts`), span({}, `${current.solves}/${current.total} retos`), span({}, `${current.hints} pistas usadas`)]), app.user.role === "estudiante" ? button({ class: "ghost-action wtour-replay", onclick: startTour }, "Ver el recorrido de Wisp") : null]),
+    avatarPicker(),
     div({ class: "panel" }, [h("h3", {}, "Envíos recientes"), app.submissions.length ? app.submissions.slice(0, 10).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "fail" }, item.ok ? "Correcta" : "Incorrecta"), h("strong", {}, item.title), span({ class: "muted" }, `${item.source} · ${new Date(item.time).toLocaleTimeString()}`)])) : h("p", { class: "muted" }, "Todavía no enviaste ninguna flag.")])
   ]);
 }
@@ -7509,7 +7575,7 @@ function adminRankingView() {
     rows.length
       ? div({ class: "panel" }, rows.map((player, index) => div({ class: `ranking-row ${index === 0 ? "current" : ""}` }, [
           span({ class: "rank" }, `#${index + 1}`),
-          div({ class: "avatar" }, (player.name || "?").slice(0, 1).toUpperCase()),
+          avatarEl(player),
           div({ class: "grow" }, [h("strong", {}, player.name || player.handle), h("p", { class: "muted tight" }, `${player.handle} · ${roleLabel(player.role) || "—"}`)]),
           span({ class: "streak" }, `${player.solves} solves`),
           h("strong", { class: "score" }, String(player.score))
@@ -7610,7 +7676,7 @@ function adminGroupCard(group) {
     div({ class: "meta-strip" }, [span({}, `${group.members.length} estudiante${group.members.length === 1 ? "" : "s"}`), span({}, `${totalScore} pts en conjunto`)]),
     group.members.length
       ? div({ class: "group-members" }, group.members.map(member => div({ class: "admin-row" }, [
-          div({ class: "avatar" }, (member.name || "?").slice(0, 1).toUpperCase()),
+          avatarEl(member),
           div({ class: "grow" }, [h("strong", {}, member.name || member.handle), h("p", { class: "muted tight" }, `${member.handle}${member.email ? " · " + member.email : ""}`)]),
           span({ class: "admin-cell muted" }, `${member.solves} solve${member.solves === 1 ? "" : "s"}`),
           span({ class: "admin-cell muted" }, `${member.score} pts`),
@@ -7663,7 +7729,7 @@ function teacherGroupCard(group) {
     ]),
     group.members.length
       ? div({ class: "group-members" }, group.members.map(member => div({ class: "admin-row" }, [
-          div({ class: "avatar" }, (member.name || "?").slice(0, 1).toUpperCase()),
+          avatarEl(member),
           div({ class: "grow" }, [h("strong", {}, member.name || member.handle), h("p", { class: "muted tight" }, `${member.handle}${member.email ? " · " + member.email : ""}`)]),
           span({ class: "admin-cell muted" }, `${member.solves} solve${member.solves === 1 ? "" : "s"}`),
           span({ class: "admin-cell muted" }, `${member.score} pts`),
@@ -7843,7 +7909,7 @@ function professorHomeView() {
     leaderboard.length
       ? div({ class: "panel" }, leaderboard.map((student, index) => div({ class: `ranking-row ${index === 0 ? "current" : ""}` }, [
           span({ class: "rank" }, `#${index + 1}`),
-          div({ class: "avatar" }, (student.name || "?").slice(0, 1).toUpperCase()),
+          avatarEl(student),
           div({ class: "grow" }, [h("strong", {}, student.name || student.handle), h("p", { class: "muted tight" }, student.handle)]),
           span({ class: "streak" }, `${student.solves} solves`),
           h("strong", { class: "score" }, String(student.score)),
@@ -8010,7 +8076,7 @@ function adminPlayerRow(player) {
       })();
   return div({ class: "admin-row" }, [
     div({ class: "admin-row-check" }, [checkbox]),
-    div({ class: "avatar" }, (player.name || "?").slice(0, 1).toUpperCase()),
+    avatarEl(player),
     div({ class: "grow" }, [
       h("strong", {}, player.name || player.handle),
       h("p", { class: "muted tight" }, `${player.handle}${player.email ? " · " + player.email : ""}`)
@@ -10949,7 +11015,7 @@ Object.assign(m3PracticeStages, { "m2-decisions": m2DecisionsStage });
 Object.assign(m3PracticeInits, { "m2-decisions": m2DecisionsInit });
 
 function rankingView() {
-  return div({ class: "ranking-page" }, [div({ class: "section-head" }, [div({}, [h("h2", {}, "Ranking")])]), ...leaderboard().map((player, index) => div({ class: `ranking-row ${player.current ? "current" : ""}` }, [span({ class: "rank" }, `#${index + 1}`), div({ class: "avatar" }, player.name.slice(0, 1).toUpperCase()), div({ class: "grow" }, [h("strong", {}, player.name), h("p", { class: "muted tight" }, `${player.handle} · ${player.solves} retos`)]), span({ class: "streak" }, `racha ${player.streak}`), h("strong", { class: "score" }, String(player.score))]))]);
+  return div({ class: "ranking-page" }, [div({ class: "section-head" }, [div({}, [h("h2", {}, "Ranking")])]), ...leaderboard().map((player, index) => div({ class: `ranking-row ${player.current ? "current" : ""}` }, [span({ class: "rank" }, `#${index + 1}`), avatarEl(player), div({ class: "grow" }, [h("strong", {}, player.name), h("p", { class: "muted tight" }, `${player.handle} · ${player.solves} retos`)]), span({ class: "streak" }, `racha ${player.streak}`), h("strong", { class: "score" }, String(player.score))]))]);
 }
 
 const adminViewsByTab = { "admin-home": adminHomeView, "admin-ranking": adminRankingView, "admin": adminView, "admin-groups": adminGroupsView, estudiante: studentDetailView };
