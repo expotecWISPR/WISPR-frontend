@@ -1589,6 +1589,7 @@ function publicStaticPath(pathname) {
     "/style.css": "style.css",
     "/app.js": "app.js",
     "/icons.js": "icons.js",
+    "/i18n.js": "i18n.js",
     "/motion.js": "motion.js",
     "/theme-init.js": "theme-init.js",
     "/img/fondo.mp4": path.join("img", "fondo.mp4"),

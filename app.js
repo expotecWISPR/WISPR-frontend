@@ -5200,6 +5200,11 @@ function saveState() {
   }));
 }
 
+// Traducción de la interfaz (i18n.js). Si un servidor viejo no sirve ese archivo,
+// la app sigue funcionando en español.
+const tr = text => (window.I18N ? window.I18N.tr(text) : text);
+const TRANSLATED_PROPS = new Set(["title", "aria-label", "placeholder", "alt"]);
+
 function h(tag, props = {}, children = []) {
   const node = document.createElement(tag);
   Object.entries(props).forEach(([key, value]) => {
@@ -5207,9 +5212,9 @@ function h(tag, props = {}, children = []) {
     if (key === "class") node.className = value;
     else if (key === "style") Object.assign(node.style, value);
     else if (key.startsWith("on")) node.addEventListener(key.slice(2).toLowerCase(), value);
-    else node.setAttribute(key, value === true ? "" : value);
+    else node.setAttribute(key, value === true ? "" : TRANSLATED_PROPS.has(key) ? tr(value) : value);
   });
-  [].concat(children).flat(Infinity).filter(Boolean).forEach(child => node.appendChild(child instanceof Node ? child : document.createTextNode(String(child))));
+  [].concat(children).flat(Infinity).filter(Boolean).forEach(child => node.appendChild(child instanceof Node ? child : document.createTextNode(tr(String(child)))));
   return node;
 }
 
@@ -5290,11 +5295,13 @@ function applyTheme(theme) {
   try { localStorage.setItem(THEME_KEY, theme); } catch {}
 }
 
+const themeToggleLabel = theme => tr(theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
+
 function initThemeToggle() {
   let theme = getStoredTheme();
   applyTheme(theme);
   const themeIcon = t => icon(t === "dark" ? "moon" : "sun");
-  const label = t => (t === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
+  const label = themeToggleLabel;
   const toggle = button({
     class: "theme-toggle",
     type: "button",
@@ -5308,6 +5315,46 @@ function initThemeToggle() {
       toggle.setAttribute("aria-label", label(theme));
     }
   }, themeIcon(theme));
+  document.body.appendChild(toggle);
+}
+
+// Igual que el del tema, va fuera de #root para no recrearse en cada render.
+function changeLanguage(next) {
+  window.I18N.setLang(next);
+  // render() reconstruye la página: la terminal abierta se vuelve a colocar tal
+  // cual para no cortar la sesión de Kali.
+  const liveTerminal = terminalClient ? document.getElementById("kali-terminal") : null;
+  const scroll = window.scrollY;
+  render();
+  if (liveTerminal) document.getElementById("kali-terminal")?.replaceWith(liveTerminal);
+  window.scrollTo(0, scroll);
+  const themeToggle = document.querySelector(".theme-toggle");
+  if (themeToggle) {
+    const label = themeToggleLabel(document.documentElement.getAttribute("data-theme"));
+    themeToggle.title = label;
+    themeToggle.setAttribute("aria-label", label);
+  }
+}
+
+function initLangToggle() {
+  if (!window.I18N) return;
+  const part = code => span({ class: "lang-code", "data-lang": code }, code.toUpperCase());
+  const sync = toggle => {
+    const english = window.I18N.lang() === "en";
+    const label = english ? "Cambiar a español" : "Switch to English";
+    toggle.title = label;
+    toggle.setAttribute("aria-label", label);
+    toggle.querySelectorAll(".lang-code").forEach(node => node.classList.toggle("is-active", node.dataset.lang === window.I18N.lang()));
+  };
+  const toggle = button({
+    class: "lang-toggle",
+    type: "button",
+    onclick: () => {
+      changeLanguage(window.I18N.lang() === "en" ? "es" : "en");
+      sync(toggle);
+    }
+  }, [part("es"), part("en")]);
+  sync(toggle);
   document.body.appendChild(toggle);
 }
 
@@ -5364,6 +5411,7 @@ function applyServerProfile(player) {
   // Recorrido de bienvenida con Wisp: el prototipo Node solo no manda la llave
   // (queda undefined y el recorrido no se muestra).
   app.tourSeen = player.tourSeen;
+  app.ratings = player.ratings || {};
   app.solved = player.solved || {};
   app.attempts = player.attempts || {};
   app.submissions = player.submissions || [];
@@ -5506,7 +5554,7 @@ async function loadAdminPlayers() {
 }
 
 async function deleteAccount(targetId, name) {
-  if (!confirm(`¿Eliminar la cuenta de ${name}? Esta acción no se puede deshacer.`)) return;
+  if (!await confirmDelete("Eliminar cuenta", `Se eliminará la cuenta de ${name}. Esta acción no se puede deshacer.`)) return;
   try {
     const response = await apiFetch(`${API}/api/admin/players`, {
       method: "DELETE",
@@ -5528,7 +5576,13 @@ async function deleteAccount(targetId, name) {
 // admin la lee en pantalla y se la entrega al jugador en persona; el sistema
 // obliga a cambiarla en el siguiente inicio de sesión.
 async function adminResetPassword(targetId, name) {
-  if (!confirm(`¿Emitir una contraseña temporal para ${name}? Tendrá que cambiarla al entrar.`)) return;
+  const confirmed = await showDialog({
+    iconName: "key-round",
+    title: "Emitir contraseña temporal",
+    message: `${name} tendrá que cambiarla al entrar.`,
+    confirmLabel: "Emitir"
+  });
+  if (!confirmed) return;
   try {
     const response = await apiFetch(`${API}/api/admin/players/reset-password`, {
       method: "POST",
@@ -5538,7 +5592,16 @@ async function adminResetPassword(targetId, name) {
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo emitir la contraseña temporal.");
     // Se muestra UNA sola vez: el admin la copia y la dicta al jugador.
-    window.alert(`Contraseña temporal para ${name} (${data.handle}):\n\n    ${data.tempPassword}\n\nEntrégala en persona. El jugador deberá cambiarla al iniciar sesión.`);
+    await showDialog({
+      tone: "success",
+      iconName: "key-round",
+      title: "Contraseña temporal lista",
+      message: `Para ${name} (${data.handle}).`,
+      secret: data.tempPassword,
+      note: "Entrégala en persona. Solo se muestra esta vez y el jugador deberá cambiarla al iniciar sesión.",
+      confirmLabel: "Entendido",
+      cancelLabel: null
+    });
     await loadAdminPlayers();
   } catch (error) {
     toast(error.message || "No se pudo emitir la contraseña temporal.", "error");
@@ -5552,10 +5615,24 @@ async function adminToggleLock(player) {
   const name = player.name || player.handle;
   let reason = "";
   if (lock) {
-    if (!confirm(`¿Bloquear la cuenta de ${name}? Se cerrarán sus sesiones y se detendrá su Kali.`)) return;
-    reason = window.prompt("Motivo del bloqueo (opcional):", "") || "";
-  } else if (!confirm(`¿Desbloquear la cuenta de ${name}?`)) {
-    return;
+    const answer = await showDialog({
+      tone: "danger",
+      iconName: "lock",
+      title: "Bloquear cuenta",
+      message: `Se cerrarán las sesiones de ${name} y se detendrá su Kali.`,
+      input: { label: "Motivo (opcional)" },
+      confirmLabel: "Bloquear"
+    });
+    if (answer === null) return;
+    reason = answer;
+  } else {
+    const confirmed = await showDialog({
+      iconName: "lock-open",
+      title: "Desbloquear cuenta",
+      message: `${name} podrá volver a entrar.`,
+      confirmLabel: "Desbloquear"
+    });
+    if (!confirmed) return;
   }
   try {
     const response = await apiFetch(`${API}/api/admin/players/lock`, {
@@ -5598,7 +5675,7 @@ async function loadAdminGroups() {
 }
 
 async function adminDeleteGroup(groupId, name) {
-  if (!confirm(`¿Eliminar el grupo "${name}"? Esta acción no se puede deshacer.`)) return;
+  if (!await confirmDelete("Eliminar grupo", `Se eliminará el grupo "${name}". Esta acción no se puede deshacer.`)) return;
   try {
     const response = await apiFetch(`${API}/api/groups`, {
       method: "DELETE",
@@ -5676,7 +5753,7 @@ async function createGroup(event) {
 }
 
 async function deleteGroup(groupId, name) {
-  if (!confirm(`¿Eliminar el grupo "${name}"? Esta acción no se puede deshacer.`)) return;
+  if (!await confirmDelete("Eliminar grupo", `Se eliminará el grupo "${name}". Esta acción no se puede deshacer.`)) return;
   try {
     const response = await apiFetch(`${API}/api/groups`, {
       method: "DELETE",
@@ -5719,7 +5796,14 @@ async function addGroupMember(event, groupId) {
 }
 
 async function removeGroupMember(groupId, studentId, name) {
-  if (!confirm(`¿Quitar a ${name} del grupo?`)) return;
+  const confirmed = await showDialog({
+    tone: "danger",
+    iconName: "trash-2",
+    title: "Quitar estudiante",
+    message: `${name} dejará de estar en este grupo.`,
+    confirmLabel: "Quitar"
+  });
+  if (!confirmed) return;
   try {
     const response = await apiFetch(`${API}/api/groups/members`, {
       method: "DELETE",
@@ -5818,7 +5902,7 @@ async function toggleGroupTask(groupId, taskId) {
 }
 
 async function deleteGroupTask(groupId, taskId, title) {
-  if (!confirm(`¿Eliminar la tarea "${title}"?`)) return;
+  if (!await confirmDelete("Eliminar tarea", `Se eliminará la tarea "${title}".`)) return;
   try {
     const response = await apiFetch(`${API}/api/groups/tasks`, {
       method: "DELETE",
@@ -5843,6 +5927,166 @@ function toast(message, type = "info") {
   setTimeout(() => { if (node.isConnected) node.remove(); }, 3000);
 }
 
+// Diálogo de WISPR en vez de alert/confirm/prompt del navegador. Va en <body>
+// para sobrevivir a render(). Devuelve una promesa: true o false; con `input`,
+// el texto escrito o null si se cancela. Un `secret` (lo que solo se muestra
+// una vez) no se cierra con Esc ni al tocar afuera, para no perderlo sin querer.
+let closeOpenDialog = null;
+
+function showDialog({ tone = "info", iconName = "circle-help", title, message, body = null, wide = false, secret = "", note = "", input = null, confirmLabel = "Aceptar", cancelLabel = "Cancelar" }) {
+  closeOpenDialog?.();
+  const opener = document.activeElement;
+  return new Promise(resolve => {
+    const dismissed = input ? null : false;
+    const close = value => {
+      closeOpenDialog = null;
+      document.removeEventListener("keydown", onKey, true);
+      backdrop.remove();
+      opener?.focus?.();
+      resolve(value);
+    };
+    const accept = () => close(input ? field.value.trim() : true);
+    const dismiss = () => close(dismissed);
+    const field = input ? h("input", { type: "text", maxlength: "200", "aria-label": input.label }, []) : null;
+    const secretText = secret ? h("code", {}, secret) : null;
+    const copyButton = secret ? button({ class: "ghost-action compact", type: "button", onclick: () => copySecret() }, [icon("copy"), " ", tr("Copiar")]) : null;
+    const copySecret = async () => {
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(secret);
+        copied = true;
+      } catch {
+        // Electron niega los permisos del portapapeles: se copia la selección.
+        const range = document.createRange();
+        range.selectNodeContents(secretText);
+        getSelection().removeAllRanges();
+        getSelection().addRange(range);
+        copied = document.execCommand("copy");
+      }
+      copyButton.replaceChildren(icon(copied ? "check" : "copy"), " ", tr(copied ? "Copiada" : "Selecciónala y cópiala"));
+    };
+    const confirmButton = button({ class: tone === "danger" ? "danger-action" : "primary-action", type: "button", onclick: accept }, confirmLabel);
+    const cancelButton = cancelLabel ? button({ class: "ghost-action", type: "button", onclick: dismiss }, cancelLabel) : null;
+    const titleId = "wdialog-title";
+    const dialog = div({ class: `wdialog wdialog-${tone} ${wide ? "wdialog-wide" : ""}`, role: "alertdialog", "aria-modal": "true", "aria-labelledby": titleId }, [
+      div({ class: "wdialog-head" }, [
+        span({ class: "wdialog-icon" }, icon(iconName)),
+        h("h3", { id: titleId }, title)
+      ]),
+      message ? h("p", { class: "wdialog-message" }, message) : null,
+      body,
+      secret ? div({ class: "wdialog-secret" }, [secretText, copyButton]) : null,
+      note ? h("p", { class: "wdialog-note" }, note) : null,
+      input ? h("label", { class: "wdialog-field" }, [input.label, field]) : null,
+      div({ class: "wdialog-actions" }, [cancelButton, confirmButton])
+    ]);
+    const backdrop = div({
+      class: "wdialog-backdrop",
+      onclick: event => { if (event.target === backdrop && !secret) dismiss(); }
+    }, dialog);
+    function onKey(event) {
+      if (event.key === "Escape" && !secret) { event.preventDefault(); dismiss(); }
+      if (event.key === "Enter" && event.target === field) { event.preventDefault(); accept(); }
+      if (event.key !== "Tab") return;
+      const focusable = [...dialog.querySelectorAll("button, input")];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    closeOpenDialog = dismiss;
+    document.addEventListener("keydown", onKey, true);
+    document.body.appendChild(backdrop);
+    // En lo peligroso el foco queda en Cancelar: Enter nunca borra por accidente.
+    (field || (tone === "danger" ? cancelButton : confirmButton)).focus();
+  });
+}
+
+function confirmDelete(title, message) {
+  return showDialog({ tone: "danger", iconName: "trash-2", title, message, confirmLabel: "Eliminar" });
+}
+
+// Estrellas del informe. La nota se guarda al tocarla y se puede cambiar después.
+function ratingStars(challengeId) {
+  let current = app.ratings?.[challengeId] || 0;
+  const status = span({ class: "wstars-status", role: "status" }, current ? "Tu calificación" : "");
+  const paint = value => stars.forEach((star, index) => star.classList.toggle("is-on", index < value));
+  const save = async value => {
+    const previous = current;
+    current = value;
+    paint(value);
+    status.textContent = tr("Guardando…");
+    try {
+      const response = await apiFetch(`${API}/api/challenges/${encodeURIComponent(challengeId)}/rating`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stars: value })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo guardar tu calificación.");
+      app.ratings = { ...app.ratings, [challengeId]: value };
+      saveState();
+      status.textContent = tr("¡Gracias por tu calificación!");
+    } catch (error) {
+      current = previous;
+      paint(previous);
+      status.textContent = tr(error.message || "No se pudo guardar tu calificación.");
+    }
+  };
+  const stars = [1, 2, 3, 4, 5].map(value => button({
+    class: "wstar",
+    type: "button",
+    "aria-label": value === 1 ? "1 estrella" : `${value} estrellas`,
+    onclick: () => save(value),
+    onmouseenter: () => paint(value),
+    onmouseleave: () => paint(current)
+  }, icon("star")));
+  paint(current);
+  return div({ class: "wstars" }, [
+    h("p", { class: "wstars-title" }, "¿Qué te pareció este reto?"),
+    div({ class: "wstars-row" }, [div({ class: "wstars-buttons" }, stars), status])
+  ]);
+}
+
+// Informe que aparece al resolver un reto y se puede volver a abrir desde su
+// detalle. Los datos salen del desglose que guardó el servidor. No llama a
+// render(): en la terminal, la sesión de Kali sigue abierta debajo.
+function showSolveReport(challenge, solved, { newChallenge = false } = {}) {
+  const detail = solved.breakdown;
+  const seconds = detail.speed?.seconds;
+  const stat = (iconName, value, label) => div({ class: "wreport-stat" }, [icon(iconName), h("strong", {}, value), span({}, label)]);
+  const line = (label, points) => div({ class: `wreport-line ${points < 0 ? "is-minus" : ""}` }, [span({}, label), h("strong", {}, `${points > 0 ? "+" : "−"}${Math.abs(points)}`)]);
+  const hintCount = detail.hints?.count || 0;
+  const wrongCount = detail.wrong?.count || 0;
+  const body = div({ class: "wreport" }, [
+    div({ class: "wreport-stats" }, [
+      stat("star", `${solved.points} pts`, "Puntos ganados"),
+      stat("hourglass", typeof seconds === "number" ? formatClock(seconds * 1000) : "—", "Tiempo"),
+      stat("lightbulb", `${hintCount}/${challenge.hints?.length || 0}`, "Pistas usadas")
+    ]),
+    div({ class: "wreport-lines" }, [
+      line("Puntos del reto", detail.base),
+      detail.hints?.points ? line(hintCount === 1 ? "1 pista" : `${hintCount} pistas`, detail.hints.points) : null,
+      detail.wrong?.points ? line(wrongCount === 1 ? "1 intento fallido" : `${wrongCount} intentos fallidos`, detail.wrong.points) : null,
+      detail.speed?.points ? line("Bono de velocidad", detail.speed.points) : null,
+      detail.streak?.points ? line("Racha limpia", detail.streak.points) : null
+    ]),
+    detail.clean ? h("p", { class: "wreport-clean" }, [icon("check"), " ", tr("Reto limpio: sin pistas ni intentos fallidos")]) : null,
+    ratingStars(challenge.id)
+  ]);
+  return showDialog({
+    tone: "success",
+    iconName: "trophy",
+    title: "¡Reto completado!",
+    message: challenge.title,
+    body,
+    wide: true,
+    note: newChallenge ? "El motor creó un nuevo laboratorio para tu cola." : "",
+    confirmLabel: "Continuar",
+    cancelLabel: null
+  });
+}
+
 // Detecta el rol a partir del dominio institucional mientras el usuario escribe
 // (sin re-render completo, para no perder el foco del campo).
 function detectRole(email) {
@@ -5856,9 +6100,9 @@ function updateRoleHint(input, hint) {
   const value = input.value.trim();
   if (!value.includes("@")) { hint.textContent = ""; hint.removeAttribute("data-role"); return; }
   const role = detectRole(value);
-  if (role === "estudiante") { hint.textContent = "Detectado: cuenta de estudiante."; hint.setAttribute("data-role", "estudiante"); }
-  else if (role === "profesor") { hint.textContent = "Detectado: cuenta de profesor."; hint.setAttribute("data-role", "profesor"); }
-  else { hint.textContent = "Cuenta de estudiante (correo no institucional)."; hint.setAttribute("data-role", "estudiante"); }
+  if (role === "estudiante") { hint.textContent = tr("Detectado: cuenta de estudiante."); hint.setAttribute("data-role", "estudiante"); }
+  else if (role === "profesor") { hint.textContent = tr("Detectado: cuenta de profesor."); hint.setAttribute("data-role", "profesor"); }
+  else { hint.textContent = tr("Cuenta de estudiante (correo no institucional)."); hint.setAttribute("data-role", "estudiante"); }
 }
 
 function maskEmail(email) {
@@ -5870,6 +6114,59 @@ function maskEmail(email) {
 
 function roleLabel(role) {
   return role === "admin" ? "Admin" : role === "profesor" ? "Profesor" : role === "estudiante" ? "Estudiante" : "";
+}
+
+// Mismas reglas que auth_flow.password_error del backend, que es quien decide:
+// aquí solo se guía a la persona mientras escribe. La contraseña no sale del
+// navegador para esta revisión.
+const PASSWORD_MIN_LENGTH = 10;
+const PASSWORD_MAX_LENGTH = 64;
+const PASSWORD_COMMON_PARTS = ["password", "contrasena", "contraseña", "qwerty", "123456", "abc123", "abcdef", "wispr", "admin", "letmein", "iloveyou", "teamo"];
+
+function passwordRules(password, identifiers = []) {
+  const lowered = password.toLowerCase();
+  const personal = identifiers
+    .flatMap(item => String(item || "").toLowerCase().replace(/^@+/, "").split("@")[0].split(/[\s._-]+/))
+    .filter(part => part.length >= 3);
+  const notPersonal = !personal.some(part => lowered.includes(part));
+  const notCommon = !PASSWORD_COMMON_PARTS.some(part => lowered.includes(part)) && !/(.)\1{3}/.test(lowered);
+  return [
+    { label: `${PASSWORD_MIN_LENGTH} caracteres o más`, ok: password.length >= PASSWORD_MIN_LENGTH },
+    { label: "mayúscula y minúscula", ok: /\p{Lu}/u.test(password) && /\p{Ll}/u.test(password) },
+    { label: "un número", ok: /\p{Nd}/u.test(password) },
+    { label: "un símbolo", ok: /[^\p{L}\p{N}]/u.test(password) },
+    { label: "sin datos tuyos", ok: notPersonal },
+    { label: "sin palabras comunes", ok: notCommon }
+  ];
+}
+
+function passwordIsSafe(password, identifiers = []) {
+  return password.length <= PASSWORD_MAX_LENGTH && passwordRules(password, identifiers).every(rule => rule.ok);
+}
+
+// Barra fina debajo del campo. Solo muestra lo que falta: cada requisito
+// desaparece al cumplirse y, con la contraseña segura, queda solo la barra.
+// Se actualiza sin render() para no borrar lo que la persona escribe.
+function passwordMeter(getIdentifiers) {
+  const bar = div({ class: "pw-bar", "aria-hidden": "true" }, Array.from({ length: 6 }, () => span({}, "")));
+  const status = span({ class: "pw-status", role: "status" }, "");
+  const missing = div({ class: "pw-missing" }, []);
+  const meter = div({ class: "pw-meter", "data-level": "empty" }, [div({ class: "pw-top" }, [bar, status]), missing]);
+  meter.update = password => {
+    const rules = passwordRules(password, getIdentifiers());
+    const met = password ? rules.filter(rule => rule.ok).length : 0;
+    const tooLong = password.length > PASSWORD_MAX_LENGTH;
+    const safe = passwordIsSafe(password, getIdentifiers());
+    const level = !password ? "empty" : safe ? "safe" : met >= 4 && !tooLong ? "close" : "weak";
+    meter.dataset.level = level;
+    [...bar.children].forEach((segment, index) => segment.classList.toggle("is-on", index < met));
+    status.textContent = tr({ empty: "", weak: "Débil", close: "Casi", safe: "Segura" }[level]);
+    const pending = password ? rules.filter(rule => !rule.ok).map(rule => rule.label) : rules.map(rule => rule.label);
+    if (tooLong) pending.push(`máximo ${PASSWORD_MAX_LENGTH} caracteres`);
+    missing.replaceChildren(...pending.map(label => span({}, label)));
+  };
+  meter.update("");
+  return meter;
 }
 
 async function authenticate(event) {
@@ -5886,9 +6183,12 @@ async function authenticate(event) {
   if (authMode === "register" && !payload.name) return toast("Escribe tu nombre.", "warn");
   if (authMode === "register" && !payload.gender) return toast("Selecciona tu género.", "warn");
   if (authMode === "register" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) return toast("Escribe un correo válido.", "warn");
-  if (!payload.handle || payload.password.length < 4) return toast("Escribe un usuario y una contraseña de al menos 4 caracteres.", "warn");
-  // El backend FastAPI exige 8 a 64 caracteres al registrarse (NIST SP 800-63B).
-  if (authMode === "register" && (payload.password.length < 8 || payload.password.length > 64)) return toast("La contraseña debe tener entre 8 y 64 caracteres.", "warn");
+  if (authMode === "login" && (!payload.handle || !payload.password)) return toast("Escribe tu usuario y tu contraseña.", "warn");
+  if (authMode === "register" && !payload.handle) return toast("Escribe un usuario.", "warn");
+  if (authMode === "register" && !passwordIsSafe(payload.password, [payload.name, payload.handle, payload.email])) {
+    form.querySelector("input[name=password]")?.focus();
+    return toast("Tu contraseña todavía no es segura. Revisa lo que falta.", "warn");
+  }
   const submitButton = form.querySelector("button[type=submit]");
   if (submitButton) submitButton.disabled = true;
   try {
@@ -5918,15 +6218,11 @@ async function authenticate(event) {
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.error || "No se pudo iniciar sesión.");
-    // Admin: el backend responde con la sesión directa (sin código MFA).
-    if (data.player) {
-      pendingAuth = null;
-      authMode = "login";
-      setSessionToken(data.sessionToken);
-      applyServerProfile(data.player);
+    // Admin: en vez del código por correo, pide su voucher.
+    if (data.voucherRequired) {
+      pendingAuth = { kind: "voucher", token: data.token };
+      authMode = "verify";
       render();
-      toast(`Hola de nuevo, ${data.player.name}.`, "success");
-      hydratePlatform();
       return;
     }
     pendingAuth = { kind: "login", token: data.token, email: data.email, role: data.role };
@@ -5947,7 +6243,7 @@ function updateResendCountdown() {
   if (!node) return;
   const remaining = Math.max(0, Math.ceil((resendCooldownUntil - Date.now()) / 1000));
   node.disabled = remaining > 0;
-  node.textContent = remaining > 0 ? `Reenviar código (${remaining}s)` : "Reenviar código";
+  node.textContent = tr(remaining > 0 ? `Reenviar código (${remaining}s)` : "Reenviar código");
 }
 
 async function resendVerification() {
@@ -6005,8 +6301,39 @@ async function submitVerification(event) {
   }
 }
 
+async function submitVoucher(event) {
+  event.preventDefault();
+  if (!pendingAuth) return;
+  const form = event.currentTarget;
+  const voucher = String(new FormData(form).get("voucher") || "").trim();
+  if (!voucher) return toast("Escribe tu voucher de administrador.", "warn");
+  const submitButton = form.querySelector("button[type=submit]");
+  if (submitButton) submitButton.disabled = true;
+  try {
+    const response = await apiFetch(API + "/api/players/login-voucher", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: pendingAuth.token, voucher })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "Voucher incorrecto.");
+    pendingAuth = null;
+    authMode = "login";
+    setSessionToken(data.sessionToken);
+    applyServerProfile(data.player);
+    render();
+    toast(`Hola de nuevo, ${data.player.name}.`, "success");
+    hydratePlatform();
+  } catch (error) {
+    toast(error.message || "No se pudo verificar el voucher.", "error");
+    if (submitButton) submitButton.disabled = false;
+    form.elements.voucher.value = "";
+    form.elements.voucher.focus();
+  }
+}
+
 function cancelVerification() {
-  const wasLogin = pendingAuth?.kind === "login";
+  const wasLogin = pendingAuth?.kind !== "register";
   pendingAuth = null;
   authMode = wasLogin ? "login" : "register";
   render();
@@ -6040,6 +6367,7 @@ function switchTab(tab) {
   app.activeTab = tab;
   saveState();
   render();
+  if (tab === "admin-home" || tab === "profesor-home") challengeRatingsState.loaded = false;
   if (tab === "admin") loadAdminPlayers();
   if (tab === "admin-groups") loadAdminGroups();
   if (tab === "grupos") loadTeacherGroups();
@@ -6075,7 +6403,15 @@ async function unlockHint(id, index) {
     return render();
   }
   const cost = app.solved[id] ? 0 : challenge.hintCost;
-  if (cost > 0 && !confirm(`Ver esta pista te resta ${cost} pts cuando resuelvas el reto. ¿La quieres ver?`)) return;
+  if (cost > 0) {
+    const confirmed = await showDialog({
+      iconName: "lightbulb",
+      title: "¿Ver esta pista?",
+      message: `Te resta ${cost} pts cuando resuelvas el reto.`,
+      confirmLabel: "Ver pista"
+    });
+    if (!confirmed) return;
+  }
   try {
     const response = await apiFetch(`${API}/api/challenges/${encodeURIComponent(id)}/hints/${index}`, { method: "POST" });
     const data = await response.json().catch(() => ({}));
@@ -6099,9 +6435,9 @@ function solveSummary(data) {
   const detail = data.breakdown;
   if (!detail) return `Reto resuelto:${points}.`;
   const extras = [];
-  if (detail.speed?.points > 0) extras.push(`+${detail.speed.points} velocidad`);
-  if (detail.streak?.points > 0) extras.push(`+${detail.streak.points} racha`);
-  if (detail.clean) extras.push("reto limpio");
+  if (detail.speed?.points > 0) extras.push(tr(`+${detail.speed.points} velocidad`));
+  if (detail.streak?.points > 0) extras.push(tr(`+${detail.streak.points} racha`));
+  if (detail.clean) extras.push(tr("reto limpio"));
   return `Reto resuelto:${points}${extras.length ? " · " + extras.join(" · ") : ""}.`;
 }
 
@@ -6113,7 +6449,8 @@ function applySubmissionResult(challenge, data, source, shouldRender = true) {
     app.solved[challenge.id] = { time: Date.now(), points: typeof data.points === "number" ? data.points : challenge.points, breakdown: data.breakdown || null };
     if (typeof data.cleanStreak === "number") app.cleanStreak = data.cleanStreak;
     if (data.nextChallenge) upsertChallenge(data.nextChallenge);
-    toast(`${solveSummary(data)}${data.nextChallenge ? " El motor creó un nuevo laboratorio para tu cola." : ""}`, "success");
+    if (data.breakdown) showSolveReport(challenge, app.solved[challenge.id], { newChallenge: Boolean(data.nextChallenge) });
+    else toast(`${solveSummary(data)}${data.nextChallenge ? " El motor creó un nuevo laboratorio para tu cola." : ""}`, "success");
   } else if (data.ok) {
     toast("Este reto ya está marcado como resuelto.", "info");
   } else {
@@ -6212,11 +6549,11 @@ async function openTerminalForChallenge(challenge) {
 
 function setTerminalStatus(text, state = "offline") {
   const node = document.querySelector("[data-terminal-status]");
-  if (node) { node.textContent = text; node.className = `terminal-state ${state}`; }
+  if (node) { node.textContent = tr(text); node.className = `terminal-state ${state}`; }
 }
 
 function writeTerminal(text) {
-  if (terminalClient?.term) terminalClient.term.writeln(text);
+  if (terminalClient?.term) terminalClient.term.writeln(tr(text));
 }
 
 function sendTerminalCommand(command) {
@@ -6269,7 +6606,7 @@ async function connectTerminal() {
     });
     const fit = new window.FitAddon.FitAddon();
     term.loadAddon(fit); term.open(mount); fit.fit();
-    term.writeln("\x1b[36m[WISPR] Abriendo shell en el contenedor…\x1b[0m");
+    term.writeln(`\x1b[36m${tr("[WISPR] Abriendo shell en el contenedor…")}\x1b[0m`);
     const backend = new URL(API || location.origin, location.href);
     const scheme = backend.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(`${scheme}://${backend.host}/ws/terminal?token=${encodeURIComponent(getSessionToken())}`);
@@ -6327,12 +6664,12 @@ async function connectTerminal() {
       let message;
       try { message = JSON.parse(event.data); } catch { return; }
       if (message.type === "output") term.write(message.data);
-      if (message.type === "ready") term.writeln(`\x1b[36m${message.message}\x1b[0m`);
+      if (message.type === "ready") term.writeln(`\x1b[36m${tr(message.message)}\x1b[0m`);
       if (message.type === "submission" && message.result) handleTerminalSubmission(message.result);
-      if (message.type === "exit") term.writeln(`\r\n\x1b[33m[WISPR] La shell terminó (código ${message.exitCode}).\x1b[0m`);
+      if (message.type === "exit") term.writeln(`\r\n\x1b[33m${tr(`[WISPR] La shell terminó (código ${message.exitCode}).`)}\x1b[0m`);
       if (message.type === "error") {
         terminalError = message.error || "No se pudo abrir la terminal.";
-        term.writeln(`\r\n\x1b[31m[WISPR] ${terminalError}\x1b[0m`);
+        term.writeln(`\r\n\x1b[31m[WISPR] ${tr(terminalError)}\x1b[0m`);
         toast(terminalError, "error");
       }
     };
@@ -6462,9 +6799,9 @@ function markStoryReady(card, story, duration) {
   card.classList.add("ready");
   card.classList.remove("pending");
   card.disabled = false;
-  card.setAttribute("aria-label", `Ver la historia de ${story.name}`);
+  card.setAttribute("aria-label", tr(`Ver la historia de ${story.name}`));
   const status = card.querySelector(".story-status");
-  if (status) status.replaceChildren(icon("play"), ` Ver historia${duration ? ` · ${formatDuration(duration)}` : ""}`);
+  if (status) status.replaceChildren(icon("play"), tr(` Ver historia${duration ? ` · ${formatDuration(duration)}` : ""}`));
 }
 
 function storyCard(story, index) {
@@ -6695,7 +7032,7 @@ function landingFooter() {
       div({ class: "footer-links" }, [h("p", { class: "eyebrow" }, "plataforma"), h("a", { href: "#servicios" }, "Servicios"), h("a", { href: "#beneficios" }, "Beneficios"), h("a", { href: "#historias" }, "Historias"), h("a", { href: "#equipo" }, "Equipo")]),
       div({ class: "footer-cta" }, [h("p", { class: "eyebrow" }, "acceso"), button({ class: "ghost-action compact", type: "button", onclick: () => goToAuth("login") }, "Iniciar sesión"), button({ class: "primary-action compact", type: "button", onclick: () => goToAuth("register") }, "Crear cuenta")])
     ]),
-    div({ class: "footer-bottom" }, [span({}, "© 2026 WISPR — Wireless Intelligence for Security, Practice and Response")])
+    div({ class: "footer-bottom" }, [span({}, "© 2026 WISPR — Wireless Intelligence for Security, Practice and Response"), h("p", { class: "mitre-notice" }, MITRE_NOTICE)])
   ]);
 }
 
@@ -6715,11 +7052,17 @@ function landingView() {
 }
 
 function loginView() {
-  if (authMode === "verify" && pendingAuth) return verifyView();
+  if (authMode === "verify" && pendingAuth) return pendingAuth.kind === "voucher" ? voucherView() : verifyView();
   let password;
   let emailInput;
   let roleHint;
   const registering = authMode === "register";
+  let meter = null;
+  const accountData = () => {
+    const form = password?.form;
+    return form ? [form.elements.name?.value, form.elements.user?.value, form.elements.email?.value] : [];
+  };
+  if (registering) meter = passwordMeter(accountData);
   return div({ class: "login-shell login-single" }, [
     div({ class: "login-panel auth-card" }, [
       button({ class: "ghost-action back-action", type: "button", onclick: backToLanding }, "← Inicio"),
@@ -6728,7 +7071,7 @@ function loginView() {
         button({ class: registering ? "" : "auth-tab-active", type: "button", onclick: () => { authMode = "login"; render(); } }, "Iniciar sesión"),
         button({ class: registering ? "auth-tab-active" : "", type: "button", onclick: () => { authMode = "register"; render(); } }, "Registrarse")
       ]),
-      h("form", { class: "login-form", onsubmit: authenticate }, [
+      h("form", { class: "login-form", onsubmit: authenticate, oninput: meter ? () => meter.update(password.value) : null }, [
         registering ? h("label", {}, ["Nombre", div({ class: "field-shell" }, [span({ class: "field-icon" }, "»"), h("input", { name: "name", placeholder: "Ester Rojas", autocomplete: "name", maxlength: "48" }, [])])]) : null,
         registering ? h("label", {}, [
           "Correo",
@@ -6740,10 +7083,31 @@ function loginView() {
         ]) : null,
         h("label", {}, ["Usuario u operador", div({ class: "field-shell" }, [span({ class: "field-icon" }, "@"), h("input", { name: "user", placeholder: "ester", autocomplete: "username" }, [])])]),
         registering ? h("label", {}, ["Género", h("select", { name: "gender" }, [h("option", { value: "" }, "Selecciona…"), h("option", { value: "femenino" }, "Femenino"), h("option", { value: "masculino" }, "Masculino"), h("option", { value: "otro" }, "Otro / prefiero no decirlo")])]) : null,
-        h("label", {}, ["Contraseña de acceso", div({ class: "field-shell" }, [span({ class: "field-icon" }, icon("lock")), password = h("input", { name: "password", type: "password", placeholder: "••••••••", autocomplete: registering ? "new-password" : "current-password" }, []), button({ class: "field-toggle", type: "button", onclick: () => { password.type = password.type === "password" ? "text" : "password"; } }, "ver")])]),
+        h("label", {}, ["Contraseña de acceso", div({ class: "field-shell" }, [span({ class: "field-icon" }, icon("lock")), password = h("input", { name: "password", type: "password", placeholder: "••••••••", autocomplete: registering ? "new-password" : "current-password" }, []), button({ class: "field-toggle", type: "button", onclick: () => { password.type = password.type === "password" ? "text" : "password"; } }, "ver")]), meter]),
         button({ class: "primary-action login-action", type: "submit" }, "Enviar código de verificación")
       ]),
       h("p", { class: "auth-note" }, registering ? "Con un correo institucional se detecta si eres estudiante o profesor; cualquier otro correo entra como estudiante. Te enviamos un código de verificación." : "Cada inicio de sesión pide un código de verificación enviado a tu correo (MFA).")
+    ])
+  ]);
+}
+
+function voucherView() {
+  let voucher;
+  return div({ class: "login-shell login-single" }, [
+    div({ class: "login-panel auth-card" }, [
+      div({ class: "brand-block login-brand" }, [brandLogo("brand-logo-lg"), div({}, [span({ class: "ctf-pill" }, "WIRELESS CTF"), h("p", { class: "muted" }, "Verificación de administrador")])]),
+      h("form", { class: "login-form", onsubmit: submitVoucher }, [
+        h("label", {}, ["Voucher de administrador", div({ class: "field-shell" }, [
+          span({ class: "field-icon" }, icon("key-round")),
+          voucher = h("input", { name: "voucher", type: "password", placeholder: "XXXX-XXXX-XXXX-XXXX-XXXX", autocomplete: "off", spellcheck: "false", autofocus: true, maxlength: "64" }, []),
+          button({ class: "field-toggle", type: "button", onclick: () => { voucher.type = voucher.type === "password" ? "text" : "password"; } }, "ver")
+        ])]),
+        button({ class: "primary-action login-action", type: "submit" }, "Verificar y entrar")
+      ]),
+      div({ class: "verify-actions" }, [
+        button({ class: "ghost-action", type: "button", onclick: cancelVerification }, "Usar otra cuenta")
+      ]),
+      h("p", { class: "auth-note" }, "Cada cuenta de administrador tiene su propio voucher. Se emite desde el servidor.")
     ])
   ]);
 }
@@ -7261,7 +7625,7 @@ function tickClocks() {
     const time = node.querySelector("[data-clock-time]");
     if (time) time.textContent = formatClock(estimate.elapsed);
     const speed = node.querySelector("[data-clock-speed]");
-    if (speed) { speed.textContent = speedText(estimate); speed.className = mini ? "" : `wclock-speed ${state}`; }
+    if (speed) { speed.textContent = tr(speedText(estimate)); speed.className = mini ? "" : `wclock-speed ${state}`; }
     if (mini) node.className = `wclock-mini ${state}`;
     const ring = node.querySelector("[data-clock-ring]");
     if (ring) { ring.className = `wclock-ring ${state}`; ring.style.setProperty("--window", `${speedWindowPct(estimate)}%`); }
@@ -7271,16 +7635,86 @@ function tickClocks() {
 }
 setInterval(tickClocks, 1000);
 
+// Técnicas de MITRE relacionadas con cada tipo de reto (challenge.kind). Solo
+// informan: no cambian puntos ni dificultad. `related` marca los encajes
+// aproximados: ATT&CK describe ataques reales y cubre poco Wi-Fi.
+const MITRE_NOTICE = "© 2026 The MITRE Corporation. This work is reproduced and distributed with the permission of The MITRE Corporation.";
+const MITRE_ATTACK = "https://attack.mitre.org/techniques";
+const MITRE_TECHNIQUES = {
+  cracking: { id: "T1110.002", name: "Password Cracking", url: `${MITRE_ATTACK}/T1110/002/` },
+  sniffing: { id: "T1040", name: "Network Sniffing", url: `${MITRE_ATTACK}/T1040/` },
+  stego: { id: "T1027.003", name: "Steganography", url: `${MITRE_ATTACK}/T1027/003/` },
+  decode: { id: "T1140", name: "Deobfuscate/Decode Files or Information", url: `${MITRE_ATTACK}/T1140/` },
+  jamming: { id: "CAPEC-604", name: "Wi-Fi Jamming", url: "https://capec.mitre.org/data/definitions/604.html" },
+  evilTwin: { id: "T1557.004", name: "Evil Twin", url: `${MITRE_ATTACK}/T1557/004/` }
+};
+const MITRE_BY_KIND = {
+  "wpa-handshake": { technique: "cracking" },
+  pmkid: { technique: "cracking" },
+  http_plaintext_pcap: { technique: "sniffing" },
+  stego_png: { technique: "stego" },
+  xor_singlebyte: { technique: "decode", related: true },
+  caesar_vigenere: { technique: "decode", related: true },
+  encoding_layers: { technique: "decode", related: true },
+  iv_reuse_wep: { technique: "sniffing", related: true },
+  deauth: { technique: "jamming", related: true }
+};
+const MITRE_BY_LESSON = { "m4-evil-twin": { technique: "evilTwin" } };
+
+function mitreTag(mapping, { pending = false } = {}) {
+  const technique = MITRE_TECHNIQUES[mapping.technique];
+  return h("a", {
+    class: `mitre-tag ${pending ? "is-pending" : ""}`,
+    href: technique.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    title: mapping.related ? "Técnica relacionada de MITRE. Abre su página oficial." : "Técnica de MITRE. Abre su página oficial."
+  }, [
+    span({ class: "mitre-id" }, technique.id),
+    ` ${technique.name}`,
+    mapping.related ? span({ class: "mitre-related" }, "relacionada") : null
+  ]);
+}
+
+function challengeMitre(challenge) {
+  const mapping = MITRE_BY_KIND[challenge.kind];
+  if (!mapping) return null;
+  return div({ class: "tool-grid" }, [span({ class: "tool-label" }, "MITRE"), mitreTag(mapping)]);
+}
+
+// Técnicas que aparecen en los retos del jugador; una cuenta como practicada
+// cuando resolvió al menos un reto que la usa.
+function mitreProgress() {
+  const techniques = new Map();
+  app.challenges.forEach(challenge => {
+    const mapping = MITRE_BY_KIND[challenge.kind];
+    if (!mapping) return;
+    const entry = techniques.get(mapping.technique) || { technique: mapping.technique, related: true, practiced: false };
+    entry.related = entry.related && Boolean(mapping.related);
+    entry.practiced = entry.practiced || Boolean(app.solved[challenge.id]);
+    techniques.set(mapping.technique, entry);
+  });
+  if (!techniques.size) return null;
+  const entries = [...techniques.values()].sort((a, b) => Number(b.practiced) - Number(a.practiced));
+  const practiced = entries.filter(entry => entry.practiced).length;
+  return div({ class: "panel mitre-panel" }, [
+    h("h3", {}, "Técnicas de MITRE"),
+    h("p", { class: "muted" }, `Has practicado ${practiced} de ${entries.length}. Es una relación orientativa entre los retos y estas técnicas.`),
+    div({ class: "mitre-list" }, entries.map(entry => mitreTag(entry, { pending: !entry.practiced }))),
+    h("p", { class: "mitre-notice" }, MITRE_NOTICE)
+  ]);
+}
+
 function challengeDetail(challenge) {
   const solved = Boolean(app.solved[challenge.id]);
   const unlocked = app.hints[challenge.id] || [];
   let input;
   return h("section", { class: "detail detail-page" }, [
     div({ class: "detail-hero" }, [div({ class: "detail-hero-text" }, [button({ class: "text-action back-action", onclick: () => switchTab("retos") }, "← Retos"), h("p", { class: "eyebrow" }, challenge.category), h("h2", {}, challenge.title), h("p", { class: "lead" }, challenge.description), div({ class: "meta-strip" }, [span({ style: { borderColor: difficultyColors[challenge.difficulty], color: difficultyColors[challenge.difficulty] } }, challenge.difficulty), span({}, challenge.points ? `${challenge.points} pts` : "práctica · sin puntos"), solved ? span({ class: "meta-solved" }, [icon("check"), " Resuelto"]) : null])]), challengeClock(challenge)]),
-    div({ class: "panel" }, [h("h3", {}, "Objetivo"), h("p", {}, challenge.objective), challenge.tools.length ? div({ class: "tool-grid" }, [span({ class: "tool-label" }, "Herramientas"), ...challenge.tools.map(tool => span({ class: "tool" }, tool))]) : null]),
+    div({ class: "panel" }, [h("h3", {}, "Objetivo"), h("p", {}, challenge.objective), challenge.tools.length ? div({ class: "tool-grid" }, [span({ class: "tool-label" }, "Herramientas"), ...challenge.tools.map(tool => span({ class: "tool" }, tool))]) : null, challengeMitre(challenge)]),
     div({ class: "panel" }, [h("h3", {}, "Archivos"), ...challenge.files.map(file => div({ class: "file-row" }, [div({}, [h("strong", {}, file.name), h("p", { class: "muted tight" }, file.desc)]), button({ class: "ghost-action", onclick: () => downloadFile(file, challenge) }, "Descargar")])), h("p", { class: "muted tight scope-note" }, "Evidencia sintética. Kali corre aislada, sin acceso a tu equipo ni a internet.")]),
     div({ class: "panel" }, [h("h3", {}, "Pistas"), ...challenge.hints.map((hint, index) => ({ hint, index, open: unlocked.includes(index) && Boolean(hint) })).map(({ hint, index, open }) => div({ class: "hint-row" }, [open ? h("p", {}, hint) : h("p", { class: "muted" }, `Pista ${index + 1} bloqueada`), !open ? button({ class: "ghost-action", onclick: () => unlockHint(challenge.id, index) }, hintButtonLabel(challenge)) : null]))]),
-    div({ class: "submit-panel" }, solved ? h("strong", { class: "owned-label" }, "Reto completado con esta cuenta") : [input = h("input", { placeholder: "WISPR{flag_aqui}", autocomplete: "off", "data-flag-input": challenge.id, value: flagDrafts[challenge.id] || "", oninput: event => { flagDrafts[challenge.id] = event.target.value; } }, []), button({ class: "primary-action", onclick: () => submitFlag(challenge, input) }, "Enviar flag"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(challenge) }, "Resolver en Kali")])
+    div({ class: "submit-panel" }, solved ? [h("strong", { class: "owned-label" }, "Reto completado con esta cuenta"), app.solved[challenge.id]?.breakdown ? button({ class: "ghost-action compact", type: "button", onclick: () => showSolveReport(challenge, app.solved[challenge.id]) }, "Ver informe") : null] : [input = h("input", { placeholder: "WISPR{flag_aqui}", autocomplete: "off", "data-flag-input": challenge.id, value: flagDrafts[challenge.id] || "", oninput: event => { flagDrafts[challenge.id] = event.target.value; } }, []), button({ class: "primary-action", onclick: () => submitFlag(challenge, input) }, "Enviar flag"), button({ class: "ghost-action", onclick: () => openTerminalForChallenge(challenge) }, "Resolver en Kali")])
   ]);
 }
 
@@ -7354,6 +7788,7 @@ function profileView() {
   return div({ class: "profile-grid" }, [
     div({ class: "profile-hero" }, [avatarEl(app.user, "big"), h("h2", {}, app.user.name), app.user.role ? span({ class: `role-tag role-${app.user.role}` }, roleLabel(app.user.role)) : null, h("p", { class: "muted" }, `${app.user.handle}${app.user.gender ? " · " + app.user.gender : ""}${app.user.email ? " · " + app.user.email : ""}`), div({ class: "meta-strip centered" }, [span({}, `${current.score} pts`), span({}, `${current.solves}/${current.total} retos`), span({}, `${current.hints} pistas usadas`)]), app.user.role === "estudiante" ? button({ class: "ghost-action wtour-replay", onclick: startTour }, "Ver el recorrido de Wisp") : null]),
     avatarPicker(),
+    mitreProgress(),
     div({ class: "panel" }, [h("h3", {}, "Envíos recientes"), app.submissions.length ? app.submissions.slice(0, 10).map(item => div({ class: "history-row" }, [span({ class: item.ok ? "ok" : "fail" }, item.ok ? "Correcta" : "Incorrecta"), h("strong", {}, item.title), span({ class: "muted" }, `${item.source} · ${new Date(item.time).toLocaleTimeString()}`)])) : h("p", { class: "muted" }, "Todavía no enviaste ninguna flag.")])
   ]);
 }
@@ -7408,7 +7843,7 @@ function sameDay(a, b) {
 }
 
 function shortDay(date) {
-  return date.toLocaleDateString("es-CR", { day: "numeric", month: "short" });
+  return date.toLocaleDateString(window.I18N?.locale() || "es-CR", { day: "numeric", month: "short" });
 }
 
 function adminSignupsByDay(days) {
@@ -7454,7 +7889,7 @@ function activityBarChart(series, color, { height = 128, title = "" } = {}) {
   }).join("");
 
   return parseSVG(`
-    <svg viewBox="0 0 ${width} ${height}" class="activity-chart" role="img" aria-label="${title}">
+    <svg viewBox="0 0 ${width} ${height}" class="activity-chart" role="img" aria-label="${tr(title)}">
       <line x1="0" y1="${baseline}" x2="${width}" y2="${baseline}" class="chart-baseline"></line>
       ${bars}
       <text x="0" y="${height - 3}" class="chart-axis-label">${shortDay(series[0].day)}</text>
@@ -7467,9 +7902,9 @@ function activityBarChart(series, color, { height = 128, title = "" } = {}) {
 // escrito al lado, así que el color nunca es la única forma de identificarla.
 function roleDistributionChart(summary) {
   const rows = [
-    { label: "Estudiantes", value: summary.estudiante, color: "var(--green)" },
-    { label: "Profesores", value: summary.profesor, color: "var(--orange)" },
-    { label: "Admins", value: summary.admin, color: "var(--red)" }
+    { label: tr("Estudiantes"), value: summary.estudiante, color: "var(--green)" },
+    { label: tr("Profesores"), value: summary.profesor, color: "var(--orange)" },
+    { label: tr("Admins"), value: summary.admin, color: "var(--red)" }
   ];
   const width = 320;
   const rowHeight = 34;
@@ -7490,13 +7925,45 @@ function roleDistributionChart(summary) {
     return `<g><title>${row.label}: ${row.value}</title><text x="0" y="${y + rowHeight / 2 + 4}" class="chart-row-label">${row.label}</text>${mark}<text x="${labelWidth + barW + 8}" y="${y + rowHeight / 2 + 4}" class="chart-value-label">${row.value}</text></g>`;
   }).join("");
 
-  return parseSVG(`<svg viewBox="0 0 ${width} ${height}" class="activity-chart role-chart" role="img" aria-label="Cuentas por rol">${bars}</svg>`);
+  return parseSVG(`<svg viewBox="0 0 ${width} ${height}" class="activity-chart role-chart" role="img" aria-label="${tr("Cuentas por rol")}">${bars}</svg>`);
 }
 
 function activityChartPanel(eyebrow, title, chartNode) {
   const panel = div({ class: "panel chart-panel" }, [h("p", { class: "eyebrow" }, eyebrow), h("h3", { class: "chart-title" }, title)]);
   panel.appendChild(chartNode);
   return panel;
+}
+
+// Promedio de estrellas por reto: solo lo ven profesores y admin.
+let challengeRatingsState = { loaded: false, rows: [], error: "" };
+
+async function loadChallengeRatings() {
+  challengeRatingsState.loaded = true;
+  try {
+    const response = await apiFetch(`${API}/api/challenges/ratings`, { cache: "no-store" });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.error || "No se pudieron cargar las calificaciones.");
+    challengeRatingsState = { loaded: true, rows: data.ratings || [], error: "" };
+  } catch (error) {
+    challengeRatingsState = { loaded: true, rows: [], error: error.message || "No se pudieron cargar las calificaciones." };
+  }
+  render();
+}
+
+function challengeRatingsPanel() {
+  if (!challengeRatingsState.loaded) loadChallengeRatings();
+  const { rows, error } = challengeRatingsState;
+  return div({ class: "panel" }, [
+    h("p", { class: "eyebrow" }, "opinión de los estudiantes"),
+    h("h3", {}, "Calificación de los retos"),
+    error ? h("p", { class: "muted" }, error)
+      : !rows.length ? h("p", { class: "muted" }, "Todavía no hay retos calificados.")
+      : div({}, rows.map(row => div({ class: "history-row" }, [
+          span({ class: "rating-average" }, [icon("star"), ` ${row.average}`]),
+          h("strong", {}, row.title),
+          span({ class: "muted" }, row.votes === 1 ? "1 voto" : `${row.votes} votos`)
+        ])))
+  ]);
 }
 
 function adminHomeView() {
@@ -7546,7 +8013,8 @@ function adminHomeView() {
           : h("p", { class: "muted" }, "Todavía no hay cuentas registradas.")
       ]),
       activityChartPanel("composición", "Cuentas por rol", roleDistributionChart(summary))
-    ])
+    ]),
+    challengeRatingsPanel()
   ]);
 }
 
@@ -7872,7 +8340,7 @@ function studentScoreChart(students) {
     return `<g><title>${escapeMarkup(label)}: ${score} pts</title><text x="0" y="${y + rowHeight / 2 + 4}" class="chart-row-label">${escapeMarkup(truncateLabel(label, 16))}</text>${mark}<text x="${labelWidth + barW + 8}" y="${y + rowHeight / 2 + 4}" class="chart-value-label">${score}</text></g>`;
   }).join("");
 
-  return parseSVG(`<svg viewBox="0 0 ${width} ${height}" class="activity-chart role-chart" role="img" aria-label="Puntos por estudiante">${bars}</svg>`);
+  return parseSVG(`<svg viewBox="0 0 ${width} ${height}" class="activity-chart role-chart" role="img" aria-label="${tr("Puntos por estudiante")}">${bars}</svg>`);
 }
 
 function professorHomeView() {
@@ -7905,6 +8373,7 @@ function professorHomeView() {
           activityChartPanel("comparativa", "Puntos por estudiante", studentScoreChart(leaderboard))
         ])
       : null,
+    challengeRatingsPanel(),
     div({ class: "section-head" }, [div({}, [h("p", { class: "eyebrow" }, "ranking de tus grupos"), h("h2", {}, "Tus estudiantes")])]),
     leaderboard.length
       ? div({ class: "panel" }, leaderboard.map((student, index) => div({ class: `ranking-row ${index === 0 ? "current" : ""}` }, [
@@ -7968,9 +8437,9 @@ function renderAdminRows() {
   if (countLabel) {
     const total = adminState.players.length;
     const shown = filtered.length;
-    countLabel.textContent = shown === total
+    countLabel.textContent = tr(shown === total
       ? `${total} cuenta${total === 1 ? "" : "s"} en la plataforma.`
-      : `${shown} de ${total} cuentas coinciden con el filtro.`;
+      : `${shown} de ${total} cuentas coinciden con el filtro.`);
   }
 
   const selectableIds = adminSelectableIds(filtered);
@@ -7985,7 +8454,7 @@ function renderAdminRows() {
   if (bulkButton) {
     const count = adminState.selected.size;
     bulkButton.disabled = count === 0;
-    bulkButton.textContent = count > 0 ? `Eliminar seleccionadas (${count})` : "Eliminar seleccionadas";
+    bulkButton.textContent = tr(count > 0 ? `Eliminar seleccionadas (${count})` : "Eliminar seleccionadas");
   }
 }
 
@@ -7993,7 +8462,8 @@ async function bulkDeleteSelected() {
   const ids = Array.from(adminState.selected);
   if (!ids.length) return;
   const count = ids.length;
-  if (!confirm(`¿Eliminar ${count} cuenta${count === 1 ? "" : "s"} seleccionada${count === 1 ? "" : "s"}? Esta acción no se puede deshacer.`)) return;
+  const selected = count === 1 ? "Se eliminará 1 cuenta seleccionada." : `Se eliminarán ${count} cuentas seleccionadas.`;
+  if (!await confirmDelete("Eliminar cuentas", `${selected} Esta acción no se puede deshacer.`)) return;
   const bulkButton = document.getElementById("admin-bulk-delete");
   if (bulkButton) bulkButton.disabled = true;
   try {
@@ -8220,6 +8690,7 @@ function lessonView() {
     h("p", { class: "eyebrow" }, `Módulo ${lesson.moduleId} · ${moduleTitle}`),
     h("h2", {}, lesson.title),
     lesson.subtitle ? h("p", { class: "lesson-subtitle" }, lesson.subtitle) : null,
+    MITRE_BY_LESSON[state.id] ? mitreTag(MITRE_BY_LESSON[state.id]) : null,
     moduleMissions[lesson.moduleId] ? moduleTrack(lesson) : null
   ]);
   if (lesson.mission) return div({ class: "lesson-page auth-lab" }, [header, (missionViews[lesson.missionType] || missionView)(lesson, state)]);
@@ -11259,11 +11730,13 @@ function render() {
 // Pantalla de cambio obligatorio: aparece tras entrar con una contraseña
 // temporal emitida por un admin. Bloquea el resto de la app hasta cambiarla.
 function forcedPasswordView() {
+  const accountData = () => [app.user?.name, app.user?.handle, app.user?.email];
+  const meter = passwordMeter(accountData);
   const submit = async () => {
     const current = (document.getElementById("fpc-current") || {}).value || "";
     const next = (document.getElementById("fpc-new") || {}).value || "";
     const confirmPw = (document.getElementById("fpc-confirm") || {}).value || "";
-    if (next.length < 4) return toast("La nueva contraseña debe tener al menos 4 caracteres.", "warn");
+    if (!passwordIsSafe(next, accountData())) return toast("Tu contraseña todavía no es segura. Revisa lo que falta.", "warn");
     if (next !== confirmPw) return toast("Las contraseñas nuevas no coinciden.", "warn");
     try {
       const response = await apiFetch(API + "/api/players/change-password", {
@@ -11288,7 +11761,8 @@ function forcedPasswordView() {
       h("label", {}, "Contraseña temporal (actual)"),
       h("input", { id: "fpc-current", type: "password", autocomplete: "current-password" }, []),
       h("label", {}, "Nueva contraseña"),
-      h("input", { id: "fpc-new", type: "password", autocomplete: "new-password" }, []),
+      h("input", { id: "fpc-new", type: "password", autocomplete: "new-password", oninput: event => meter.update(event.target.value) }, []),
+      meter,
       h("label", {}, "Repite la nueva contraseña"),
       h("input", { id: "fpc-confirm", type: "password", autocomplete: "new-password" }, []),
       button({ class: "primary-action", type: "button", onclick: submit }, "Guardar y entrar")
@@ -11309,6 +11783,7 @@ function backToLanding() {
 }
 
 initThemeToggle();
+initLangToggle();
 setInterval(updateResendCountdown, 1000); // no-op cuando no hay pantalla de verificación montada
 render();
 if (app.user) hydratePlatform();
