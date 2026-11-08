@@ -6924,11 +6924,13 @@ function publicHeader() {
     div({ class: "public-topbar-inner" }, [
       div({ class: "brand" }, [brandLogo()]),
       h("nav", { class: "public-nav", "aria-label": "Navegación de la página de inicio" }, [
-        h("a", { href: "#plataforma" }, "Plataforma"),
-        h("a", { href: "#servicios" }, "Servicios"),
-        h("a", { href: "#beneficios" }, "Beneficios"),
-        h("a", { href: "#historias" }, "Historias"),
-        h("a", { href: "#equipo" }, "Equipo")
+        sectionLink("plataforma", "Plataforma"),
+        sectionLink("servicios", "Servicios"),
+        sectionLink("beneficios", "Beneficios"),
+        sectionLink("historias", "Historias"),
+        sectionLink("equipo", "Equipo"),
+        // Dentro de la app de escritorio no tiene sentido ofrecer descargarla.
+        IS_DESKTOP_APP ? null : h("a", { href: "#descargar", class: publicScreen === "download" ? "is-current" : "", onclick: event => { event.preventDefault(); goToDownload(); } }, "Descargar")
       ]),
       div({ class: "public-actions" }, [
         button({ class: "ghost-action", type: "button", onclick: () => goToAuth("login") }, "Iniciar sesión"),
@@ -7034,7 +7036,7 @@ function landingFooter() {
   return h("footer", { class: "landing-footer" }, [
     div({ class: "footer-top" }, [
       div({ class: "footer-brand" }, [brandLogo(), h("p", {}, "Wireless Intelligence for Security, Practice and Response. Entrenamiento ofensivo Wi-Fi/Bluetooth para aulas de ciberseguridad.")]),
-      div({ class: "footer-links" }, [h("p", { class: "eyebrow" }, "plataforma"), h("a", { href: "#servicios" }, "Servicios"), h("a", { href: "#beneficios" }, "Beneficios"), h("a", { href: "#historias" }, "Historias"), h("a", { href: "#equipo" }, "Equipo")]),
+      div({ class: "footer-links" }, [h("p", { class: "eyebrow" }, "plataforma"), sectionLink("servicios", "Servicios"), sectionLink("beneficios", "Beneficios"), sectionLink("historias", "Historias"), sectionLink("equipo", "Equipo"), IS_DESKTOP_APP ? null : h("a", { href: "#descargar", onclick: event => { event.preventDefault(); goToDownload(); } }, "App de escritorio")]),
       div({ class: "footer-cta" }, [h("p", { class: "eyebrow" }, "acceso"), button({ class: "ghost-action compact", type: "button", onclick: () => goToAuth("login") }, "Iniciar sesión"), button({ class: "primary-action compact", type: "button", onclick: () => goToAuth("register") }, "Crear cuenta")])
     ]),
     div({ class: "footer-bottom" }, [span({}, "© 2026 WISPR — Wireless Intelligence for Security, Practice and Response")])
@@ -7052,6 +7054,98 @@ function landingView() {
     landingBenefitsSection(),
     ctfStoriesSection("landing"),
     landingTeamSection(),
+    landingFooter()
+  ]);
+}
+
+// --- Página de descarga de la app de escritorio (Electron) ------------------
+// El instalador vive en GitHub Releases del repo WISPR: «latest/download» apunta
+// siempre a la última versión publicada, así que este enlace no cambia al sacar
+// una versión nueva (el archivo se llama siempre WISPR-Setup.exe).
+const IS_DESKTOP_APP = Boolean(window.wisprDesktop && window.wisprDesktop.isDesktop);
+const DESKTOP_DOWNLOAD = {
+  url: "https://github.com/expotecWISPR/WISPR/releases/latest/download/WISPR-Setup.exe",
+  version: "1.0.0",
+  size: "115 MB"
+};
+
+// Enlace a una sección de la landing que también sirve desde otra pantalla
+// pública (p. ej. la de descarga): vuelve a la landing y baja a la sección.
+function sectionLink(id, label) {
+  return h("a", {
+    href: `#${id}`,
+    onclick: event => {
+      if (publicScreen === "landing") return;
+      event.preventDefault();
+      backToLanding();
+      requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView());
+    }
+  }, label);
+}
+
+function goToDownload() {
+  publicScreen = "download";
+  render();
+  window.scrollTo(0, 0);
+}
+
+const downloadSteps = [
+  { title: "Descarga el instalador", detail: "Pulsa «Descargar para Windows». Se guarda el archivo WISPR-Setup.exe en tu carpeta de Descargas." },
+  { title: "Ábrelo", detail: "Si Windows muestra «Windows protegió su PC», toca «Más información» y después «Ejecutar de todas formas». Abajo explicamos por qué aparece." },
+  { title: "Instala", detail: "Elige la carpeta (o deja la que sugiere) y termina el asistente. Crea un acceso directo en el escritorio y en el menú Inicio." },
+  { title: "Entra con tu cuenta", detail: "Abre WISPR e inicia sesión con la misma cuenta de la web. Tu progreso, tus retos y tu terminal Kali son los mismos." }
+];
+
+const downloadFaq = [
+  { title: "¿Tengo que instalar Kali, Docker o una máquina virtual?", detail: "No. La terminal Kali corre en el servidor de WISPR, aislada en su propio contenedor. La app solo necesita internet." },
+  { title: "¿Qué cambia respecto al navegador?", detail: "Nada en tu cuenta: es la misma plataforma. La app abre WISPR en su propia ventana, sin pestañas ni barra de direcciones, y solo navega dentro de WISPR." },
+  { title: "¿Funciona en Mac o Linux?", detail: "Por ahora el instalador es solo para Windows. Desde Mac o Linux, usa WISPR en el navegador: funciona igual." }
+];
+
+function downloadView() {
+  const ctas = IS_DESKTOP_APP
+    ? [span({ class: "download-note" }, [icon("circle-check"), "Ya estás usando la app de escritorio de WISPR."])]
+    : [
+        h("a", { class: "primary-action download-cta", href: DESKTOP_DOWNLOAD.url, rel: "noopener" }, [icon("download"), "Descargar para Windows"]),
+        button({ class: "ghost-action", type: "button", onclick: () => goToAuth("login") }, "Usar en el navegador")
+      ];
+  return div({ class: "landing-page" }, [
+    landingBackdrop(),
+    publicHeader(),
+    h("section", { class: "landing-hero download-hero" }, [
+      h("img", { src: "./img/mascot.png", alt: "Mascota WISPR, un alienígena con patineta", class: "hero-mascot" }, []),
+      div({ class: "hero-copy" }, [
+        span({ class: "ctf-pill hero-kicker" }, "APP DE ESCRITORIO"),
+        h("h1", {}, ["WISPR en tu ", span({ class: "text-gradient" }, "computadora"), "."]),
+        h("p", { class: "hero-lead" }, "La misma plataforma, en su propia ventana: retos, teoría, ranking y tu terminal Kali, sin abrir el navegador."),
+        div({ class: "hero-actions" }, ctas),
+        h("p", { class: "download-meta" }, `Windows 10 u 11 · 64 bits · ${DESKTOP_DOWNLOAD.size} · versión ${DESKTOP_DOWNLOAD.version}`)
+      ])
+    ]),
+    h("section", { class: "landing-section" }, [
+      h("p", { class: "eyebrow" }, "instalación"),
+      h("h2", {}, "Cómo instalarla"),
+      div({ class: "download-steps" }, downloadSteps.map((step, index) => div({ class: "download-step" }, [
+        span({ class: "bento-index" }, String(index + 1).padStart(2, "0")),
+        h("h3", {}, step.title),
+        h("p", {}, step.detail)
+      ])))
+    ]),
+    h("section", { class: "landing-section" }, [
+      div({ class: "download-warning" }, [
+        span({ class: "download-warning-icon", "aria-hidden": "true" }, icon("shield-check")),
+        div({}, [
+          h("h3", {}, "¿Por qué Windows muestra una advertencia?"),
+          h("p", {}, "Windows avisa con cualquier programa que no tenga una firma digital comercial, un certificado que cuesta entre 100 y 400 dólares al año. WISPR es un proyecto estudiantil y todavía no la tiene. El aviso no significa que el programa sea peligroso."),
+          h("p", {}, "Para estar seguro, descarga WISPR solo desde esta página (wispr.training). La app no pide permisos de administrador, no usa cámara, micrófono ni ubicación, y solo se conecta a wispr.training.")
+        ])
+      ])
+    ]),
+    h("section", { class: "landing-section" }, [
+      h("p", { class: "eyebrow" }, "preguntas frecuentes"),
+      h("h2", {}, "Antes de descargar"),
+      div({ class: "benefit-list" }, downloadFaq.map(item => div({ class: "benefit-row" }, [span({ class: "benefit-check", "aria-hidden": "true" }, icon("circle-help")), div({}, [h("h3", {}, item.title), h("p", {}, item.detail)])])))
+    ]),
     landingFooter()
   ]);
 }
@@ -11720,11 +11814,12 @@ function render() {
     ? { id: active.getAttribute("data-flag-input"), start: active.selectionStart, end: active.selectionEnd }
     : null;
   root.innerHTML = "";
-  const onLanding = !app.user && publicScreen === "landing";
+  const onDownload = !app.user && publicScreen === "download";
+  const onLanding = !app.user && (publicScreen === "landing" || onDownload);
   // El fondo de video "consola" del resto de la app se apaga mientras se ve la
   // landing (que trae su propio fondo animado) y reaparece al entrar de verdad.
   document.body.classList.toggle("landing-active", onLanding);
-  root.appendChild(app.user ? (app.mustChangePassword ? forcedPasswordView() : shell()) : (onLanding ? landingView() : loginView()));
+  root.appendChild(app.user ? (app.mustChangePassword ? forcedPasswordView() : shell()) : (onDownload ? downloadView() : onLanding ? landingView() : loginView()));
   if (tour.active && app.user && !app.mustChangePassword) mountTour(root);
   if (typing) {
     const input = [...document.querySelectorAll("[data-flag-input]")].find(node => node.getAttribute("data-flag-input") === typing.id);
@@ -11793,5 +11888,7 @@ function backToLanding() {
 initThemeToggle();
 initLangToggle();
 setInterval(updateResendCountdown, 1000); // no-op cuando no hay pantalla de verificación montada
+// wispr.training/#descargar abre directo la página de descarga (enlace para compartir).
+if (location.hash === "#descargar" && !IS_DESKTOP_APP) publicScreen = "download";
 render();
 if (app.user) hydratePlatform();

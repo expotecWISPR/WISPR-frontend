@@ -4481,6 +4481,100 @@ body.landing-active .video-overlay {
   text-align: center;
 }
 
+/* --- Página de descarga (app de escritorio) ------------------------------
+   Reusa la estructura de la landing (fondo, barra, secciones, pie). */
+.public-nav a.is-current { color: var(--green); }
+
+.download-hero { padding-bottom: 50px; }
+
+.download-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.download-cta .ico { width: 18px; height: 18px; }
+
+.download-meta {
+  margin: 16px 0 0;
+  color: rgba(245, 245, 245, 0.55);
+  font: 600 0.78rem/1.4 JetBrains Mono, monospace;
+}
+
+.download-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(164, 221, 0, 0.4);
+  border-radius: 999px;
+  background: rgba(164, 221, 0, 0.08);
+  color: var(--green);
+  font-weight: 700;
+}
+
+.download-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.download-step {
+  padding: 24px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  backdrop-filter: blur(10px);
+}
+
+.download-step h3 {
+  margin: 0 0 6px;
+  color: #fff;
+  font-size: 1.02rem;
+}
+
+.download-step p {
+  margin: 0;
+  color: rgba(245, 245, 245, 0.68);
+  font-size: 0.92rem;
+}
+
+.download-warning {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px solid rgba(243, 149, 13, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(243, 149, 13, 0.1), rgba(15, 44, 103, 0.2));
+}
+
+.download-warning-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(243, 149, 13, 0.16);
+  color: var(--orange);
+}
+
+.download-warning h3 {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.download-warning p {
+  margin: 0 0 8px;
+  color: rgba(245, 245, 245, 0.75);
+}
+
+.download-warning p:last-child { margin-bottom: 0; }
+
 /* --- Responsive de la landing ---------------------------------------------
    #root tiene padding (24 px; 14 px en celular): la landing lo anula con un
    margen negativo para que su fondo llegue de borde a borde. */
@@ -4636,6 +4730,12 @@ body.landing-active .video-overlay {
     height: 96px;
   }
 
+  .download-warning {
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 18px;
+  }
+
   /* Espacio abajo para que los botones flotantes (idioma y tema) no tapen
      el texto final. */
   .landing-footer { padding: 32px 16px 96px; }
@@ -4766,6 +4866,35 @@ html[data-theme="light"] .landing-page .stories-questions-label,
 html[data-theme="light"] .landing-page .stories-questions li::marker { color: var(--landing-orange); }
 
 html[data-theme="light"] .landing-page .stories-questions ol { color: var(--landing-ink); }
+
+html[data-theme="light"] .landing-page .public-nav a.is-current,
+html[data-theme="light"] .download-note { color: var(--landing-green); }
+
+html[data-theme="light"] .download-meta { color: var(--landing-soft); }
+
+html[data-theme="light"] .download-note {
+  border-color: rgba(77, 122, 0, 0.4);
+  background: rgba(77, 122, 0, 0.08);
+}
+
+html[data-theme="light"] .download-step {
+  border-color: var(--landing-edge);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.65));
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+}
+
+html[data-theme="light"] .download-step h3,
+html[data-theme="light"] .download-warning h3 { color: var(--landing-ink); }
+
+html[data-theme="light"] .download-step p,
+html[data-theme="light"] .download-warning p { color: var(--landing-soft); }
+
+html[data-theme="light"] .download-warning {
+  border-color: rgba(196, 111, 0, 0.35);
+  background: linear-gradient(135deg, rgba(243, 149, 13, 0.1), rgba(255, 255, 255, 0.7));
+}
+
+html[data-theme="light"] .download-warning-icon { color: var(--landing-orange); }
 /* =====================================================================
    wispr :: MÓDULO 3 — Autenticación ("detrás de la conexión")
    Las superficies .m3-lab son el "laboratorio" y se mantienen oscuras en
