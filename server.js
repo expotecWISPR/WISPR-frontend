@@ -1653,6 +1653,8 @@ function publicStaticPath(pathname) {
     "/theme-init.js": "theme-init.js",
     "/img/fondo.mp4": path.join("img", "fondo.mp4"),
     "/img/logo.png": path.join("img", "logo.png"),
+    "/img/favicon-32.png": path.join("img", "favicon-32.png"),
+    "/img/favicon-192.png": path.join("img", "favicon-192.png"),
     "/img/mascot.png": path.join("img", "mascot.png"),
     "/img/four-way-handshake.mp4": path.join("img", "Four-Way Handshake.mp4"),
     // Fotos del equipo en la landing: si el archivo no existe todavía, serveFile
