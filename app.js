@@ -5362,9 +5362,16 @@ function selectedChallenge() {
   return app.challenges.find(challenge => challenge.id === app.selectedId) || app.challenges[0] || null;
 }
 
+// Puntaje = puntos realmente ganados en cada reto (app.solved[id].points: ya con
+// pistas, fallos, velocidad y racha), la misma suma que hace el ranking del
+// servidor. Antes se sumaban los puntos base del reto y el total de Inicio,
+// Perfil y el encabezado no coincidía con el ranking.
 function stats() {
   const solvedIds = Object.keys(app.solved);
-  const score = solvedIds.reduce((total, id) => total + (app.challenges.find(challenge => challenge.id === id)?.points || app.solved[id].points || 0), 0);
+  const score = solvedIds.reduce((total, id) => {
+    const earned = app.solved[id]?.points;
+    return total + (typeof earned === "number" ? earned : app.challenges.find(challenge => challenge.id === id)?.points || 0);
+  }, 0);
   return { score, solves: solvedIds.length, total: app.challenges.length, hints: Object.values(app.hints).reduce((total, items) => total + items.length, 0) };
 }
 
@@ -6449,6 +6456,9 @@ function applySubmissionResult(challenge, data, source, shouldRender = true) {
     app.solved[challenge.id] = { time: Date.now(), points: typeof data.points === "number" ? data.points : challenge.points, breakdown: data.breakdown || null };
     if (typeof data.cleanStreak === "number") app.cleanStreak = data.cleanStreak;
     if (data.nextChallenge) upsertChallenge(data.nextChallenge);
+    // El puesto del encabezado y la tabla del ranking salen del servidor: se
+    // vuelven a pedir para que reflejen este acierto (web o terminal).
+    loadRanking();
     if (data.breakdown) showSolveReport(challenge, app.solved[challenge.id], { newChallenge: Boolean(data.nextChallenge) });
     else toast(`${solveSummary(data)}${data.nextChallenge ? " El motor creó un nuevo laboratorio para tu cola." : ""}`, "success");
   } else if (data.ok) {
