@@ -1094,7 +1094,7 @@ html[data-theme="light"] .brand-logo {
   margin-top: 8px;
 }
 
-/* La landing es oscura también en modo claro: sus botones no siguen el tema. */
+/* Botones de la landing en modo oscuro (el claro está en «Landing en modo claro»). */
 .landing-page .ghost-action {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.28);
@@ -3939,9 +3939,8 @@ html[data-theme="light"] .wdialog-secret { background: rgba(15, 44, 103, 0.06); 
 /* ===========================================================================
    Landing pública — concepto propio, deliberadamente distinto del panel/
    consola del resto de la app: fondo "aura" animado, tipografía grande,
-   tarjetas de vidrio. Siempre oscura (ignora el toggle claro/oscuro), igual
-   que el resto de "heroes" de la app — ver nota en el :root de este archivo.
-   El contraste con el login/dashboard de después es intencional.
+   tarjetas de vidrio. Los colores de esta sección son los del modo oscuro;
+   la versión clara está en «Landing en modo claro», más abajo.
    =========================================================================== */
 
 body.landing-active .video-bg,
@@ -4369,13 +4368,16 @@ body.landing-active .video-overlay {
 }
 
 /* --- Equipo: fotos circulares con anillo degradado ----------------------- */
+/* flex y no grid: la fila incompleta (p. ej. 3 + 2 en tablet) queda centrada. */
 .team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 24px;
 }
 
 .team-card {
+  flex: 0 1 170px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -4479,7 +4481,14 @@ body.landing-active .video-overlay {
   text-align: center;
 }
 
-@media (max-width: 760px) {
+/* --- Responsive de la landing ---------------------------------------------
+   #root tiene padding (24 px; 14 px en celular): la landing lo anula con un
+   margen negativo para que su fondo llegue de borde a borde. */
+.landing-page { margin: -24px; }
+
+/* Hasta 980 px la barra no cabe en una fila (en 768 el menú se metía debajo
+   del logo y «Crear cuenta» se salía): el menú baja a una segunda fila. */
+@media (max-width: 980px) {
   .public-topbar-inner {
     flex-wrap: wrap;
     border-radius: 20px;
@@ -4488,23 +4497,275 @@ body.landing-active .video-overlay {
   .public-nav {
     order: 3;
     width: 100%;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 14px;
+    gap: 22px;
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
+}
 
+@media (max-width: 900px) {
+  .stories-landing .stories-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
+
+  /* Con 3 historias en 2 columnas, la tercera va centrada abajo. */
+  .stories-landing .story-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 8px);
+  }
+}
+
+@media (max-width: 760px) {
   .landing-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1px;
   }
 
   .footer-top {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
   }
+
+  .footer-brand { grid-column: 1 / -1; }
 }
+
+@media (max-width: 680px) {
+  .landing-page { margin: -14px; }
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  /* Barra compacta y fija arriba: antes medía ~200 px y tapaba media pantalla
+     al bajar. El menú queda en una sola fila que se desliza de lado. */
+  .public-topbar {
+    top: 8px;
+    padding: 0 12px;
+  }
+
+  .public-topbar-inner {
+    gap: 8px;
+    padding: 8px 8px 0 14px;
+    border-radius: 16px;
+  }
+
+  .public-topbar .brand-logo { height: 28px; }
+
+  .public-actions { gap: 6px; }
+
+  .public-actions .primary-action,
+  .public-actions .ghost-action {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .public-nav {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 18px;
+    margin: 0 -8px 0 -14px;
+    padding: 9px 14px 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .public-nav::-webkit-scrollbar { display: none; }
+
+  .public-nav a {
+    flex: 0 0 auto;
+    font-size: 0.85rem;
+  }
+
+  .landing-hero {
+    gap: 14px;
+    padding: 36px 16px 48px;
+  }
+
+  .hero-mascot { width: 120px; }
+
+  .hero-lead {
+    margin-bottom: 24px;
+    font-size: 0.98rem;
+  }
+
+  .landing-hero .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .hero-scroll-cue { margin-top: 36px; }
+
+  .landing-stats {
+    margin-bottom: 64px;
+    padding: 0 16px;
+  }
+
+  .landing-stat { padding: 20px 10px; }
+
+  .landing-stat strong { font-size: 1.7rem; }
+
+  .landing-section {
+    margin-bottom: 64px;
+    padding: 0 16px;
+    scroll-margin-top: 120px;
+  }
+
+  .landing-statement { font-size: 1.02rem; }
+
+  /* Servicios: se giran al tocarlas, igual que en escritorio; solo son más
+     bajas para que las 6 no ocupen tanto. */
+  .service-grid { gap: 12px; }
+
+  .flip-card { height: 170px; }
+
+  .flip-card-front,
+  .flip-card-back { padding: 20px 18px; }
+
+  .stories-landing .stories-grid { grid-template-columns: 1fr; }
+
+  .stories-landing .story-card:last-child:nth-child(odd) { width: auto; }
+
+  .team-grid { gap: 22px 12px; }
+
+  .team-card { flex-basis: calc(50% - 6px); }
+
+  .team-photo-ring {
+    width: 96px;
+    height: 96px;
+  }
+
+  /* Espacio abajo para que los botones flotantes (idioma y tema) no tapen
+     el texto final. */
+  .landing-footer { padding: 32px 16px 96px; }
+}
+
+/* --- Landing en modo claro ------------------------------------------------
+   Los colores de arriba son los del modo oscuro. Aquí se reemplazan para el
+   modo claro. El verde lima (#a4dd00) casi no se lee sobre blanco: en texto se
+   usa un verde oscuro de la misma familia (--landing-green). Las tarjetas de
+   «Voces del CTF» siguen oscuras a propósito (son pantallas de consola). */
+html[data-theme="light"] .landing-page {
+  --landing-green: #4d7a00;
+  --landing-orange: #c46f00;
+  --landing-ink: #101a30;
+  --landing-soft: #4c5872;
+  --landing-edge: rgba(16, 24, 40, 0.1);
+  color: var(--landing-ink);
+}
+
+html[data-theme="light"] .landing-backdrop {
+  background: radial-gradient(ellipse at top, #ffffff 0%, #eef1f8 55%, #dde4f2 100%);
+}
+
+html[data-theme="light"] .landing-backdrop::after {
+  background: repeating-linear-gradient(0deg, rgba(16, 24, 40, 0.035) 0, rgba(16, 24, 40, 0.035) 1px, transparent 1px, transparent 48px);
+}
+
+html[data-theme="light"] .landing-page .aura { opacity: 0.3; }
+
+html[data-theme="light"] .public-topbar-inner {
+  border-color: var(--landing-edge);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 16px 40px rgba(16, 24, 40, 0.12);
+}
+
+html[data-theme="light"] .public-nav a { color: var(--landing-soft); }
+
+html[data-theme="light"] .landing-page .public-nav a:hover,
+html[data-theme="light"] .landing-page .footer-links a:hover { color: var(--landing-green); }
+
+html[data-theme="light"] .landing-page .ghost-action {
+  background: rgba(16, 24, 40, 0.04);
+  border-color: rgba(16, 24, 40, 0.22);
+  color: var(--landing-ink);
+}
+
+html[data-theme="light"] .landing-page .ghost-action:hover {
+  background: rgba(16, 24, 40, 0.08);
+  color: var(--landing-green) !important;
+}
+
+@media (max-width: 980px) {
+  html[data-theme="light"] .public-nav { border-top-color: var(--landing-edge); }
+}
+
+html[data-theme="light"] .landing-page .eyebrow,
+html[data-theme="light"] .landing-acronym,
+html[data-theme="light"] .landing-page .hero-kicker { color: var(--landing-green); }
+
+html[data-theme="light"] .landing-page .hero-kicker { border-color: rgba(77, 122, 0, 0.45); }
+
+html[data-theme="light"] .landing-page .text-gradient,
+html[data-theme="light"] .landing-stat strong {
+  background-image: linear-gradient(120deg, var(--landing-green), var(--landing-orange));
+}
+
+html[data-theme="light"] .hero-mascot { filter: drop-shadow(0 18px 22px rgba(16, 24, 40, 0.22)); }
+
+html[data-theme="light"] .landing-hero h1,
+html[data-theme="light"] .landing-section h2,
+html[data-theme="light"] .landing-statement,
+html[data-theme="light"] .flip-card-front h3,
+html[data-theme="light"] .flip-card-back h3,
+html[data-theme="light"] .benefit-row h3,
+html[data-theme="light"] .team-card strong { color: var(--landing-ink); }
+
+html[data-theme="light"] .hero-lead,
+html[data-theme="light"] .landing-substatement,
+html[data-theme="light"] .landing-stat span,
+html[data-theme="light"] .flip-card-back p,
+html[data-theme="light"] .benefit-row p,
+html[data-theme="light"] .team-role,
+html[data-theme="light"] .footer-brand p,
+html[data-theme="light"] .footer-links a { color: var(--landing-soft); }
+
+html[data-theme="light"] .hero-scroll-cue,
+html[data-theme="light"] .footer-bottom { color: rgba(16, 26, 48, 0.5); }
+
+html[data-theme="light"] .landing-stat {
+  border-color: var(--landing-edge);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+html[data-theme="light"] .flip-card-front,
+html[data-theme="light"] .flip-card-back {
+  border-color: var(--landing-edge);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.65));
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+}
+
+html[data-theme="light"] .flip-card:hover .flip-card-front,
+html[data-theme="light"] .flip-card:hover .flip-card-back,
+html[data-theme="light"] .flip-card.is-flipped .flip-card-front,
+html[data-theme="light"] .flip-card.is-flipped .flip-card-back { border-color: rgba(77, 122, 0, 0.5); }
+
+html[data-theme="light"] .bento-index { color: rgba(77, 122, 0, 0.75); }
+
+html[data-theme="light"] .benefit-row,
+html[data-theme="light"] .landing-footer { border-color: var(--landing-edge); }
+
+html[data-theme="light"] .benefit-check {
+  background: rgba(77, 122, 0, 0.12);
+  color: var(--landing-green);
+}
+
+html[data-theme="light"] .landing-page .stories-live {
+  border-color: rgba(205, 24, 24, 0.45);
+  background: rgba(205, 24, 24, 0.07);
+  color: #b01414;
+}
+
+html[data-theme="light"] .landing-page .stories-questions {
+  border-color: rgba(196, 111, 0, 0.35);
+  background: linear-gradient(135deg, rgba(243, 149, 13, 0.08), rgba(255, 255, 255, 0.6));
+}
+
+html[data-theme="light"] .landing-page .stories-questions-label,
+html[data-theme="light"] .landing-page .stories-questions li::marker { color: var(--landing-orange); }
+
+html[data-theme="light"] .landing-page .stories-questions ol { color: var(--landing-ink); }
 /* =====================================================================
    wispr :: MÓDULO 3 — Autenticación ("detrás de la conexión")
    Las superficies .m3-lab son el "laboratorio" y se mantienen oscuras en

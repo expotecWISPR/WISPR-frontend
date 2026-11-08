@@ -6963,16 +6963,21 @@ function landingAbout() {
     h("p", { class: "eyebrow" }, "la plataforma"),
     h("h2", {}, "¿Qué es WISPR?"),
     h("p", { class: "landing-acronym" }, "Wireless Intelligence for Security, Practice and Response"),
-    h("p", { class: "landing-statement" }, "WISPR es un rango de prácticas de ciberseguridad inalámbrica pensado para institutos y academias. Cada estudiante resuelve retos sobre evidencia sintética — capturas, handshakes, tráfico — usando una terminal Kali Linux real, aislada en su propio contenedor Docker, sin tocar jamás redes ni dispositivos ajenos."),
-    h("p", { class: "landing-substatement" }, "Profesores y administradores tienen sus propias herramientas: grupos por clase, ranking general y gestión completa de cuentas, para seguir el aprendizaje de cerca dentro del aula.")
+    h("p", { class: "landing-statement" }, "WISPR es una plataforma educativa de ciberseguridad que permite aprender y practicar técnicas de seguridad Wi-Fi mediante desafíos interactivos (CTF), utilizando herramientas profesionales en un entorno seguro y controlado.")
   ]);
 }
 
 function landingServiceCard(service, index) {
   const number = String(index + 1).padStart(2, "0");
   // Hover en desktop, tap en móvil (.is-flipped): el frente solo trae el
-  // número y el título, el reverso agrega la descripción completa.
-  return div({ class: "flip-card", onclick: event => event.currentTarget.classList.toggle("is-flipped") }, [
+  // número y el título, el reverso agrega la descripción completa. Solo una
+  // tarjeta queda girada: al tocar otra, la anterior vuelve a su frente.
+  const flip = event => {
+    const card = event.currentTarget;
+    document.querySelectorAll(".flip-card.is-flipped").forEach(other => { if (other !== card) other.classList.remove("is-flipped"); });
+    card.classList.toggle("is-flipped");
+  };
+  return div({ class: "flip-card", onclick: flip }, [
     div({ class: "flip-card-inner" }, [
       div({ class: "flip-card-front" }, [span({ class: "bento-index" }, number), h("h3", {}, service.title)]),
       div({ class: "flip-card-back" }, [span({ class: "bento-index" }, number), h("h3", {}, service.title), h("p", {}, service.detail)])
@@ -7570,11 +7575,12 @@ function speedText(estimate) {
   const state = speedState(estimate);
   if (state === "off") return "El cronómetro empieza al abrir el reto";
   if (state === "lost") return "Sin bono de velocidad: tómate tu tiempo";
-  return `+${rules.speedPct}% si terminas en ${formatClock(estimate.left)}`;
+  return `+${rules.speedPct}% si terminas antes de ${formatClock(rules.speedSeconds * 1000)}`;
 }
 
-// Solo el anillo con el tiempo, a la derecha del encabezado del reto. Se vacía
-// en los minutos del bono de velocidad y se pone naranja en los últimos 2.
+// Solo el anillo con el tiempo, a la derecha del encabezado del reto. El tiempo
+// cuenta hacia arriba y el anillo se va llenando durante los minutos del bono
+// de velocidad; se pone naranja en los últimos 2 y gris (lleno) al pasarlos.
 function challengeClock(challenge) {
   if (!app.scoring) return null;
   const solved = app.solved[challenge.id];
@@ -7589,9 +7595,11 @@ function challengeClock(challenge) {
   return div({ class: "wclock-solo", "data-clock": challenge.id }, [ring]);
 }
 
+// Parte del anillo que ya se llenó: crece con el tiempo (progresivo).
 function speedWindowPct(estimate) {
-  if (estimate.elapsed === null || !estimate.fast) return 0;
-  return Math.max(0, Math.min(100, (estimate.left / (app.scoring.speedSeconds * 1000)) * 100));
+  if (estimate.elapsed === null) return 0;
+  if (!estimate.fast) return 100;
+  return Math.max(0, Math.min(100, (estimate.elapsed / (app.scoring.speedSeconds * 1000)) * 100));
 }
 
 // Al resolver: el anillo queda verde y lleno, con el tiempo final.
