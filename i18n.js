@@ -850,7 +850,8 @@
     "Tu sesión terminó. Inicia sesión de nuevo para usar la terminal.": "Your session ended. Sign in again to use the terminal.",
     "Construyendo la imagen {0}. Puede tardar varios minutos la primera vez.": "Building the {0} image. It may take several minutes the first time.",
     "Kali arrancó pero no respondió al exec de prueba: {0}": "Kali started but did not answer the test exec: {0}",
-    "Límite de {0} laboratorios activos alcanzado.": "Limit of {0} active labs reached.",
+    "Los {#0} laboratorios están ocupados. Se libera uno cuando alguien lleva {#1} minutos sin usar la terminal: intenta de nuevo en unos minutos.": "All {0} labs are busy. One frees up when someone goes {1} minutes without using the terminal: try again in a few minutes.",
+    "La terminal se cerró tras {#0} minutos sin uso, para liberar el laboratorio. Ábrela de nuevo para seguir: tus archivos de /workspace se conservan.": "The terminal closed after {0} minutes without use, to free the lab. Open it again to continue: your files in /workspace are kept.",
     "No se pudo abrir la shell de Kali: {0}": "Could not open the Kali shell: {0}",
     "No se pudo ejecutar docker: {0}": "Could not run docker: {0}"
   };

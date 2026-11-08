@@ -45,6 +45,11 @@ const TARGET_DOCKERFILE = path.join(ROOT, "kali", "target", "Dockerfile");
 const TARGET_CONTEXT = path.join(ROOT, "kali", "target");
 const MAX_COMMAND_SESSIONS = Number(process.env.MAX_COMMAND_SESSIONS || 8);
 const MAX_LAB_ENVIRONMENTS = Number(process.env.MAX_LAB_ENVIRONMENTS || 8);
+// Un laboratorio sin uso (nadie escribe en su terminal, esté abierta o cerrada)
+// se detiene solo tras LAB_IDLE_MINUTES y libera su espacio del límite. Sus
+// archivos de /workspace se conservan; al volver, Node lo arranca de nuevo.
+const LAB_IDLE_MINUTES = Number(process.env.LAB_IDLE_MINUTES) > 0 ? Number(process.env.LAB_IDLE_MINUTES) : 10;
+const LAB_IDLE_MS = LAB_IDLE_MINUTES * 60 * 1000;
 const DATA_DIR = path.join(LAB_DIR, "data");
 const REGISTRY_FILE = path.join(DATA_DIR, "players.json");
 const GROUPS_FILE = path.join(DATA_DIR, "groups.json");
@@ -130,7 +135,8 @@ const DEFAULT_TARGET_PORTS = [{ port: 8080, banner: "HTTP/1.1 200 OK\r\nServer: 
 const challengeRegistry = new Map();
 const challengeCatalog = [];
 const playerStates = new Map();
-const knownEnvironments = new Set();
+const labActivity = new Map(); // scope del laboratorio -> último uso (ms)
+const stoppingLabs = new Map(); // scope -> detención por inactividad en curso
 const terminalSubmissionResults = new Map();
 const generator = createChallengeGenerator();
 let generationQueue = Promise.resolve();
@@ -922,7 +928,10 @@ function playerId(value) {
 }
 
 function environmentFor(player) {
-  const scope = crypto.createHash("sha256").update(player).digest("hex").slice(0, 14);
+  return environmentForScope(crypto.createHash("sha256").update(player).digest("hex").slice(0, 14));
+}
+
+function environmentForScope(scope) {
   return {
     scope,
     network: `wispr-net-${scope}`,
@@ -1237,11 +1246,58 @@ async function workspaceMountHealthy(environment) {
   return seen.ok;
 }
 
+// Laboratorios Kali encendidos, contados en Docker y no en memoria: así el
+// límite sigue valiendo aunque Node se reinicie con contenedores encendidos.
+async function runningLabScopes() {
+  const result = await run(DOCKER_BIN, ["ps", "--filter", "name=wispr-kali-", "--filter", "status=running", "--format", "{{.Names}}"], { timeout: 10000 });
+  if (!result.ok) return [];
+  return result.output.split("\n")
+    .map(name => name.trim().replace(/^wispr-kali-/, ""))
+    .filter(scope => /^[a-f0-9]{14}$/.test(scope));
+}
+
+function touchLab(scope) {
+  labActivity.set(scope, Date.now());
+}
+
+// Detiene los laboratorios que llevan LAB_IDLE_MINUTES sin uso. Si su terminal
+// sigue abierta (pestaña olvidada, celular bloqueado), se cierra con un aviso.
+let sweepingLabs = false;
+async function stopIdleLabs() {
+  if (sweepingLabs) return;
+  sweepingLabs = true;
+  try {
+    for (const scope of await runningLabScopes()) {
+      // Encendido antes de que arrancara este proceso de Node: recibe el tiempo completo.
+      if (!labActivity.has(scope)) { touchLab(scope); continue; }
+      if (Date.now() - labActivity.get(scope) < LAB_IDLE_MS) continue;
+      for (const client of wss.clients) {
+        if (!client._playerId || environmentFor(client._playerId).scope !== scope) continue;
+        if (client.readyState === client.OPEN) {
+          client.send(JSON.stringify({ type: "error", error: `La terminal se cerró tras ${LAB_IDLE_MINUTES} minutos sin uso, para liberar el laboratorio. Ábrela de nuevo para seguir: tus archivos de /workspace se conservan.` }));
+        }
+        client.close(4408, "inactividad");
+      }
+      console.log(`[lab] ${scope}: ${LAB_IDLE_MINUTES} min sin uso; se detiene.`);
+      const stopping = stopLab(environmentForScope(scope)).finally(() => stoppingLabs.delete(scope));
+      stoppingLabs.set(scope, stopping);
+      await stopping;
+    }
+  } catch (error) {
+    console.error("[lab] revisión de inactividad:", error.message);
+  } finally {
+    sweepingLabs = false;
+  }
+}
+
 async function ensureLabEnvironment(player) {
   const environment = environmentFor(player);
-  let existing = await run(DOCKER_BIN, ["container", "inspect", environment.kali], { timeout: 10000 });
-  if (!existing.ok && !knownEnvironments.has(environment.scope) && knownEnvironments.size >= MAX_LAB_ENVIRONMENTS) {
-    return { ok: false, error: `Límite de ${MAX_LAB_ENVIRONMENTS} laboratorios activos alcanzado.` };
+  // Si justo se está deteniendo por inactividad, se espera y se vuelve a arrancar.
+  await stoppingLabs.get(environment.scope);
+  let existing = await run(DOCKER_BIN, ["container", "inspect", "--format", "{{.State.Running}}", environment.kali], { timeout: 10000 });
+  const running = existing.ok && existing.output === "true";
+  if (!running && (await runningLabScopes()).length >= MAX_LAB_ENVIRONMENTS) {
+    return { ok: false, error: `Los ${MAX_LAB_ENVIRONMENTS} laboratorios están ocupados. Se libera uno cuando alguien lleva ${LAB_IDLE_MINUTES} minutos sin usar la terminal: intenta de nuevo en unos minutos.` };
   }
   fs.mkdirSync(CHALLENGES_DIR, { recursive: true });
   fs.mkdirSync(environment.workspace, { recursive: true });
@@ -1286,7 +1342,7 @@ async function ensureLabEnvironment(player) {
   if (!started.ok && !/already started/i.test(started.output)) return { ok: false, error: started.output || "No se pudo iniciar Kali." };
   const check = await run(DOCKER_BIN, ["exec", "-u", "kali", environment.kali, "bash", "-lc", "test -f /etc/os-release && test -w /workspace && echo ready"], { timeout: 30000 });
   if (!check.ok) { console.error("[lab] exec check:", check.output); return { ok: false, error: `Kali arrancó pero no respondió al exec de prueba: ${check.output || "sin salida"}` }; }
-  knownEnvironments.add(environment.scope);
+  touchLab(environment.scope);
   return { ok: true, output: "Kali aislada y lista.", environment };
 }
 
@@ -1329,10 +1385,13 @@ async function containerStatus(player) {
 }
 
 async function stopEnvironment(player) {
-  const environment = environmentFor(player);
+  return stopLab(environmentFor(player));
+}
+
+async function stopLab(environment) {
+  labActivity.delete(environment.scope);
   await run(DOCKER_BIN, ["rm", "-f", environment.target], { timeout: 15000 });
   const stopped = await run(DOCKER_BIN, ["stop", environment.kali], { timeout: 30000 });
-  knownEnvironments.delete(environment.scope);
   return { ok: stopped.ok, output: stopped.ok ? "Entorno Kali detenido." : stopped.output };
 }
 
@@ -1351,7 +1410,7 @@ async function deletePlayerAccount(target) {
   await run(DOCKER_BIN, ["rm", "-f", environment.kali], { timeout: 15000 });
   await run(DOCKER_BIN, ["rm", "-f", environment.target], { timeout: 15000 });
   await run(DOCKER_BIN, ["network", "rm", environment.network], { timeout: 15000 });
-  knownEnvironments.delete(environment.scope);
+  labActivity.delete(environment.scope);
   // Saca a la cuenta borrada de cualquier grupo (el grupo en sí se conserva,
   // aunque haya sido quien lo creó: publicGroup() ya cubre ese caso).
   let groupsChanged = false;
@@ -2200,7 +2259,10 @@ wss.on("connection", (ws, _req, player, token) => {
   ws.on("message", raw => {
     let message;
     try { message = JSON.parse(String(raw)); } catch { return; }
-    if (message.type === "input" && typeof message.data === "string" && message.data.length <= 16384) shell.write(message.data);
+    if (message.type === "input" && typeof message.data === "string" && message.data.length <= 16384) {
+      touchLab(environment.scope);
+      shell.write(message.data);
+    }
     if (message.type === "resize") shell.resize(Math.max(20, Math.min(400, Number(message.cols) || 100)), Math.max(5, Math.min(200, Number(message.rows) || 30)));
   });
   const close = () => { clearInterval(watcher); clearInterval(sessionCheck); try { shell.kill(); } catch {} };
@@ -2215,6 +2277,7 @@ loadGroups();
 loadSessions();
 pruneSessions();
 setInterval(pruneSessions, 10 * 60 * 1000).unref();
+setInterval(stopIdleLabs, Math.min(60 * 1000, LAB_IDLE_MS / 4)).unref();
 initialChallenges.forEach(registerChallenge);
 
 server.listen(PORT, HOST, () => {

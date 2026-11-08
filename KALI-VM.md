@@ -46,5 +46,12 @@ La imagen incluye las herramientas habituales de análisis de artefactos wireles
 - **Conectar:** arranca o reutiliza el contenedor aislado del jugador.
 - **Desconectar:** cierra la shell PTY, no destruye el entorno.
 - **Detener entorno:** detiene Kali y elimina el objetivo sintético de esa sesión.
+- **Sin uso:** si nadie escribe en la terminal de un jugador durante `LAB_IDLE_MINUTES` (10 por
+  defecto), su entorno se detiene solo, igual que con «Detener entorno». Si la terminal seguía
+  abierta, se cierra con un aviso. Los archivos de `/workspace` se conservan; lo que estaba en `/tmp`
+  o en el home se pierde, porque son `tmpfs`.
+- **Límite:** como máximo `MAX_LAB_ENVIRONMENTS` entornos encendidos a la vez (8 por defecto). Se
+  cuentan los contenedores que de verdad están corriendo en Docker, así que el límite sigue valiendo
+  aunque se reinicie el servidor.
 
 Para eliminar contenedores o redes de forma manual, hazlo desde Docker Desktop cuando no haya una competición activa. No es necesario exponer Docker ni el puerto de WISPR fuera de tu equipo.
