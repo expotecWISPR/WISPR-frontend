@@ -6942,7 +6942,7 @@ function landingHero() {
   return h("section", { class: "landing-hero" }, [
     h("img", { src: "./img/mascot.png", alt: "Mascota WISPR, un alienígena con patineta", class: "hero-mascot", loading: "lazy" }, []),
     div({ class: "hero-copy" }, [
-      span({ class: "ctf-pill hero-kicker" }, "WIRELESS SECURITY RANGE"),
+      span({ class: "ctf-pill hero-kicker" }, "WIRELESS SECURITY TRAINING"),
       h("h1", {}, ["Entrena como un ", span({ class: "text-gradient" }, "operador"), " de seguridad inalámbrica."]),
       h("p", { class: "hero-lead" }, "Retos generados dinámicamente, una Kali Linux aislada por estudiante y un currículum teórico-práctico — todo dentro de un rango pensado para aulas de ciberseguridad."),
       div({ class: "hero-actions" }, [
@@ -7032,7 +7032,7 @@ function landingFooter() {
       div({ class: "footer-links" }, [h("p", { class: "eyebrow" }, "plataforma"), h("a", { href: "#servicios" }, "Servicios"), h("a", { href: "#beneficios" }, "Beneficios"), h("a", { href: "#historias" }, "Historias"), h("a", { href: "#equipo" }, "Equipo")]),
       div({ class: "footer-cta" }, [h("p", { class: "eyebrow" }, "acceso"), button({ class: "ghost-action compact", type: "button", onclick: () => goToAuth("login") }, "Iniciar sesión"), button({ class: "primary-action compact", type: "button", onclick: () => goToAuth("register") }, "Crear cuenta")])
     ]),
-    div({ class: "footer-bottom" }, [span({}, "© 2026 WISPR — Wireless Intelligence for Security, Practice and Response"), h("p", { class: "mitre-notice" }, MITRE_NOTICE)])
+    div({ class: "footer-bottom" }, [span({}, "© 2026 WISPR — Wireless Intelligence for Security, Practice and Response")])
   ]);
 }
 

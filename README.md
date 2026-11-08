@@ -1,4 +1,4 @@
-# WISPR — Wireless Security Range
+# WISPR — Wireless Security Training
 
 Plataforma local de aprendizaje y competición CTF orientada a seguridad wireless. Conserva la identidad azul, verde lima y ámbar de WISPR, pero la organiza como un rango profesional: dashboard de misión, progreso, score, catálogo de retos y una terminal Kali web real.
 
