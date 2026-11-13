@@ -23,6 +23,25 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Arreglos del 13 nov (EXPOTEC), en capa aparte por la misma razón:
+#   - ocl-icd-libopencl1: el cargador de OpenCL. PoCL ya estaba instalado, pero
+#     sin el cargador hashcat decía "No OpenCL, HIP or CUDA platform found".
+#   - python3-scapy: el reto WEP lo recomienda. iputils-ping: ver si el
+#     objetivo responde.
+#   - setcap -r: el contenedor corre con --cap-drop ALL y el kernel se niega a
+#     ejecutar un binario que pide capabilities que no puede recibir (nmap
+#     daba "Operation not permitted"). Sin ellas nmap escanea con connect()
+#     (-sT, el modo de un usuario normal) y ping usa sockets ICMP sin root.
+#   - /usr/bin/nmap de Kali es un script que agrega --privileged a todo usuario
+#     que no sea root (cuenta con esas capabilities) y nmap fallaba con
+#     "Couldn't open a raw socket". Se apunta directo al binario.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ocl-icd-libopencl1 python3-scapy iputils-ping \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && getcap -r /usr 2>/dev/null | awk '{print $1}' | xargs -r setcap -r \
+    && ln -sf /usr/lib/nmap/nmap /usr/bin/nmap
+
 COPY kali/ctf /usr/local/bin/ctf
 COPY kali/wispr.bashrc /etc/wispr.bashrc
 RUN chmod 0755 /usr/local/bin/ctf \

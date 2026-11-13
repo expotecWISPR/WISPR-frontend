@@ -1329,7 +1329,10 @@ async function ensureLabEnvironment(player) {
       "--cpus", process.env.KALI_CPUS || "2",
       "--read-only",
       "--tmpfs", "/tmp:rw,nosuid,nodev,noexec,size=256m",
-      "--tmpfs", "/home/kali:rw,nosuid,nodev,size=64m",
+      // uid/gid/mode: sin ellos el tmpfs queda de root (drwx------) y kali no
+      // puede ni leer su home: tshark avisaba "You don't have permission to
+      // read ~/.config/wireshark/...", y john y hashcat no arrancaban.
+      "--tmpfs", "/home/kali:rw,nosuid,nodev,size=128m,uid=1000,gid=1000,mode=0700",
       "--user", "1000:1000",
       "-v", `${CHALLENGES_DIR}:/lab/challenges:ro`,
       "-v", `${environment.workspace}:/workspace:rw`,
