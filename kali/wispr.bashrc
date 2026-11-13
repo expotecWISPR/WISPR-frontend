@@ -29,9 +29,10 @@ help() { command ctf help; }
 # Los retos nombran a Wireshark, pero es una aplicación gráfica y aquí no hay
 # pantalla: en vez de "command not found", se explica qué usar.
 wireshark() {
-  printf 'Wireshark es gráfico y no corre en esta terminal. Aquí usa \e[1;32mtshark\e[0m (la misma\n'
-  printf 'herramienta en texto), por ejemplo: tshark -r challenge/<archivo>.pcap\n'
-  printf 'O descarga el archivo desde la web y ábrelo en Wireshark en tu computadora.\n'
+  printf 'Wireshark es gráfico y no corre en esta terminal. Usa\n'
+  printf '\e[1;32mtshark\e[0m, la misma herramienta en texto:\n'
+  printf '  tshark -r challenge/<archivo>.pcap\n'
+  printf 'O descarga el archivo desde la web y ábrelo en tu computadora.\n'
   return 1
 }
 
@@ -44,12 +45,36 @@ hashcat() {
   command hashcat "$@"
   local rc=$?
   if [ "$rc" -eq 137 ]; then
-    printf '\n\e[1;33mhashcat se quedó sin memoria:\e[0m compilar sus kernels en la CPU necesita más RAM\n'
-    printf 'de la que tiene este laboratorio. Usa aircrack-ng, que rompe el handshake y el PMKID:\n'
-    printf '  aircrack-ng -w challenge/wordlist.txt challenge/<archivo>.pcap\n'
+    printf '\n\e[1;33mhashcat se quedó sin memoria.\e[0m Compilar en la CPU pide\n'
+    printf 'más RAM de la que tiene este laboratorio. Usa aircrack-ng,\n'
+    printf 'que rompe el handshake y el PMKID:\n'
+    printf '  aircrack-ng -w challenge/wordlist.txt challenge/<archivo>\n'
   fi
   return "$rc"
 }
+
+# Captura en vivo: la terminal no tiene permisos de red cruda, a propósito
+# (nadie puede espiar ni falsificar tráfico desde aquí). Sin esto, tshark
+# soltaba un mensaje enorme de dumpcap que pedía sudo (aquí no existe) y se
+# salía de la terminal. Leer un archivo con -r funciona normal.
+__wispr_lee_archivo() {
+  local arg
+  for arg in "$@"; do
+    case "$arg" in
+      -r|-r?*|--read-file|--read-file=*|-h|--help|-v|--version|-D|--list-interfaces|-G|-G?*) return 0 ;;
+    esac
+  done
+  return 1
+}
+__wispr_sin_captura() {
+  printf '\e[1;33mLa captura en vivo no está disponible:\e[0m por seguridad,\n'
+  printf 'esta terminal no tiene permisos de red. Analiza el archivo\n'
+  printf 'del reto:\n'
+  printf '  %s -r challenge/<archivo>.pcap\n' "$1"
+  return 1
+}
+tshark() { if __wispr_lee_archivo "$@"; then command tshark "$@"; else __wispr_sin_captura tshark; fi; }
+tcpdump() { if __wispr_lee_archivo "$@"; then command tcpdump "$@"; else __wispr_sin_captura tcpdump; fi; }
 
 # Colores en ls/grep/ip: este archivo REEMPLAZA al .bashrc de Kali (--rcfile),
 # que es donde normalmente se activan. Sin esto, carpetas, archivos y
