@@ -3,10 +3,9 @@
 // archivo solo debe fijar el atributo lo antes posible.
 (function () {
   try {
-    var saved = localStorage.getItem("wispr_theme_v1");
-    var theme = saved === "light" || saved === "dark"
-      ? saved
-      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    // Misma clave que THEME_KEY en app.js. Sin elección guardada: modo oscuro.
+    var saved = localStorage.getItem("wispr_theme_v2");
+    var theme = saved === "light" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", theme);
   } catch (e) {}
 })();

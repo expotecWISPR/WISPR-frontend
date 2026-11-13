@@ -16,7 +16,7 @@
   --contrast-rgb: 255, 255, 255;
 }
 
-/* Modo claro: se activa con html[data-theme="light"] (ver theme-toggle en app.js).
+/* Modo claro: se activa con html[data-theme="light"] (ver prefControls en app.js).
    Los paneles "hero" (mission-hero, detail-hero) y la terminal Kali se dejan
    siempre oscuros a propósito, como una consola, en ambos temas. */
 html[data-theme="light"] {
@@ -1887,88 +1887,78 @@ aside {
   }
 }
 
-/* --- Selector de modo claro/oscuro ---
-   Es un botón flotante (FAB) abajo a la derecha en vez de arriba, para no
-   competir nunca con el topbar/account-chip ni con el brand del login en
-   ninguna resolución; respeta el safe-area de móviles con notch/gestos. */
-.theme-toggle {
-  position: fixed;
-  right: calc(16px + env(safe-area-inset-right, 0px));
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  min-height: 44px;
-  padding: 0;
+/* --- Idioma y tema: grupo [🌐 ES] [🌙] en la barra de arriba -------------
+   Va en la barra de la landing, en la de la plataforma (en pantallas angostas,
+   dentro del menú hamburguesa) y arriba a la derecha de las tarjetas de
+   acceso. El botón de idioma muestra solo el idioma actual. */
+.pref-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.pref-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(181, 192, 212, 0.22);
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: linear-gradient(145deg, var(--panel), var(--panel-2));
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  background: rgba(var(--contrast-rgb), 0.06);
   color: var(--text);
-  font-size: 1.15rem;
   line-height: 1;
-  backdrop-filter: blur(12px);
-  transition: transform 0.18s ease, border-color 0.18s ease;
+  transition: border-color 0.18s ease, background 0.18s ease;
 }
 
-/* Selector de idioma: va encima del interruptor de tema. */
-.lang-toggle {
-  position: fixed;
-  right: calc(16px + env(safe-area-inset-right, 0px));
-  bottom: calc(68px + env(safe-area-inset-bottom, 0px));
-  z-index: 50;
-  display: grid;
-  gap: 1px;
-  place-items: center;
-  width: 44px;
-  min-height: 52px;
-  padding: 6px 0;
-  border-radius: 22px;
-  border: 1px solid var(--line);
-  background: linear-gradient(145deg, var(--panel), var(--panel-2));
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-  color: var(--muted);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.3;
-  backdrop-filter: blur(12px);
-  transition: transform 0.18s ease, border-color 0.18s ease;
+.pref-btn:hover {
+  border-color: var(--green);
+  background: rgba(var(--contrast-rgb), 0.1);
 }
 
-.lang-toggle:hover {
-  transform: translateY(-1px);
-  border-color: var(--green) !important;
+.pref-btn .ico { width: 17px; height: 17px; }
+
+.pref-theme { width: 36px; padding: 0; }
+
+.pref-lang-code {
+  font: 700 0.76rem/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.06em;
 }
 
-.lang-code.is-active {
-  color: var(--green);
-}
+/* Plataforma: en la barra desde 1041 px; con el menú hamburguesa (≤1040 px)
+   el grupo pasa al final del menú desplegado. */
+.pref-in-menu { display: none; }
 
-@media (max-width: 680px) {
-  .lang-toggle {
-    right: calc(10px + env(safe-area-inset-right, 0px));
-    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
-    width: 40px;
+@media (max-width: 1040px) {
+  .pref-in-bar { display: none; }
+
+  .topbar .main-nav.nav-open .pref-in-menu {
+    display: flex;
+    padding-top: 10px;
+    border-top: 1px solid rgba(181, 192, 212, 0.18);
   }
-}
 
-.theme-toggle:hover {
-  transform: translateY(-1px);
-  border-color: var(--green) !important;
-  color: var(--text) !important;
-}
-
-@media (max-width: 680px) {
-  .theme-toggle {
-    right: calc(10px + env(safe-area-inset-right, 0px));
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-    width: 40px;
-    height: 40px;
-    font-size: 1.02rem;
+  /* Dentro del <nav> le ganan los estilos de los botones del menú (relleno,
+     subrayado al pasar el mouse): se devuelven los del grupo. */
+  .topbar .main-nav.nav-open .pref-in-menu .pref-btn {
+    width: auto;
+    min-height: 36px;
+    padding: 0 10px;
+    border-radius: 999px;
   }
+  .topbar .main-nav.nav-open .pref-in-menu .pref-theme { width: 36px; padding: 0; }
+  .topbar nav .pref-btn::after { display: none; }
+}
+
+/* Tarjetas de acceso: arriba a la derecha (el «← Inicio» va a la izquierda). */
+.pref-auth {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
 }
 
 /* En modo claro el video de fondo se atenúa mucho más para que no compita
@@ -4580,9 +4570,9 @@ body.landing-active .video-overlay {
    margen negativo para que su fondo llegue de borde a borde. */
 .landing-page { margin: -24px; }
 
-/* Hasta 980 px la barra no cabe en una fila (en 768 el menú se metía debajo
-   del logo y «Crear cuenta» se salía): el menú baja a una segunda fila. */
-@media (max-width: 980px) {
+/* Hasta 1180 px la barra no cabe en una fila (el menú se metía debajo del
+   logo y «Crear cuenta» se salía): el menú baja a una segunda fila. */
+@media (max-width: 1180px) {
   .public-topbar-inner {
     flex-wrap: wrap;
     border-radius: 20px;
@@ -4596,6 +4586,7 @@ body.landing-active .video-overlay {
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
+  .pref-public { margin-left: auto; }
 }
 
 @media (max-width: 900px) {
@@ -4653,15 +4644,43 @@ body.landing-active .video-overlay {
     font-size: 0.8rem;
   }
 
+  /* Salto de línea forzado entre las dos filas (un ::after también es un
+     elemento flex y acepta order); lleva la raya divisoria. */
+  .public-topbar-inner::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+    /* Sin márgenes negativos: con ellos medía menos que la fila y el menú
+       se metía a su lado, aplastado. */
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .public-actions { order: 1; margin-left: auto; }
+
   .public-nav {
+    order: 3;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
     flex-wrap: nowrap;
     justify-content: flex-start;
     gap: 18px;
-    margin: 0 -8px 0 -14px;
+    margin: 0 0 0 -14px;
     padding: 9px 14px 10px;
+    border-top: 0;
     overflow-x: auto;
     scrollbar-width: none;
   }
+
+  .pref-public {
+    order: 4;
+    margin-left: 0;
+    padding: 6px 0;
+  }
+
+  .pref-public .pref-btn { height: 30px; min-height: 30px; padding: 0 8px; }
+  .pref-public .pref-theme { width: 30px; padding: 0; }
 
   .public-nav::-webkit-scrollbar { display: none; }
 
@@ -4787,8 +4806,12 @@ html[data-theme="light"] .landing-page .ghost-action:hover {
   color: var(--landing-green) !important;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1180px) {
   html[data-theme="light"] .public-nav { border-top-color: var(--landing-edge); }
+}
+
+@media (max-width: 600px) {
+  html[data-theme="light"] .public-topbar-inner::after { border-top-color: var(--landing-edge); }
 }
 
 html[data-theme="light"] .landing-page .eyebrow,
@@ -8105,7 +8128,6 @@ button.chip-profile:hover strong,
 .generator-worth .ico-star,
 .metric-icon .ico-star { fill: currentColor; }
 .m3-stars { display: inline-flex; gap: 0.15em; letter-spacing: 0; }
-.theme-toggle .ico { width: 1.25em; height: 1.25em; vertical-align: middle; }
 
 /* Íconos grandes del contenido: chip duotono. El color sale del tono de la
    tarjeta (tone-ok / tone-warn / tone-bad / tone-info); sin tono, naranja.

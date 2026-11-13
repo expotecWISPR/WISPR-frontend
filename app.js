@@ -1,6 +1,8 @@
 const STORE_KEY = "wispr_wireless_platform_v7";
 const SESSION_KEY = "wispr:session:v7";
-const THEME_KEY = "wispr_theme_v1";
+// v2 (12 nov): antes el tema inicial seguía al sistema operativo y se guardaba
+// como si la persona lo hubiera elegido; con la clave nueva todos arrancan en oscuro.
+const THEME_KEY = "wispr_theme_v2";
 const TOKEN_KEY = "wispr:token:v1";
 // URL base del backend. Vacío = mismo origen que el frontend. Para apuntar a
 // otro servidor basta con <meta name="wispr-api" content="https://…"> en index.html.
@@ -5287,75 +5289,77 @@ function getStoredTheme() {
     const saved = localStorage.getItem(THEME_KEY);
     if (saved === "light" || saved === "dark") return saved;
   } catch {}
-  return (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+  // Por defecto, modo oscuro (no sigue al sistema operativo).
+  return "dark";
 }
 
-function applyTheme(theme) {
+// Solo se guarda cuando la persona elige un tema con el botón (save = true);
+// al cargar la página se aplica sin guardar, para que el valor por defecto no
+// quede registrado como si fuera una elección.
+function applyTheme(theme, save = true) {
   document.documentElement.setAttribute("data-theme", theme);
-  try { localStorage.setItem(THEME_KEY, theme); } catch {}
+  if (save) { try { localStorage.setItem(THEME_KEY, theme); } catch {} }
 }
 
 const themeToggleLabel = theme => tr(theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
 
-function initThemeToggle() {
-  let theme = getStoredTheme();
-  applyTheme(theme);
-  const themeIcon = t => icon(t === "dark" ? "moon" : "sun");
-  const label = themeToggleLabel;
-  const toggle = button({
-    class: "theme-toggle",
-    type: "button",
-    title: label(theme),
-    "aria-label": label(theme),
-    onclick: () => {
-      theme = theme === "dark" ? "light" : "dark";
-      applyTheme(theme);
-      toggle.replaceChildren(themeIcon(theme));
-      toggle.title = label(theme);
-      toggle.setAttribute("aria-label", label(theme));
-    }
-  }, themeIcon(theme));
-  document.body.appendChild(toggle);
+// Idioma y tema: un grupo pequeño [🌐 ES] [🌙] en la barra de arriba de cada
+// pantalla (landing, plataforma y acceso), en vez de botones flotantes. Se
+// recrea en cada render(); el estado vive en localStorage (tema) e I18N (idioma).
+// El botón de idioma muestra solo el idioma actual.
+function initTheme() {
+  applyTheme(getStoredTheme(), false);
 }
 
-// Igual que el del tema, va fuera de #root para no recrearse en cada render.
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+
+function prefControls(extraClass = "") {
+  const themeButton = button({
+    class: "pref-btn pref-theme",
+    type: "button",
+    onclick: () => {
+      const next = currentTheme() === "dark" ? "light" : "dark";
+      applyTheme(next);
+      // Todas las copias del grupo (p. ej. barra + menú del celular) a la vez.
+      document.querySelectorAll(".pref-theme").forEach(node => {
+        node.replaceChildren(icon(next === "dark" ? "moon" : "sun"));
+        node.title = themeToggleLabel(next);
+        node.setAttribute("aria-label", themeToggleLabel(next));
+      });
+    }
+  }, icon(currentTheme() === "dark" ? "moon" : "sun"));
+  themeButton.title = themeToggleLabel(currentTheme());
+  themeButton.setAttribute("aria-label", themeToggleLabel(currentTheme()));
+
+  let langButton = null;
+  if (window.I18N) {
+    const english = window.I18N.lang() === "en";
+    langButton = button({
+      class: "pref-btn pref-lang",
+      type: "button",
+      onclick: () => changeLanguage(english ? "es" : "en")
+    }, [icon("globe"), span({ class: "pref-lang-code" }, english ? "EN" : "ES")]);
+    // Asignado aparte para que tr() no lo traduzca: debe leerse en el idioma
+    // al que se va a cambiar.
+    const label = english ? "Cambiar a español" : "Switch to English";
+    langButton.title = label;
+    langButton.setAttribute("aria-label", label);
+  }
+  return div({ class: `pref-controls ${extraClass}`.trim() }, [langButton, themeButton]);
+}
+
 function changeLanguage(next) {
   window.I18N.setLang(next);
-  // render() reconstruye la página: la terminal abierta se vuelve a colocar tal
-  // cual para no cortar la sesión de Kali.
+  // render() reconstruye la página (y con ella este grupo, ya en el idioma
+  // nuevo): la terminal abierta se vuelve a colocar tal cual para no cortar la
+  // sesión de Kali.
   const liveTerminal = terminalClient ? document.getElementById("kali-terminal") : null;
   const scroll = window.scrollY;
   render();
   if (liveTerminal) document.getElementById("kali-terminal")?.replaceWith(liveTerminal);
   window.scrollTo(0, scroll);
-  const themeToggle = document.querySelector(".theme-toggle");
-  if (themeToggle) {
-    const label = themeToggleLabel(document.documentElement.getAttribute("data-theme"));
-    themeToggle.title = label;
-    themeToggle.setAttribute("aria-label", label);
-  }
-}
-
-function initLangToggle() {
-  if (!window.I18N) return;
-  const part = code => span({ class: "lang-code", "data-lang": code }, code.toUpperCase());
-  const sync = toggle => {
-    const english = window.I18N.lang() === "en";
-    const label = english ? "Cambiar a español" : "Switch to English";
-    toggle.title = label;
-    toggle.setAttribute("aria-label", label);
-    toggle.querySelectorAll(".lang-code").forEach(node => node.classList.toggle("is-active", node.dataset.lang === window.I18N.lang()));
-  };
-  const toggle = button({
-    class: "lang-toggle",
-    type: "button",
-    onclick: () => {
-      changeLanguage(window.I18N.lang() === "en" ? "es" : "en");
-      sync(toggle);
-    }
-  }, [part("es"), part("en")]);
-  sync(toggle);
-  document.body.appendChild(toggle);
 }
 
 function selectedChallenge() {
@@ -6942,6 +6946,7 @@ function publicHeader() {
         // Dentro de la app de escritorio no tiene sentido ofrecer descargarla.
         IS_DESKTOP_APP ? null : h("a", { href: "#descargar", class: publicScreen === "download" ? "is-current" : "", onclick: event => { event.preventDefault(); goToDownload(); } }, "Descargar")
       ]),
+      prefControls("pref-public"),
       div({ class: "public-actions" }, [
         button({ class: "ghost-action", type: "button", onclick: () => goToAuth("login") }, "Iniciar sesión"),
         button({ class: "primary-action", type: "button", onclick: () => goToAuth("register") }, "Crear cuenta")
@@ -7174,6 +7179,7 @@ function loginView() {
   if (registering) meter = passwordMeter(accountData);
   return div({ class: "login-shell login-single" }, [
     div({ class: "login-panel auth-card" }, [
+      prefControls("pref-auth"),
       button({ class: "ghost-action back-action", type: "button", onclick: backToLanding }, "← Inicio"),
       div({ class: "brand-block login-brand" }, [brandLogo("brand-logo-lg"), div({}, [span({ class: "ctf-pill" }, "WIRELESS CTF"), h("p", { class: "muted" }, "Professional wireless-security learning range")])]),
       div({ class: "auth-tabs", role: "tablist" }, [
@@ -7204,6 +7210,7 @@ function voucherView() {
   let voucher;
   return div({ class: "login-shell login-single" }, [
     div({ class: "login-panel auth-card" }, [
+      prefControls("pref-auth"),
       div({ class: "brand-block login-brand" }, [brandLogo("brand-logo-lg"), div({}, [span({ class: "ctf-pill" }, "WIRELESS CTF"), h("p", { class: "muted" }, "Verificación de administrador")])]),
       h("form", { class: "login-form", onsubmit: submitVoucher }, [
         h("label", {}, ["Voucher de administrador", div({ class: "field-shell" }, [
@@ -7226,6 +7233,7 @@ function verifyView() {
   const isLogin = pendingAuth.kind === "login";
   return div({ class: "login-shell login-single" }, [
     div({ class: "login-panel auth-card" }, [
+      prefControls("pref-auth"),
       div({ class: "brand-block login-brand" }, [brandLogo("brand-logo-lg"), div({}, [span({ class: "ctf-pill" }, "WIRELESS CTF"), h("p", { class: "muted" }, isLogin ? "Verificación en dos pasos" : "Verificación de correo institucional")])]),
       div({ class: "verify-banner" }, [
         span({ class: "role-badge" }, roleLabel(pendingAuth.role)),
@@ -7288,8 +7296,10 @@ function header() {
         }, [span({}, "Más"), span({ class: "nav-more-caret", "aria-hidden": "true" }, moreMenuOpen ? "▴" : "▾")]),
         moreMenuOpen ? div({ class: "nav-more-menu" }, moreItems.map(([id, label]) => button({ class: activeGroup === id ? "nav-active" : "", onclick: () => switchTab(id) }, label))) : null
       ]) : null,
-      moreMenuOpen ? div({ class: "nav-more-scrim", onclick: () => { moreMenuOpen = false; render(); } }, []) : null
+      moreMenuOpen ? div({ class: "nav-more-scrim", onclick: () => { moreMenuOpen = false; render(); } }, []) : null,
+      prefControls("pref-in-menu")
     ]),
+    prefControls("pref-in-bar"),
     div({ class: `account-chip ${!isManagementView && app.activeTab === "perfil" ? "chip-active" : ""}` }, [
       // Para el jugador, avatar + nombre abren su Progreso.
       (isManagementView ? div : button)({
@@ -11868,6 +11878,7 @@ function forcedPasswordView() {
   };
   return div({ class: "login-shell login-single" }, [
     div({ class: "login-panel auth-card" }, [
+      prefControls("pref-auth"),
       h("p", { class: "eyebrow" }, "seguridad"),
       h("h2", {}, "Cambia tu contraseña temporal"),
       h("p", { class: "muted" }, "Un administrador te dio una contraseña temporal. Define una nueva para continuar."),
@@ -11895,8 +11906,7 @@ function backToLanding() {
   render();
 }
 
-initThemeToggle();
-initLangToggle();
+initTheme();
 setInterval(updateResendCountdown, 1000); // no-op cuando no hay pantalla de verificación montada
 // wispr.training/#descargar abre directo la página de descarga (enlace para compartir).
 if (location.hash === "#descargar" && !IS_DESKTOP_APP) publicScreen = "download";
